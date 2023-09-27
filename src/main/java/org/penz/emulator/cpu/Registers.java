@@ -115,4 +115,45 @@ public class Registers {
     public void setPc(short pc) {
         this.pc = pc;
     }
+
+    public Flags getFlags() {
+        return flags;
+    }
+
+    public short getAF() {
+        return BitUtil.to16Bit(a, flags.getFlags());
+    }
+
+    public void setAF(short value) {
+        a = (byte) (value >> 8);
+        flags.setFlags((byte) (value & 0xFF));
+    }
+
+    public short getBC() {
+        return BitUtil.to16Bit(b, c);
+    }
+
+    public void setBC(short value) {
+        b = (byte) (value >> 8);
+        c = (byte) (value & 0xFF);
+    }
+
+    public short getDE() {
+        return BitUtil.to16Bit(d, e);
+    }
+
+    public void setDE(short value) {
+        d = (byte) (value >> 8);
+        e = (byte) (value & 0xFF);
+    }
+
+    public short getHL() {
+        return BitUtil.to16Bit(h, l);
+    }
+
+    public void setHL(short value) {
+        h = (byte) (value >> 8);
+        l = (byte) (value & 0xFF);
+    }
+
 }

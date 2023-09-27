@@ -32,4 +32,8 @@ public final class BitUtil {
     public static boolean getBit(int value, int bitPosition) {
         return ((value >> bitPosition) & 1) == 1;
     }
+
+    public static short to16Bit(byte high, byte low) {
+        return (short) ((high << 8) | low);
+    }
 }
