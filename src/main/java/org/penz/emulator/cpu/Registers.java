@@ -28,6 +28,14 @@ public class Registers {
 
     }
 
+    /**
+     * Get the next program counter value and increment it
+     * @return
+     */
+    public int getAndIncrementPC() {
+        return pc++;
+    }
+
     public void incrementPC() {
         pc = (short) ((pc + 1) & Constants.BIT_16_MAX_VALUE);
     }
