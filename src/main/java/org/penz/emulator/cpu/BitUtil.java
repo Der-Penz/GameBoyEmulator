@@ -2,6 +2,9 @@ package org.penz.emulator.cpu;
 
 public final class BitUtil {
 
+    private BitUtil() {
+    }
+
     public static boolean getMSB(byte value) {
         return ((value & 0x80) >> 7) == 1;
     }
