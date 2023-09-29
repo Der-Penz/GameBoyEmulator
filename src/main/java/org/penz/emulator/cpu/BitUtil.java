@@ -66,12 +66,12 @@ public final class BitUtil {
         return shiftLeft(high, 1) | low;
     }
 
-    public static int shiftLeft(int value, int numberOfBits) {
-        return value << numberOfBits & Constants.BYTE_SIZE;
+    public static int shiftLeft(int value, int numberOfBytes) {
+        return value << (numberOfBytes & Constants.BYTE_SIZE);
     }
 
-    public static int shiftRight(int value, int numberOfBits) {
-        return value >> numberOfBits & Constants.BYTE_SIZE;
+    public static int shiftRight(int value, int numberOfBytes) {
+        return value >> (numberOfBytes & Constants.BYTE_SIZE);
     }
 
     /**
