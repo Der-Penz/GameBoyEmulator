@@ -14,14 +14,14 @@ public class Registers {
      * H - General purpose
      * L - General purpose
      */
-    private byte a, b, c, d, e, h, l;
+    private int a, b, c, d, e, h, l;
 
     /**
      * 8 Bit flags register
      */
     private final Flags flags = new Flags();
-    private short sp;
-    private short pc;
+    private int sp;
+    private int pc;
 
     public Registers() {
         this.pc = 0x0000;
@@ -29,98 +29,98 @@ public class Registers {
     }
 
     /**
-     * Get the next program counter value and increment it
-     * @return
+     * Get the current program counter value and increment it
+     * @return current program counter value
      */
-    public int getAndIncrementPC() {
+    public int getAndIncPC() {
         return pc++;
     }
 
     public void incrementPC() {
-        pc = (short) ((pc + 1) & Constants.BIT_16_MAX_VALUE);
+        pc = ((pc + 1) & Constants.WORD_MAX_VALUE);
     }
 
     public void decrementPC() {
-        pc = (short) ((pc - 1) & Constants.BIT_16_MAX_VALUE);
+        pc = ((pc - 1) & Constants.WORD_MAX_VALUE);
     }
 
     public void incrementSP() {
-        sp = (short) ((sp + 1) & Constants.BIT_16_MAX_VALUE);
+        sp = ((sp + 1) & Constants.WORD_MAX_VALUE);
     }
 
     public void decrementSP() {
-        sp = (short) ((sp - 1) & Constants.BIT_16_MAX_VALUE);
+        sp = ((sp - 1) & Constants.WORD_MAX_VALUE);
     }
 
-    public byte getA() {
+    public int getA() {
         return a;
     }
 
-    public void setA(byte a) {
+    public void setA(int a) {
         this.a = a;
     }
 
-    public byte getB() {
+    public int getB() {
         return b;
     }
 
-    public void setB(byte b) {
+    public void setB(int b) {
         this.b = b;
     }
 
-    public byte getC() {
+    public int getC() {
         return c;
     }
 
-    public void setC(byte c) {
+    public void setC(int c) {
         this.c = c;
     }
 
-    public byte getD() {
+    public int getD() {
         return d;
     }
 
-    public void setD(byte d) {
+    public void setD(int d) {
         this.d = d;
     }
 
-    public byte getE() {
+    public int getE() {
         return e;
     }
 
-    public void setE(byte e) {
+    public void setE(int e) {
         this.e = e;
     }
 
-    public byte getH() {
+    public int getH() {
         return h;
     }
 
-    public void setH(byte h) {
+    public void setH(int h) {
         this.h = h;
     }
 
-    public byte getL() {
+    public int getL() {
         return l;
     }
 
-    public void setL(byte l) {
+    public void setL(int l) {
         this.l = l;
     }
 
-    public short getSp() {
+    public int getSp() {
         return sp;
     }
 
-    public void setSp(short sp) {
+    public void setSp(int sp) {
         this.sp = sp;
     }
 
-    public short getPc() {
+    public int getPc() {
         return pc;
     }
 
-    public void setPc(short pc) {
+    public void setPc(int pc) {
         this.pc = pc;
     }
 
@@ -128,40 +128,40 @@ public class Registers {
         return flags;
     }
 
-    public short getAF() {
-        return BitUtil.to16Bit(a, flags.getFlags());
+    public int getAF() {
+        return BitUtil.toWord(a, flags.getFlags());
     }
 
-    public void setAF(short value) {
-        a = (byte) (value >> 8);
-        flags.setFlags((byte) (value & 0xFF));
+    public void setAF(int value) {
+        a = BitUtil.shiftRight(value, 1);
+        flags.setFlags((byte) (value & Constants.BYTE_MAX_VALUE));
     }
 
-    public short getBC() {
-        return BitUtil.to16Bit(b, c);
+    public int getBC() {
+        return BitUtil.toWord(b, c);
     }
 
-    public void setBC(short value) {
-        b = (byte) (value >> 8);
-        c = (byte) (value & 0xFF);
+    public void setBC(int value) {
+        b = BitUtil.shiftRight(value, 1);
+        c = value & Constants.BYTE_MAX_VALUE;
     }
 
-    public short getDE() {
-        return BitUtil.to16Bit(d, e);
+    public int getDE() {
+        return BitUtil.toWord(d, e);
     }
 
-    public void setDE(short value) {
-        d = (byte) (value >> 8);
-        e = (byte) (value & 0xFF);
+    public void setDE(int value) {
+        d = BitUtil.shiftRight(value, 1);
+        e = value & Constants.BYTE_MAX_VALUE;
     }
 
-    public short getHL() {
-        return BitUtil.to16Bit(h, l);
+    public int getHL() {
+        return BitUtil.toWord(h, l);
     }
 
-    public void setHL(short value) {
-        h = (byte) (value >> 8);
-        l = (byte) (value & 0xFF);
+    public void setHL(int value) {
+        h = BitUtil.shiftRight(value, 1);
+        l = value & Constants.BYTE_MAX_VALUE;
     }
 
 }
