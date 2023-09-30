@@ -1,5 +1,7 @@
 package org.penz.emulator.cpu;
 
+import org.penz.emulator.memory.AddressSpace;
+
 public class Cpu {
 
     /**
@@ -7,8 +9,11 @@ public class Cpu {
      */
     private final Registers registers;
 
-    public Cpu(){
+    private final AddressSpace memory;
+
+    public Cpu(AddressSpace memory) {
         this.registers = new Registers();
+        this.memory = memory;
     }
 
     public Registers getRegisters() {
