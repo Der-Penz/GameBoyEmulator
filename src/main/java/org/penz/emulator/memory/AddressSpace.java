@@ -16,7 +16,7 @@ public interface AddressSpace {
      * Write a byte to the given address
      * @param address to write to
      */
-    void writeByte(int address);
+    void writeByte(int address, int value);
 
     /**
      * Read a byte from the given address

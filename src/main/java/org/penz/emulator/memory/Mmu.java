@@ -29,7 +29,7 @@ public class Mmu implements AddressSpace {
         }
 
         @Override
-        public void writeByte(int address) {
+        public void writeByte(int address, int value) {
         }
 
         @Override
@@ -91,8 +91,8 @@ public class Mmu implements AddressSpace {
     }
 
     @Override
-    public void writeByte(int address) {
-        getMemoryBank(address).writeByte(address);
+    public void writeByte(int address, int value) {
+        getMemoryBank(address).writeByte(address, value);
     }
 
     @Override
