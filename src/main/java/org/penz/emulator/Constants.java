@@ -14,4 +14,6 @@ public class Constants {
     public static final int LSB_MASK = 0x00FF;
 
     public static final int BYTE_SIZE = 8;
+
+    public static final String GB_BOOT_ROM_PATH = "src/main/resources/bootrom_gb.bin";
 }
