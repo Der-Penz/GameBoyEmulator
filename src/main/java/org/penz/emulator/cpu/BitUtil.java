@@ -67,11 +67,11 @@ public final class BitUtil {
     }
 
     public static int shiftLeft(int value, int numberOfBytes) {
-        return value << (numberOfBytes & Constants.BYTE_SIZE);
+        return value << (numberOfBytes * Constants.BYTE_SIZE);
     }
 
     public static int shiftRight(int value, int numberOfBytes) {
-        return value >> (numberOfBytes & Constants.BYTE_SIZE);
+        return value >> (numberOfBytes * Constants.BYTE_SIZE);
     }
 
     /**
