@@ -1,15 +1,20 @@
-package org.penz.emulator.cpu.instructions;
+package org.penz.emulator.cpu.opcode.instructions.misc;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
+import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
+/**
+ * No operation instruction
+ * CPU idles for 4 cycles
+ */
 public class NopInstruction extends OpCode {
 
     private int cycles;
 
     public NopInstruction() {
-        super(0x00, "NOP", 4, new DataType[]{});
+        super(0x00, "NOP", 4);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.penz.emulator.cpu;
 
 import org.penz.emulator.Constants;
-import org.penz.emulator.cpu.instructions.DataType;
+import org.penz.emulator.cpu.opcode.DataType;
 
 import java.util.HashMap;
 import java.util.Map;

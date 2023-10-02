@@ -1,9 +1,9 @@
-package org.penz.emulator.cpu.instructions.load;
+package org.penz.emulator.cpu.opcode.instructions.load;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
-import org.penz.emulator.cpu.instructions.DataType;
-import org.penz.emulator.cpu.instructions.OpCode;
+import org.penz.emulator.cpu.opcode.DataType;
+import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**

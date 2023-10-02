@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.instructions;
+package org.penz.emulator.cpu.opcode;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -35,6 +35,13 @@ public abstract class OpCode {
         this.name = name;
         this.cycles = cycles;
         this.argsType = argsType;
+    }
+
+    public OpCode(int opcode, String name, int cycles) {
+        this.opcode = opcode;
+        this.name = name;
+        this.cycles = cycles;
+        this.argsType = new DataType[0];
     }
 
     /**

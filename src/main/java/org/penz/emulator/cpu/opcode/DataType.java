@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.instructions;
+package org.penz.emulator.cpu.opcode;
 
 public enum DataType {
     /**
