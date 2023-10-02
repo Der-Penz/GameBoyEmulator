@@ -59,6 +59,7 @@ public class Mmu implements AddressSpace {
             for (AddressSpace space : memoryBanks) {
                 if (space.accepts(i)) {
                     addressToBank[i] = space;
+                    break;
                 }
             }
         }
@@ -73,8 +74,12 @@ public class Mmu implements AddressSpace {
      * @throws IllegalStateException    if the address is not accepted by any memory bank (this should never happen, it means the MMU is not properly indexed)
      */
     public AddressSpace getMemoryBank(int address) {
+        if (addressToBank == null) {
+            throw new IllegalStateException("Memory is not indexed, make sure to call indexBanks() after adding all memory banks");
+        }
+
         if (!accepts(address)) {
-            throw new IllegalArgumentException(String.format("Address %04X is not accepted by any memory bank", address));
+            throw new IllegalArgumentException(String.format("Address %04X is not accepted by mmu", address));
         }
 
         AddressSpace bank = addressToBank[address];
@@ -87,7 +92,7 @@ public class Mmu implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        return address > 0x0 && address < Constants.WORD_MAX_VALUE;
+        return address >= 0x0 && address <= Constants.WORD_MAX_VALUE;
     }
 
     @Override

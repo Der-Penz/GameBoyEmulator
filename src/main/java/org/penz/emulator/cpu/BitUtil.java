@@ -97,4 +97,18 @@ public final class BitUtil {
             throw new IllegalArgumentException(String.format("Value %d is not a word (0x0000 - 0xFFFF)", value));
         }
     }
+
+    /**
+     * Convert a unsigned byte to a signed byte
+     *
+     * @param value unsigned byte
+     * @return signed byte
+     */
+    public static int toSignedByte(int value) {
+        if (getBit(value, 7)) {
+            return value - 0x100;
+        } else {
+            return value;
+        }
+    }
 }

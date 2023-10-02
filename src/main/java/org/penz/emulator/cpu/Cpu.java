@@ -126,7 +126,6 @@ public class Cpu {
 
     /**
      * Execute a single instruction
-     *
      * @param opCode The opcode to execute
      * @return The number of cycles the instruction took to execute
      */
@@ -143,6 +142,11 @@ public class Cpu {
                     int high = memory.readByte(registers.getAndIncPC());
 
                     args[i] = BitUtil.toWord(high, low);
+                }
+                case r8 -> {
+                    int offset = memory.readByte(registers.getAndIncPC());
+
+                    args[i] = BitUtil.toSignedByte(offset);
                 }
                 default -> throw new IllegalArgumentException("Unknown data type: " + dataType);
 
