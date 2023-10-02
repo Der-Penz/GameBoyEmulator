@@ -17,7 +17,7 @@ public class LoadSPWordInstruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.setSp(args[0]);
+        registers.setSP(args[0]);
         return cycles;
     }
 }

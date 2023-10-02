@@ -108,19 +108,19 @@ public class Registers {
         this.l = l;
     }
 
-    public int getSp() {
+    public int getSP() {
         return sp;
     }
 
-    public void setSp(int sp) {
+    public void setSP(int sp) {
         this.sp = sp;
     }
 
-    public int getPc() {
+    public int getPC() {
         return pc;
     }
 
-    public void setPc(int pc) {
+    public void setPC(int pc) {
         this.pc = pc;
     }
 
