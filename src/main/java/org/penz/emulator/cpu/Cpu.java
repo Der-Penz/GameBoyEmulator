@@ -23,6 +23,8 @@ public class Cpu {
 
     private final Map<Integer, OpCode> chipset = new HashMap<>();
 
+    private final Map<Integer, OpCode> bitChipset = new HashMap<>();
+
     {
         getOpcodesClasses().forEach(this::registerOpcodeInChipset);
     }
@@ -86,7 +88,13 @@ public class Cpu {
 
         try {
             OpCode instruction = (OpCode) instructionClass.getDeclaredConstructors()[0].newInstance();
-            chipset.put(instruction.getOpcode(), instruction);
+
+            if (instruction.isBitInstruction()) {
+                bitChipset.put(instruction.getOpcode(), instruction);
+            } else {
+                chipset.put(instruction.getOpcode(), instruction);
+            }
+
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -95,17 +103,19 @@ public class Cpu {
     /**
      * Get the opcode from the chipset
      *
-     * @param opcode The opcode as integer
+     * @param opcode           The opcode as integer
+     * @param isBitInstruction if the opcode is a bit instruction (CB prefix)
      * @return OpCode instance
      * @throws IllegalArgumentException if the opcode is not supported in this chipset
      */
-    public OpCode getOpcode(int opcode) {
-        OpCode instruction = chipset.get(opcode);
+    public OpCode getOpcode(int opcode, boolean isBitInstruction) {
+
+        OpCode instruction = isBitInstruction ? bitChipset.get(opcode) : chipset.get(opcode);
 
         if (instruction == null) {
-            throw new IllegalArgumentException(String.format("Unknown opcode: 0x%02X - not supported in this chipset", opcode));
+            throw new IllegalArgumentException(String.format("Unknown opcode:" + (isBitInstruction ? "CB " : " ") + "0x%02X - not supported in this chipset", opcode));
         }
-        return chipset.get(opcode);
+        return instruction;
     }
 
     public Cpu(AddressSpace memory) {
@@ -116,6 +126,7 @@ public class Cpu {
 
     /**
      * Execute a single instruction
+     *
      * @param opCode The opcode to execute
      * @return The number of cycles the instruction took to execute
      */
@@ -145,7 +156,13 @@ public class Cpu {
      */
     public void tick() {
         int opcode = memory.readByte(registers.getAndIncPC());
-        OpCode instruction = getOpcode(opcode);
+
+        // CB prefix means bit instructions
+        boolean isBitInstruction = opcode == 0xCB;
+        if (isBitInstruction) {
+            opcode = memory.readByte(registers.getAndIncPC());
+        }
+        OpCode instruction = getOpcode(opcode, isBitInstruction);
         int cycles = executeInstruction(instruction);
     }
 

@@ -52,6 +52,10 @@ public abstract class OpCode {
      */
     public abstract int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args);
 
+    public boolean isBitInstruction() {
+        return false;
+    }
+
     @Override
     public String toString() {
         return String.format("OpCode: %s 0x%02X: %d", this.name, this.opcode, this.cycles);
