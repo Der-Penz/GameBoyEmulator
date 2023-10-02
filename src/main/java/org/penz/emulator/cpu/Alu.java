@@ -46,6 +46,7 @@ public class Alu {
      */
     public BiAluOperation getOperation(String name, DataType dataType, DataType dataType2) {
         AluFunctionType functionType = new AluFunctionType(name, dataType, dataType2);
+
         BiAluOperation operation = biOperations.get(functionType);
         if (operation == null) {
             throw new IllegalArgumentException("Unknown Alu operation: " + functionType);
@@ -247,7 +248,7 @@ public class Alu {
         });
 
 //      complement accumulator
-        registerFunction("CPL ", DataType.d8, (flags, a) -> {
+        registerFunction("CPL", DataType.d8, (flags, a) -> {
             flags.setN(true);
             flags.setH(true);
 
@@ -279,9 +280,7 @@ public class Alu {
         }
 
         public AluFunctionType(String name, DataType type1) {
-            this.name = name;
-            this.type1 = type1;
-            this.type2 = null;
+            this(name, type1, null);
         }
 
         public String getName() {
@@ -298,6 +297,11 @@ public class Alu {
 
         public String toString() {
             return String.format("AluFunctionType: %s-%s-%s", this.name, this.type1, this.type2);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, type1, type2);
         }
 
         @Override
