@@ -1,6 +1,8 @@
 package org.penz.emulator.memory.cartridge;
 
 import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.memory.cartridge.type.Mbc1;
+import org.penz.emulator.memory.cartridge.type.Rom;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -9,10 +11,25 @@ import java.io.IOException;
 
 public class Cartridge implements AddressSpace {
 
-    private final int[] data;
+    private final int[] rawData;
+
+    private final AddressSpace data;
 
     public Cartridge(File romFile) throws IOException {
-        this.data = loadRom(romFile);
+        this.rawData = loadRom(romFile);
+
+        CartridgeType type = this.getCartridgeType();
+
+        if (type.isMbc1()) {
+            data = new Mbc1(rawData, getRomSize().numberOfBanks(), getRamSize().numberOfBanks());
+        } else {
+            if (type == CartridgeType.ROM) {
+                data = new Rom(rawData);
+            } else {
+                throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
+            }
+        }
+
     }
 
     /**
@@ -50,17 +67,17 @@ public class Cartridge implements AddressSpace {
     @Override
     public boolean accepts(int address) {
         //TODO implement cartridge memory bank switching and correct address range
-        return address >= 0x0100 && address <= 0x7FFF;
+        return data.accepts(address);
     }
 
     @Override
     public void writeByte(int address, int value) {
-        data[address] = value;
+        data.writeByte(address, value);
     }
 
     @Override
     public int readByte(int address) {
-        return data[address];
+        return data.readByte(address);
     }
 
     /**
@@ -72,7 +89,7 @@ public class Cartridge implements AddressSpace {
         int length = 15;
         int start = 0x134;
 
-        return new String(data, start, length).trim();
+        return new String(rawData, start, length).trim();
     }
 
     /**
@@ -82,18 +99,27 @@ public class Cartridge implements AddressSpace {
      */
     public CGBFlag isColorGameBoy() {
         int colorGameBoyFlag = 0x143;
-        return CGBFlag.fromValue(data[colorGameBoyFlag]);
+        return CGBFlag.fromValue(rawData[colorGameBoyFlag]);
     }
 
     public ROMSize getRomSize() {
         int romSizePos = 0x148;
-        return ROMSize.fromValue(data[romSizePos]);
+        return ROMSize.fromValue(rawData[romSizePos]);
+    }
+
+    public RAMSize getRamSize() {
+        int ramSizePos = 0x149;
+        return RAMSize.fromValue(rawData[ramSizePos]);
     }
 
     public DestinationCode getDestinationCode() {
         int destinationCodePos = 0x14A;
-        return DestinationCode.fromValue(data[destinationCodePos]);
+        return DestinationCode.fromValue(rawData[destinationCodePos]);
     }
 
+    public CartridgeType getCartridgeType() {
+        int cartridgeTypePos = 0x147;
+        return CartridgeType.fromValue(rawData[cartridgeTypePos]);
+    }
 }
 

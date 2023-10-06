@@ -77,7 +77,7 @@ public enum CartridgeType {
         return p.matcher(name()).find();
     }
 
-    public static CartridgeType getById(int id) {
+    public static CartridgeType fromValue(int id) {
         for (CartridgeType t : values()) {
             if (t.id == id) {
                 return t;
