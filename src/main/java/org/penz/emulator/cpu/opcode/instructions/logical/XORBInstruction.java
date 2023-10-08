@@ -19,7 +19,7 @@ public class XORBInstruction extends OpCode {
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("XOR", DataType.d8, DataType.d8);
 
-        registers.setB(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getB()));
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getB()));
 
         return cycles;
     }
