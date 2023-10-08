@@ -38,8 +38,8 @@ public enum ROMSize {
     }
 
     public int numberOfBanks() {
-        int ROM_BANK_SIZE = 16 * 1024;
         return size / ROM_BANK_SIZE;
     }
 
+    public static final int ROM_BANK_SIZE = 16 * 1024;
 }

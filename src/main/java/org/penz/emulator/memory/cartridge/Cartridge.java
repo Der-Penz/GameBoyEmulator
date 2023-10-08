@@ -33,8 +33,7 @@ public class Cartridge implements AddressSpace {
     }
 
     /**
-     * Load a rom file
-     *
+     * Loads a rom file
      * @param toLoad the rom file to load, either a .gb or .zip file
      * @return the rom data as an array of bytes
      * @throws IOException if an error occurs while loading the rom file

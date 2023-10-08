@@ -31,7 +31,9 @@ public enum RAMSize {
     }
 
     public int numberOfBanks() {
-        final int RAM_BANK_SIZE = 8 * 1024;
         return size / RAM_BANK_SIZE;
     }
+
+
+    public static final int RAM_BANK_SIZE = 8 * 1024;
 }
