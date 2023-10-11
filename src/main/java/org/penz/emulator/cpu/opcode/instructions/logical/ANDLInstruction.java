@@ -12,9 +12,8 @@ import org.penz.emulator.memory.AddressSpace;
 public class ANDLInstruction extends OpCode {
 
     public ANDLInstruction() {
-        super(0xA7, "AND L", 4);
+        super(0xA5, "AND L", 4);
     }
-
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
 
