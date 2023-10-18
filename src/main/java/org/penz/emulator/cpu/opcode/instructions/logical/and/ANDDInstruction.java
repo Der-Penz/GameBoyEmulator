@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.logical;
+package org.penz.emulator.cpu.opcode.instructions.logical.and;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -7,17 +7,17 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * XOR accumulator with register D
+ * AND accumulator with register D
  */
-public class XORDInstruction extends OpCode {
+public class ANDDInstruction extends OpCode {
 
-    public XORDInstruction() {
-        super(0xAA, "XOR D", 4);
+    public ANDDInstruction() {
+        super(0xA2, "AND D", 4);
     }
-
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        var aluOperation = alu.getOperation("XOR", DataType.d8, DataType.d8);
+
+        var aluOperation = alu.getOperation("AND", DataType.d8, DataType.d8);
 
         registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getD()));
 

@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.logical;
+package org.penz.emulator.cpu.opcode.instructions.logical.and;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -7,19 +7,19 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * AND accumulator with register L
+ * AND accumulator with register B
  */
-public class ANDLInstruction extends OpCode {
+public class ANDBInstruction extends OpCode {
 
-    public ANDLInstruction() {
-        super(0xA5, "AND L", 4);
+    public ANDBInstruction() {
+        super(0xA0, "AND B", 4);
     }
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
 
         var aluOperation = alu.getOperation("AND", DataType.d8, DataType.d8);
 
-        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getL()));
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getB()));
 
         return cycles;
     }

@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.logical;
+package org.penz.emulator.cpu.opcode.instructions.logical.xor;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -7,21 +7,20 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * XOR accumulator with register C
+ * XOR accumulator with value of the address the register HL points to
  */
-public class XORCInstruction extends OpCode {
+public class XORHLAddrInstruction extends OpCode {
 
-    public XORCInstruction() {
-        super(0xA9, "XOR C", 4);
+    public XORHLAddrInstruction() {
+        super(0xAE, "XOR (HL)", 4);
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("XOR", DataType.d8, DataType.d8);
 
-        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.getC()));
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), addressSpace.readByte(registers.getHL())));
 
         return cycles;
     }
 }
-
