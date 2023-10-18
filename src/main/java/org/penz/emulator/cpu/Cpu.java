@@ -1,5 +1,6 @@
 package org.penz.emulator.cpu;
 
+import org.apache.commons.io.FileUtils;
 import org.penz.emulator.Constants;
 import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
@@ -42,31 +43,23 @@ public class Cpu {
         if (resource != null) {
             File directory = new File(resource.getFile());
 
-            if (directory.exists()) {
-                File[] files = directory.listFiles();
-
-                if (files != null) {
-                    for (File dir : files) {
-
-                        if (dir.exists() && dir.isDirectory()) {
-
-                            for (File file : Objects.requireNonNull(dir.listFiles())) {
-
-                                String fileName = file.getName();
-                                if (fileName.endsWith(".class")) {
-                                    String className = moduleName + '.' + dir.getName() + '.' + fileName.substring(0, fileName.length() - 6);
-                                    try {
-                                        Class<?> clazz = Class.forName(className);
-                                        classes.add(clazz);
-                                    } catch (ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if (!directory.exists()) {
+                throw new RuntimeException("Directory does not exist: " + directory);
             }
+
+            var allFiles = FileUtils.listFiles(directory, new String[]{"class"}, true);
+            allFiles.forEach((file) -> {
+                //full classname without .class extension
+                String moduleFullPath = file.getPath().replace(File.separator, ".");
+                String modulePath = moduleFullPath.substring(moduleFullPath.indexOf("org."),  moduleFullPath.length() - 6);
+                try {
+                    Class<?> clazz = Class.forName(modulePath);
+                    classes.add(clazz);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+
+                }
+            });
         }
 
         return classes;
@@ -126,6 +119,7 @@ public class Cpu {
 
     /**
      * Execute a single instruction
+     *
      * @param opCode The opcode to execute
      * @return The number of cycles the instruction took to execute
      */
