@@ -11,7 +11,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class LoadBHLInstruction extends OpCode {
 
     public LoadBHLInstruction() {
-        super(0x46, "LD B, H", 8);
+        super(0x46, "LD B, (HL)", 8);
     }
 
     @Override

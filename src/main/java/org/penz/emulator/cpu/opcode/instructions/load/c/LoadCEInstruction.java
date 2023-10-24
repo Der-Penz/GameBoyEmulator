@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.load.b;
+package org.penz.emulator.cpu.opcode.instructions.load.c;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -6,17 +6,17 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * Load register A into register B
+ * Load register E into register C
  */
-public class LoadBAInstruction extends OpCode {
+public class LoadCEInstruction extends OpCode {
 
-    public LoadBAInstruction() {
-        super(0x47, "LD B, A", 4);
+    public LoadCEInstruction() {
+        super(0x4B, "LD C, E", 4);
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.setB(registers.getA());
+        registers.setC(registers.getE());
         return cycles;
     }
 }
