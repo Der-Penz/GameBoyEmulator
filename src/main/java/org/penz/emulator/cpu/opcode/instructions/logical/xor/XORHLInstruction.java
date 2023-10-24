@@ -9,9 +9,9 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * XOR accumulator with value of the address the register HL points to
  */
-public class XORHLAddrInstruction extends OpCode {
+public class XORHLInstruction extends OpCode {
 
-    public XORHLAddrInstruction() {
+    public XORHLInstruction() {
         super(0xAE, "XOR (HL)", 4);
     }
 
