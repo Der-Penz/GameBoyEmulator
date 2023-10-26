@@ -8,6 +8,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Load A into address pointed by HL and decrement HL
  */
+@SuppressWarnings("unused")
 public class LoadDecHLAddressAInstruction extends OpCode {
 
     public LoadDecHLAddressAInstruction() {

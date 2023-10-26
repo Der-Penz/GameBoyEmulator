@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Load immediate word into HL
  */
+@SuppressWarnings("unused")
 public class LoadHLWordInstruction extends OpCode {
 
     public LoadHLWordInstruction() {

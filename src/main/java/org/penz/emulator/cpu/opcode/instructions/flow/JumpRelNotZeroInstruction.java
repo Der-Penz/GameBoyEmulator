@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Jump relative if z flag is not set
  */
+@SuppressWarnings("unused")
 public class JumpRelNotZeroInstruction extends OpCode {
 
     public JumpRelNotZeroInstruction() {

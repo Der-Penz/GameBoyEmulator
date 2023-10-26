@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Copy 16 bit immediate value to stack pointer (SP)
  */
+@SuppressWarnings("unused")
 public class LoadSPWordInstruction extends OpCode {
 
     public LoadSPWordInstruction() {

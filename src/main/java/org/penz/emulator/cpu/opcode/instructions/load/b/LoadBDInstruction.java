@@ -8,6 +8,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Load register D into register B
  */
+@SuppressWarnings("unused")
 public class LoadBDInstruction extends OpCode {
 
     public LoadBDInstruction() {

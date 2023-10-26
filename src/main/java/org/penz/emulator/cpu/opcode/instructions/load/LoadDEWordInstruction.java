@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Load immediate word into DE
  */
+@SuppressWarnings("unused")
 public class LoadDEWordInstruction extends OpCode {
     public LoadDEWordInstruction() {
         super(0x11, "LD DE, D16", 12, new DataType[]{DataType.d16});

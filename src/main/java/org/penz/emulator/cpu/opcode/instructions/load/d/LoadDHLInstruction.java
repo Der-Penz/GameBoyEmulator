@@ -8,6 +8,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Load the value of the address register HL points to into register D
  */
+@SuppressWarnings("unused")
 public class LoadDHLInstruction extends OpCode {
 
     public LoadDHLInstruction() {

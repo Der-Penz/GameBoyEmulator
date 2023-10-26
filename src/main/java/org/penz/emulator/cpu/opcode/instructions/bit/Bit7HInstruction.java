@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Check if bit 7 of register H is set or not and set flags accordingly
  */
+@SuppressWarnings("unused")
 public class Bit7HInstruction extends BitOpCode {
 
     public Bit7HInstruction() {

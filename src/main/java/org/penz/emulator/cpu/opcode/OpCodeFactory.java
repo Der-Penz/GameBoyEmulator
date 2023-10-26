@@ -51,33 +51,29 @@ public class OpCodeFactory {
     }
 
     public static void main(String[] args) throws IOException {
-        String content = "package org.penz.emulator.cpu.opcode.instructions.logical;\n" +
+        String content = "package org.penz.emulator.cpu.opcode.instructions.load.d;\n" +
                 "\n" +
                 "import org.penz.emulator.cpu.Alu;\n" +
                 "import org.penz.emulator.cpu.Registers;\n" +
-                "import org.penz.emulator.cpu.opcode.DataType;\n" +
                 "import org.penz.emulator.cpu.opcode.OpCode;\n" +
                 "import org.penz.emulator.memory.AddressSpace;\n" +
                 "\n" +
                 "/**\n" +
-                " * AND accumulator with register __REG__\n" +
+                " * Load register __REG__ into register D\n" +
                 " */\n" +
-                "public class AND__REG__Instruction extends OpCode {\n" +
+                "public class LoadD__REG__Instruction extends OpCode {\n" +
                 "\n" +
-                "    public AND__REG__Instruction() {\n" +
-                "        super(__OP__, \"AND __REG__\", 4);\n" +
+                "    public LoadD__REG__Instruction() {\n" +
+                "        super(__OP__, \"LD D, __REG__\", 4);\n" +
                 "    }\n" +
+                "\n" +
                 "    @Override\n" +
                 "    public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {\n" +
-                "\n" +
-                "        var aluOperation = alu.getOperation(\"AND\", DataType.d8, DataType.d8);\n" +
-                "\n" +
-                "        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA(), registers.get__REG__()));\n" +
-                "\n" +
+                "        registers.setD(registers.get__REG__());\n" +
                 "        return cycles;\n" +
                 "    }\n" +
-                "}";
+                "}\n";
 
-        createOpCodes("src/main/java/org/penz/emulator/cpu/opcode/instructions/logical", content, 0xA0, 1, "AND__REG__Instruction.java");
+        createOpCodes("src/main/java/org/penz/emulator/cpu/opcode/instructions/load/d", content, 0x50, 1, "LoadD__REG__Instruction.java");
     }
 }
