@@ -133,7 +133,7 @@ public class Registers {
     }
 
     public void setAF(int value) {
-        a = BitUtil.shiftRight(value, 1);
+        a = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
         flags.setFlags((byte) (value & Constants.BYTE_MAX_VALUE));
     }
 
@@ -142,7 +142,7 @@ public class Registers {
     }
 
     public void setBC(int value) {
-        b = BitUtil.shiftRight(value, 1);
+        b = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
         c = value & Constants.BYTE_MAX_VALUE;
     }
 
@@ -151,7 +151,7 @@ public class Registers {
     }
 
     public void setDE(int value) {
-        d = BitUtil.shiftRight(value, 1);
+        d = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
         e = value & Constants.BYTE_MAX_VALUE;
     }
 
@@ -160,7 +160,7 @@ public class Registers {
     }
 
     public void setHL(int value) {
-        h = BitUtil.shiftRight(value, 1);
+        h = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
         l = value & Constants.BYTE_MAX_VALUE;
     }
 
