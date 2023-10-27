@@ -1,24 +1,23 @@
-package org.penz.emulator.cpu.opcode.instructions.load;
+package org.penz.emulator.cpu.opcode.instructions.load.a;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
-import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * Copy 16 bit immediate value to stack pointer (SP)
+ * Load register B into register A
  */
 @SuppressWarnings("unused")
-public class LoadSPWordInstruction extends OpCode {
+public class LoadABInstruction extends OpCode {
 
-    public LoadSPWordInstruction() {
-        super(0x31, "LD SP, D16", 12, new DataType[]{DataType.d16});
+    public LoadABInstruction() {
+        super(0x78, "LD A, B", 4);
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.setSP(args[0]);
+        registers.setA(registers.getB());
         return cycles;
     }
 }

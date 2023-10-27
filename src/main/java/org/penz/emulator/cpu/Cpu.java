@@ -9,7 +9,10 @@ import org.penz.emulator.memory.AddressSpace;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Cpu {
 
@@ -131,16 +134,16 @@ public class Cpu {
 
             switch (dataType) {
                 case d8 -> args[i] = memory.readByte(registers.getAndIncPC());
-                case d16 -> {
+                case a16, d16 -> {
                     int low = memory.readByte(registers.getAndIncPC());
                     int high = memory.readByte(registers.getAndIncPC());
 
                     args[i] = BitUtil.toWord(high, low);
                 }
                 case r8 -> {
-                    int offset = memory.readByte(registers.getAndIncPC());
+                    int data = memory.readByte(registers.getAndIncPC());
 
-                    args[i] = BitUtil.toSignedByte(offset);
+                    args[i] = BitUtil.toSignedByte(data);
                 }
                 default -> throw new IllegalArgumentException("Unknown data type: " + dataType);
 

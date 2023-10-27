@@ -1,23 +1,23 @@
-package org.penz.emulator.cpu.opcode.instructions.load;
+package org.penz.emulator.cpu.opcode.instructions.load.h;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
-import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * Load immediate word into DE
+ * Load the value of the address register HL points to into register H
  */
 @SuppressWarnings("unused")
-public class LoadDEWordInstruction extends OpCode {
-    public LoadDEWordInstruction() {
-        super(0x11, "LD DE, D16", 12, new DataType[]{DataType.d16});
+public class LoadHHLInstruction extends OpCode {
+
+    public LoadHHLInstruction() {
+        super(0x66, "LD H, (HL)", 8);
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.setDE(args[0]);
+        registers.setH(addressSpace.readByte(registers.getHL()));
         return cycles;
     }
 }

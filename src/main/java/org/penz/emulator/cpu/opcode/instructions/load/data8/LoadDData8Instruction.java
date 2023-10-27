@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.load;
+package org.penz.emulator.cpu.opcode.instructions.load.data8;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -7,18 +7,18 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * Load immediate word into HL
+ * Load immediate 8 bit data into register D
  */
 @SuppressWarnings("unused")
-public class LoadHLWordInstruction extends OpCode {
+public class LoadDData8Instruction extends OpCode {
 
-    public LoadHLWordInstruction() {
-        super(0x21, "LD HL, D16", 12, new DataType[]{DataType.d16});
+    public LoadDData8Instruction() {
+        super(0x16, "LD D, d8", 8, new DataType[]{DataType.d8});
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.setHL(args[0]);
+        registers.setD(args[0]);
         return cycles;
     }
 }

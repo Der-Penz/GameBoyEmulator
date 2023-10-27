@@ -61,7 +61,7 @@ public class Alu {
      * @param dataType  the data type of the argument
      * @param operation the operation to perform
      */
-    public void registerFunction(String name, DataType dataType, AluOperation operation) {
+    private void registerFunction(String name, DataType dataType, AluOperation operation) {
         operations.put(new AluFunctionType(name, dataType), operation);
     }
 
@@ -72,7 +72,7 @@ public class Alu {
      * @param dataType  the data type of the first argument
      * @param operation the operation to perform
      */
-    public void registerFunction(String name, DataType dataType, DataType dataType2, BiAluOperation operation) {
+    private void registerFunction(String name, DataType dataType, DataType dataType2, BiAluOperation operation) {
         biOperations.put(new AluFunctionType(name, dataType, dataType2), operation);
     }
 
@@ -318,11 +318,27 @@ public class Alu {
 
     @FunctionalInterface
     public interface AluOperation {
+
+        /**
+         * Perform an operation on the ALU for a single argument
+         *
+         * @param flags to set the flags
+         * @param a     the argument
+         * @return the result of the operation
+         */
         int apply(Flags flags, int a);
     }
 
     @FunctionalInterface
     public interface BiAluOperation {
+
+        /**
+         * Perform an operation on the ALU for two arguments
+         * @param flags to set the flags
+         * @param a the first argument
+         * @param b the second argument
+         * @return the result of the operation
+         */
         int apply(Flags flags, int a, int b);
     }
 }
