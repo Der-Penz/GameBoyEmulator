@@ -149,6 +149,7 @@ public class Cpu {
 
             }
         }
+        //TODO add timing to instructions to have accurate memory timings
         return opCode.execute(registers, memory, alu, args);
     }
 

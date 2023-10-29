@@ -111,4 +111,8 @@ public final class BitUtil {
             return value;
         }
     }
+
+    public static int toByte(int value) {
+        return value & Constants.BYTE_MAX_VALUE;
+    }
 }

@@ -316,6 +316,9 @@ public class Alu {
 
     }
 
+    /**
+     * A one argument operation for the ALU
+     */
     @FunctionalInterface
     public interface AluOperation {
 
@@ -329,6 +332,9 @@ public class Alu {
         int apply(Flags flags, int a);
     }
 
+    /**
+     * A two argument operation for the ALU
+     */
     @FunctionalInterface
     public interface BiAluOperation {
 
