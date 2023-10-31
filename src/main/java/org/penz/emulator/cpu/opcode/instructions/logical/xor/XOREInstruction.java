@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * XOR accumulator with register E
  */
+@SuppressWarnings("unused")
 public class XOREInstruction extends OpCode {
 
     public XOREInstruction() {

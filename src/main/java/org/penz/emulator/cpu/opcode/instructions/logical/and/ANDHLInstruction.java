@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * AND accumulator with the address pointed to by HL
  */
+@SuppressWarnings("unused")
 public class ANDHLInstruction extends OpCode {
 
     public ANDHLInstruction() {

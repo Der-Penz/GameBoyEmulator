@@ -8,6 +8,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Enable interrupts
  */
+@SuppressWarnings("unused")
 public class EIInstruction extends OpCode {
     public EIInstruction() {
         super(0xFB, "EI", 4);

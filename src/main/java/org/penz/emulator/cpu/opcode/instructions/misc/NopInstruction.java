@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
  * No operation instruction
  * CPU idles for 4 cycles
  */
+@SuppressWarnings("unused")
 public class NopInstruction extends OpCode {
 
     private int cycles;

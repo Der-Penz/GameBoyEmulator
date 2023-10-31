@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * XOR accumulator with value of the address the register HL points to
  */
+@SuppressWarnings("unused")
 public class XORHLInstruction extends OpCode {
 
     public XORHLInstruction() {

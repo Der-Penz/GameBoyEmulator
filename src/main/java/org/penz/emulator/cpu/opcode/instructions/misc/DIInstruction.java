@@ -8,6 +8,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * Disable interrupts
  */
+@SuppressWarnings("unused")
 public class DIInstruction extends OpCode {
     public DIInstruction() {
         super(0xF3, "DI", 4);

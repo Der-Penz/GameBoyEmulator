@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * AND A with 8 bit immediate data
  */
+@SuppressWarnings("unused")
 public class ANDData8Instruction extends OpCode {
 
     public ANDData8Instruction() {

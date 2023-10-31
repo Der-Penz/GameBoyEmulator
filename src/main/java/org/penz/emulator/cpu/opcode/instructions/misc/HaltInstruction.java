@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
  * Game boy switches to low power mode until an interrupt occurs.
  * TODO: might need an implementation
  */
+@SuppressWarnings("unused")
 public class HaltInstruction extends OpCode {
     public HaltInstruction() {
         super(0x76, "HALT", 4);

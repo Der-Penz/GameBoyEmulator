@@ -10,6 +10,7 @@ import org.penz.emulator.memory.AddressSpace;
  * XOR accumulator with register A
  * basically just sets A to 0 due to XORing the same value with itself always results in 0
  */
+@SuppressWarnings("unused")
 public class XORAInstruction extends OpCode {
 
     public XORAInstruction() {

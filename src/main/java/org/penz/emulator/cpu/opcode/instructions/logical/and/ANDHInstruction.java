@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * AND accumulator with register H
  */
+@SuppressWarnings("unused")
 public class ANDHInstruction extends OpCode {
 
     public ANDHInstruction() {

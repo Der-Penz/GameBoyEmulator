@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * XOR A with 8 bit immediate data
  */
+@SuppressWarnings("unused")
 public class XORData8Instruction extends OpCode {
 
     public XORData8Instruction() {

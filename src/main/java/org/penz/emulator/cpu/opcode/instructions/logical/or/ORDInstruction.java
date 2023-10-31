@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * OR accumulator with register D
  */
+@SuppressWarnings("unused")
 public class ORDInstruction extends OpCode {
 
     public ORDInstruction() {

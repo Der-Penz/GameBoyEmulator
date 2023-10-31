@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * OR accumulator with register A
  */
+@SuppressWarnings("unused")
 public class ORAInstruction extends OpCode {
 
     public ORAInstruction() {

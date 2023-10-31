@@ -9,6 +9,7 @@ import org.penz.emulator.memory.AddressSpace;
 /**
  * OR A with 8 bit immediate data
  */
+@SuppressWarnings("unused")
 public class ORData8Instruction extends OpCode {
 
     public ORData8Instruction() {
