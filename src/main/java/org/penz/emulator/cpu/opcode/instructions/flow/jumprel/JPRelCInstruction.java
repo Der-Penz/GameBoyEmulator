@@ -1,0 +1,28 @@
+package org.penz.emulator.cpu.opcode.instructions.flow.jumprel;
+
+import org.penz.emulator.cpu.Alu;
+import org.penz.emulator.cpu.Registers;
+import org.penz.emulator.cpu.opcode.DataType;
+import org.penz.emulator.cpu.opcode.OpCode;
+import org.penz.emulator.memory.AddressSpace;
+
+/**
+ * Jump relative to signed 8 bit immediate data if C flag is set
+ */
+@SuppressWarnings("unused")
+public class JPRelCInstruction extends OpCode {
+
+    public JPRelCInstruction() {
+        super(0x38, "JR C, r8", 12, new DataType[]{DataType.r8});
+    }
+
+    @Override
+    public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
+        if (!registers.getFlags().isC()) {
+            return 8;
+        }
+
+        registers.setPC(registers.getPC() + args[0]);
+        return cycles;
+    }
+}

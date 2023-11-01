@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu.opcode.instructions.flow;
+package org.penz.emulator.cpu.opcode.instructions.flow.jump;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
@@ -7,23 +7,23 @@ import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
- * Jump relative if z flag is not set
+ * Jump to immediate address if Z flag is not set
  */
 @SuppressWarnings("unused")
-public class JumpRelNotZeroInstruction extends OpCode {
+public class JPNZAddr16Instruction extends OpCode {
 
-    public JumpRelNotZeroInstruction() {
-        super(0x20, "JR NZ, r8", 8, new DataType[]{DataType.r8});
+    public JPNZAddr16Instruction() {
+        super(0xC2, "JR NZ, a16", 16, new DataType[]{DataType.a16});
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         if (registers.getFlags().isZ()) {
-            return cycles;
-        } else {
-            //if jump is taken, it takes 12 cycles
-            registers.setPC(registers.getPC() + args[0]);
             return 12;
         }
+
+        registers.setPC(args[0]);
+
+        return cycles;
     }
 }
