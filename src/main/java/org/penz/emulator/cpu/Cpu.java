@@ -2,6 +2,8 @@ package org.penz.emulator.cpu;
 
 import org.apache.commons.io.FileUtils;
 import org.penz.emulator.Constants;
+import org.penz.emulator.cpu.interrupt.InterruptManager;
+import org.penz.emulator.cpu.interrupt.InterruptType;
 import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;

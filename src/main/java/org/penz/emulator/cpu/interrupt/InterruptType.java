@@ -1,4 +1,4 @@
-package org.penz.emulator.cpu;
+package org.penz.emulator.cpu.interrupt;
 
 /**
  * Represents the different types of interrupts that can be triggered in the GameBoy.

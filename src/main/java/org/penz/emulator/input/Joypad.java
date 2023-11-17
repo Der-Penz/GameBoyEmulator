@@ -1,8 +1,8 @@
 package org.penz.emulator.input;
 
 import org.penz.emulator.cpu.BitUtil;
-import org.penz.emulator.cpu.InterruptManager;
-import org.penz.emulator.cpu.InterruptType;
+import org.penz.emulator.cpu.interrupt.InterruptManager;
+import org.penz.emulator.cpu.interrupt.InterruptType;
 import org.penz.emulator.memory.AddressSpace;
 
 import java.util.HashSet;

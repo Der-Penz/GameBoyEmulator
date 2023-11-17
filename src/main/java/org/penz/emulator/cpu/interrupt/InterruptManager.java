@@ -1,5 +1,6 @@
-package org.penz.emulator.cpu;
+package org.penz.emulator.cpu.interrupt;
 
+import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.memory.AddressSpace;
 
 public class InterruptManager implements AddressSpace {
