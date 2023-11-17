@@ -158,6 +158,14 @@ public class Cpu {
 
             }
         }
+
+        //special case for HALT and STOP instruction
+        if (opCode.getOpcode() == 0x76) {
+            state = CpuState.HALTED;
+        } else if (opCode.getOpcode() == 0x10) {
+            state = CpuState.STOPPED;
+        }
+
         //TODO add timing to instructions to have accurate memory timings
         return opCode.execute(registers, memory, alu, args);
     }
@@ -167,7 +175,7 @@ public class Cpu {
      */
     public void tick() {
 
-        if (state == CpuState.HALTED || state == CpuState.OPCODE) {
+        if (state == CpuState.HALTED || state == CpuState.OPCODE || state == CpuState.STOPPED) {
             if (registers.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
                 state = CpuState.IT_REQUESTED;
             }

@@ -29,7 +29,11 @@ public enum CpuState {
     /**
      * State indicating that the jump address will be written to the PC.
      */
-    IH_JP_ADDRESS;
+    IH_JP_ADDRESS,
+    /**
+     * State indicating that the CPU is in stop mode.
+     */
+    STOPPED;
 
     /**
      * Returns true if the given state is an interrupt state.
