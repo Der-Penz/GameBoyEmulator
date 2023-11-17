@@ -25,12 +25,25 @@ public class Cpu {
 
     private final Alu alu;
 
+    private final InterruptManager interruptManager;
+
     private final Map<Integer, OpCode> chipset = new HashMap<>();
 
     private final Map<Integer, OpCode> bitChipset = new HashMap<>();
 
+    private CpuState state = CpuState.OPCODE;
+
+    private InterruptType requestedInterrupt;
+
     {
         getOpcodesClasses().forEach(this::registerOpcodeInChipset);
+    }
+
+    public Cpu(AddressSpace memory, InterruptManager interruptManager) {
+        this.registers = new Registers();
+        this.alu = new Alu();
+        this.memory = memory;
+        this.interruptManager = interruptManager;
     }
 
     private static List<Class<?>> getOpcodesClasses() {
@@ -54,7 +67,7 @@ public class Cpu {
             allFiles.forEach((file) -> {
                 //full classname without .class extension
                 String moduleFullPath = file.getPath().replace(File.separator, ".");
-                String modulePath = moduleFullPath.substring(moduleFullPath.indexOf("org."),  moduleFullPath.length() - 6);
+                String modulePath = moduleFullPath.substring(moduleFullPath.indexOf("org."), moduleFullPath.length() - 6);
                 try {
                     Class<?> clazz = Class.forName(modulePath);
                     classes.add(clazz);
@@ -114,12 +127,6 @@ public class Cpu {
         return instruction;
     }
 
-    public Cpu(AddressSpace memory) {
-        this.registers = new Registers();
-        this.alu = new Alu();
-        this.memory = memory;
-    }
-
     /**
      * Execute a single instruction
      *
@@ -157,6 +164,27 @@ public class Cpu {
      * Execute one CPU tick
      */
     public void tick() {
+
+        if (state == CpuState.HALTED || state == CpuState.OPCODE) {
+            if (interruptManager.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
+                state = CpuState.IT_REQUESTED;
+            }
+        }
+
+        // wake up from halt
+        if (state == CpuState.HALTED && interruptManager.anyInterruptsRequested()) {
+            state = CpuState.OPCODE;
+        }
+
+        if (CpuState.isInterruptState(state)) {
+            int cycles = handleInterrupt();
+            return;
+        }
+
+        if (state == CpuState.HALTED) {
+            return;
+        }
+
         int opcode = memory.readByte(registers.getAndIncPC());
 
         // CB prefix means bit instructions
@@ -168,6 +196,44 @@ public class Cpu {
         int cycles = executeInstruction(instruction);
     }
 
+    /**
+     * Handle an interrupt.
+     * Should be called when an interrupt is requested and IME is enabled.
+     *
+     * @return The number of cycles that passed
+     */
+    private int handleInterrupt() {
+
+        switch (state) {
+            case IT_REQUESTED:
+                requestedInterrupt = interruptManager.getRequestedInterruptWithHighestPriority();
+
+                if (requestedInterrupt == null) {
+                    state = CpuState.OPCODE;
+                } else {
+                    interruptManager.disableInterrupts();
+                    interruptManager.clearInterrupt(requestedInterrupt);
+                    state = CpuState.IT_PUSH_LOW;
+                }
+
+                //takes 2 cycles for reading IF and IE
+                return 8;
+            case IT_PUSH_HIGH:
+                memory.writeByte(registers.decrementSP(), BitUtil.getMSByte(registers.getPC()));
+                break;
+            case IT_PUSH_LOW:
+                memory.writeByte(registers.decrementSP(), BitUtil.getLSByte(registers.getPC()));
+                break;
+            case IH_JP_ADDRESS:
+                registers.setPC(requestedInterrupt.getJumpAddress());
+                state = CpuState.OPCODE;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected CPU state: " + state + " when handling interrupt");
+        }
+
+        return 4;
+    }
 
     public Registers getRegisters() {
         return registers;

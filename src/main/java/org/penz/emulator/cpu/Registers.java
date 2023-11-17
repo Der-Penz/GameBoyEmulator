@@ -36,20 +36,44 @@ public class Registers {
         return pc++;
     }
 
-    public void incrementPC() {
+    /**
+     * Increment the program counter and return the new value
+     *
+     * @return the new program counter value after incrementing
+     */
+    public int incrementPC() {
         pc = ((pc + 1) & Constants.WORD_MAX_VALUE);
+        return pc;
     }
 
-    public void decrementPC() {
+    /**
+     * Decrement the program counter and return the new value
+     *
+     * @return the new program counter value after decrementing
+     */
+    public int decrementPC() {
         pc = ((pc - 1) & Constants.WORD_MAX_VALUE);
+        return pc;
     }
 
-    public void incrementSP() {
+    /**
+     * Increment the stack pointer and return the new value
+     *
+     * @return the new stack pointer value after incrementing
+     */
+    public int incrementSP() {
         sp = ((sp + 1) & Constants.WORD_MAX_VALUE);
+        return sp;
     }
 
-    public void decrementSP() {
+    /**
+     * Decrement the stack pointer and return the new value
+     *
+     * @return the new stack pointer value after decrementing
+     */
+    public int decrementSP() {
         sp = ((sp - 1) & Constants.WORD_MAX_VALUE);
+        return sp;
     }
 
     public int getA() {

@@ -2,6 +2,7 @@ package org.penz.emulator;
 
 import org.apache.commons.io.FilenameUtils;
 import org.penz.emulator.cpu.Cpu;
+import org.penz.emulator.cpu.InterruptManager;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.Mmu;
 import org.penz.emulator.memory.cartridge.Cartridge;
@@ -23,7 +24,7 @@ public class GameBoy {
         this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(loadCartridge(romPath));
         this.mmu.indexBanks();
-        this.cpu = new Cpu(mmu);
+        this.cpu = new Cpu(mmu, new InterruptManager());
     }
 
     public static void main(String[] args) throws IOException {
