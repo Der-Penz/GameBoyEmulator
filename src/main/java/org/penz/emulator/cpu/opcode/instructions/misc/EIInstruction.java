@@ -16,7 +16,7 @@ public class EIInstruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        //TODO: implement
+        registers.enableInterrupts();
         return cycles;
     }
 }

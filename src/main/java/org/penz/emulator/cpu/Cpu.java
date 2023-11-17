@@ -168,7 +168,7 @@ public class Cpu {
     public void tick() {
 
         if (state == CpuState.HALTED || state == CpuState.OPCODE) {
-            if (interruptManager.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
+            if (registers.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
                 state = CpuState.IT_REQUESTED;
             }
         }
@@ -213,7 +213,7 @@ public class Cpu {
                 if (requestedInterrupt == null) {
                     state = CpuState.OPCODE;
                 } else {
-                    interruptManager.disableInterrupts();
+                    registers.disableInterrupts();
                     interruptManager.clearInterrupt(requestedInterrupt);
                     state = CpuState.IT_PUSH_LOW;
                 }

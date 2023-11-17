@@ -15,29 +15,8 @@ public class InterruptManager implements AddressSpace {
      */
     private int interruptFlag;
 
-    /**
-     * Interrupt Master Enable. Controls whether any interrupt can be triggered or not.
-     * If this is disabled, no interrupt can be triggered, even if the interrupt is enabled in the Interrupt Enable Register.
-     * Cannot be read in any way, and is modified by these instructions/events only: ei, di, reti
-     */
-    private boolean ime;
-
     public InterruptManager() {
-        ime = false;
-    }
 
-    /**
-     * Enable IME. Called by the EI instruction.
-     */
-    public void enableInterrupts() {
-        ime = true;
-    }
-
-    /**
-     * Disable IME. Called by the DI instruction.
-     */
-    public void disableInterrupts() {
-        ime = false;
     }
 
     /**
@@ -47,13 +26,6 @@ public class InterruptManager implements AddressSpace {
      */
     public void requestInterrupt(InterruptType interruptType) {
         interruptFlag = BitUtil.setBit(interruptFlag, interruptType.getBit());
-    }
-
-    /**
-     * Check if interrupts are enabled.
-     */
-    public boolean interruptsEnabled() {
-        return ime;
     }
 
     /**

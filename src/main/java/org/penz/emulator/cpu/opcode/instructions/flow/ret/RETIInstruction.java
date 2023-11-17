@@ -21,7 +21,7 @@ public class RETIInstruction extends OpCode {
         registers.setPC(BitUtil.toWord(addressSpace.readByte(registers.getSP() + 1), registers.getPC()));
         registers.setSP(registers.getSP() + 2);
 
-        //TODO: Enable interrupts again
+        registers.enableInterrupts();
         return cycles;
     }
 }

@@ -23,9 +23,37 @@ public class Registers {
     private int sp;
     private int pc;
 
+    /**
+     * Interrupt Master Enable. Controls whether any interrupt can be triggered or not.
+     * If this is disabled, no interrupt can be triggered, even if the interrupt is enabled in the Interrupt Enable Register.
+     * Cannot be read by the Cartridge in any way, and is modified by these instructions/events only: ei, di, reti
+     */
+    private boolean ime;
+
     public Registers() {
         this.pc = 0x0000;
+        ime = false;
+    }
 
+    /**
+     * Enable IME. Called by the EI instruction.
+     */
+    public void enableInterrupts() {
+        ime = true;
+    }
+
+    /**
+     * Disable IME. Called by the DI instruction.
+     */
+    public void disableInterrupts() {
+        ime = false;
+    }
+
+    /**
+     * Check if interrupts are enabled.
+     */
+    public boolean interruptsEnabled() {
+        return ime;
     }
 
     /**
