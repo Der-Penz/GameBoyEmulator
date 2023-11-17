@@ -25,7 +25,7 @@ public class Mmu implements AddressSpace {
     private final AddressSpace VOID_BANK = new AddressSpace() {
         @Override
         public boolean accepts(int address) {
-            return false;
+            throw new UnsupportedOperationException("Trying to access void memory bank. No memory mapped to address " + address);
         }
 
         @Override

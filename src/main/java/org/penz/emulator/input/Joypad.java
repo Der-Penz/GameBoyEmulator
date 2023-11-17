@@ -24,6 +24,9 @@ public class Joypad implements AddressSpace {
     int p1 = 0x00;
 
     public Joypad(InterruptManager interruptManager, ButtonController buttonController) {
+        if (buttonController == null) {
+            return;
+        }
         buttonController.setButtonListener(new ButtonListener() {
             @Override
             public void onButtonPressed(Button button) {
