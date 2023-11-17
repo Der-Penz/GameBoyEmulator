@@ -1,6 +1,7 @@
 package org.penz.emulator.memory.cartridge;
 
 import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.cartridge.type.Mbc1;
 import org.penz.emulator.memory.cartridge.type.Rom;
 
@@ -13,9 +14,18 @@ public class Cartridge implements AddressSpace {
 
     private final int[] rawData;
 
+    private final BootRom bootRom;
+
     private final AddressSpace data;
 
+    /**
+     * Whether the boot rom is mapped to the beginning of the address space
+     */
+    private boolean bootRomEnabled;
+
     public Cartridge(File romFile) throws IOException {
+        this.bootRom = new BootRom();
+        this.bootRomEnabled = true;
         this.rawData = loadRom(romFile);
 
         CartridgeType type = this.getCartridgeType();
@@ -66,16 +76,23 @@ public class Cartridge implements AddressSpace {
     @Override
     public boolean accepts(int address) {
         //TODO implement cartridge memory bank switching and correct address range
-        return data.accepts(address);
+        return data.accepts(address) || address == 0xFF50;
     }
 
     @Override
     public void writeByte(int address, int value) {
+        if (address == 0xFF50 && value == 1) {
+            bootRomEnabled = false;
+        }
+
         data.writeByte(address, value);
     }
 
     @Override
     public int readByte(int address) {
+        if (bootRomEnabled && bootRom.accepts(address)) {
+            return bootRom.readByte(address);
+        }
         return data.readByte(address);
     }
 
