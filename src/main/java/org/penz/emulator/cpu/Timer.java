@@ -6,18 +6,33 @@ import org.penz.emulator.memory.AddressSpace;
 
 public class Timer implements AddressSpace {
 
-
+    /**
+     * Divider register, incremented at a rate of 16384Hz
+     */
     private int div;
 
+    /**
+     * Timer counter register, incremented at a rate specified by the TAC register
+     */
     private int tima;
 
+    /**
+     * Timer modulo register, when TIMA overflows, it is reset to this value
+     */
     private int tma;
 
+    /**
+     * Timer control register, controls the timer speed and whether it is enabled
+     */
     private int tac;
 
     private boolean overflowed;
 
     private int ticksSinceLastOverflow;
+
+    private boolean previousBit;
+
+    private static final int[] FREQ_TO_BIT = {9, 3, 5, 7};
 
     private final InterruptManager interruptManager;
 
@@ -25,16 +40,20 @@ public class Timer implements AddressSpace {
         this.interruptManager = interruptManager;
     }
 
+    /**
+     * One tick of the timer
+     */
     public void tick() {
-        //TODO handle frequency of timer
-        div++;
+        div = (div + 1) & 0xFFFF;
 
-        if (div > 0xFF) {
-            div = 0;
+        //TODO understand how timer works
+        int bitPos = FREQ_TO_BIT[tac & 0b11];
+        boolean bit = (div & (1 << bitPos)) != 0;
+        bit &= (tac & (1 << 2)) != 0;
+        if (!bit && previousBit) {
+            incrementTIMA();
         }
-
-
-        incrementTIMA();
+        previousBit = bit;
 
         if (overflowed) {
             ticksSinceLastOverflow += 1;
@@ -58,10 +77,6 @@ public class Timer implements AddressSpace {
             ticksSinceLastOverflow = 0;
             overflowed = true;
         }
-    }
-
-    public void resetDiv() {
-        div = 0;
     }
 
     private boolean enabled() {
