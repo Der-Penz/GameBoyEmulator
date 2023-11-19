@@ -28,12 +28,21 @@ public class GameBoy {
 
     public GameBoy(String romPath, ButtonController controls) throws IOException {
 
+        cartridge = loadCartridge(romPath);
+
+        if (cartridge.isColorGameBoy() == CGBFlag.CGB_ONLY) {
+            throw new UnsupportedOperationException("GameBoy Color is not supported yet");
+        }
+
         InterruptManager interruptManager = new InterruptManager();
         this.timer = new Timer(interruptManager);
+        Ram ram = new Ram(0xC000, 0xDFFF);
 
         this.mmu = new Mmu();
         this.mmu.addMemoryBank(new BootRom());
-        this.mmu.addMemoryBank(loadCartridge(romPath));
+        this.mmu.addMemoryBank(cartridge);
+        this.mmu.addMemoryBank(ram);
+        this.mmu.addMemoryBank(new EchoAddressSpace(ram, 0xC000, 0xE000, 0xFDFF));
         this.mmu.addMemoryBank(new Joypad(interruptManager, controls));
         this.mmu.addMemoryBank(interruptManager);
         this.mmu.addMemoryBank(this.timer);
@@ -52,6 +61,7 @@ public class GameBoy {
      * Load a cartridge by a given file path
      *
      * @param path the path to the rom file
+     * @return the loaded cartridge
      * @throws FileNotFoundException         if the file is not found
      * @throws IOException                   if an error occurs while loading the rom file
      * @throws UnsupportedOperationException if the cartridge type is not supported
@@ -67,8 +77,7 @@ public class GameBoy {
             throw new IllegalArgumentException("Unsupported file type: " + FilenameUtils.getExtension(romFile.getName()));
         }
 
-        cartridge = new Cartridge(romFile);
-        return cartridge;
+        return new Cartridge(romFile);
     }
 
     public void start() {
