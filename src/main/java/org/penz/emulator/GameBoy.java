@@ -6,6 +6,7 @@ import org.penz.emulator.cpu.Timer;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.input.ButtonController;
 import org.penz.emulator.input.Joypad;
+import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.Mmu;
 import org.penz.emulator.memory.cartridge.Cartridge;
@@ -21,18 +22,21 @@ public class GameBoy {
 
     private final Mmu mmu;
 
+    private final Timer timer;
+
     private Cartridge cartridge;
 
     public GameBoy(String romPath, ButtonController controls) throws IOException {
 
         InterruptManager interruptManager = new InterruptManager();
+        this.timer = new Timer(interruptManager);
 
         this.mmu = new Mmu();
         this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(loadCartridge(romPath));
         this.mmu.addMemoryBank(new Joypad(interruptManager, controls));
         this.mmu.addMemoryBank(interruptManager);
-        this.mmu.addMemoryBank(new Timer(interruptManager));
+        this.mmu.addMemoryBank(this.timer);
         this.mmu.indexBanks();
         this.cpu = new Cpu(mmu, interruptManager);
     }
@@ -69,8 +73,22 @@ public class GameBoy {
 
     public void start() {
         while (true) {
-            cpu.tick();
+            System.out.println("gameboy clock tick");
+            tick();
         }
+    }
+
+    public void tick() {
+        timer.tick();
+        cpu.tick();
+    }
+
+    public AddressSpace getMemory() {
+        return mmu;
+    }
+
+    public Cpu getCpu() {
+        return cpu;
     }
 
 }

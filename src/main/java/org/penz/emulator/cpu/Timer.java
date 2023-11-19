@@ -45,7 +45,7 @@ public class Timer implements AddressSpace {
      */
     public void tick() {
         div = (div + 1) & 0xFFFF;
-
+        //inc every 4096 clock ticks
         //TODO understand how timer works
         int bitPos = FREQ_TO_BIT[tac & 0b11];
         boolean bit = (div & (1 << bitPos)) != 0;
@@ -103,6 +103,15 @@ public class Timer implements AddressSpace {
 
     @Override
     public int readByte(int address) {
+        if (address == 0xFF04) {
+            return div >> 8;
+        } else if (address == 0xFF05) {
+            return tima;
+        } else if (address == 0xFF06) {
+            return tma;
+        } else if (address == 0xFF07) {
+            return tac;
+        }
         return 0;
     }
 }
