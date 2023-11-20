@@ -37,6 +37,6 @@ public class EchoAddressSpace implements AddressSpace {
 
     @Override
     public int readByte(int address) {
-        return 0;
+        return echoSpace.readByte(translateAddress(address));
     }
 }
