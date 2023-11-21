@@ -2,33 +2,33 @@ package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
-import org.penz.emulator.memory.cartridge.RAMSize;
 import org.penz.emulator.memory.cartridge.ROMSize;
 
-public class Mbc1 implements AddressSpace {
+/**
+ * MBC2 memory bank controller
+ */
+public class Mbc2 implements AddressSpace {
 
     private final Rom[] romBanks;
 
-    private final Ram[] ramBanks;
+    private final Ram ramBank;
 
     private boolean ramEnabled = false;
 
-    private int selectedRamBank = 0;
     private int selectedRomBank = 1;
 
-    private int bankingMode = 0;
+    public Mbc2(int[] cartridge, int romBanks, int ramBanks) {
 
-    public Mbc1(int[] cartridge, int romBanks, int ramBanks) {
+        if (romBanks > 16) {
+            throw new IllegalArgumentException("MBC2 only supports up to 16 ROM banks");
+        }
 
         this.romBanks = new Rom[romBanks];
         for (int i = 0; i < romBanks; i++) {
             this.romBanks[i] = new Rom(cartridge, i * ROMSize.ROM_BANK_SIZE, ((i + 1) * ROMSize.ROM_BANK_SIZE) - 1);
         }
 
-        this.ramBanks = new Ram[ramBanks];
-        for (int i = 0; i < ramBanks; i++) {
-            this.ramBanks[i] = new Ram(i * RAMSize.RAM_BANK_SIZE, ((i + 1) * RAMSize.RAM_BANK_SIZE) - 1);
-        }
+        ramBank = new Ram(0xA000, 0xA1FF);
 
         this.ramEnabled = false;
     }
@@ -40,27 +40,19 @@ public class Mbc1 implements AddressSpace {
 
     @Override
     public void writeByte(int address, int value) {
-        if (address >= 0x0000 && address <= 0x1fff) {
-            ramEnabled = (value & 0xF) == 0xA;
-            return;
-        }
-
-        if (address >= 0x2000 && address <= 0x3fff) {
-            selectedRomBank = (value & 0b11111) & (romBanks.length - 1);
-            return;
-        }
-
-        if (address >= 0x4000 && address <= 0x5fff) {
-            if (bankingMode == 0) {
-                selectedRamBank = value & 0b11;
+        if (address >= 0x0000 && address <= 0x3FFF) {
+            if ((address & 0x0100) == 0) {
+                ramEnabled = (value & 0xF) == 0xA;
             } else {
-                selectedRomBank = ((value & 0b11) << 5) + selectedRamBank;
+                selectedRomBank = value & 0b1111;
             }
             return;
         }
 
-        if (address >= 0x6000 && address <= 0x7fff) {
-            bankingMode = (value & 0x1);
+        if (address >= 0xA000 && address <= 0xBFFF) {
+            if (ramEnabled) {
+                ramBank.writeByte(translateRamAddress(address), value & 0xF);
+            }
         }
     }
 
@@ -76,16 +68,16 @@ public class Mbc1 implements AddressSpace {
 
         if (address >= 0xA000 && address <= 0xBFFF) {
             if (ramEnabled) {
-                return getRamBank().readByte(address);
+                return ramBank.readByte(translateRamAddress(address));
             } else {
-                return 0xFF;
+                return 0x0F;
             }
         }
         return 0;
     }
 
-    private Ram getRamBank() {
-        return ramBanks[selectedRamBank];
+    private int translateRamAddress(int address) {
+        return ((address - 0xA000) % 0x200) + 0xA000;
     }
 
     private Rom getRomBank() {
