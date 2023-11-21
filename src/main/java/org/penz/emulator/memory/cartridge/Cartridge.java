@@ -8,6 +8,8 @@ import org.penz.emulator.memory.cartridge.type.Mbc2;
 import org.penz.emulator.memory.cartridge.type.Rom;
 
 import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class Cartridge implements AddressSpace {
 
@@ -61,7 +63,7 @@ public class Cartridge implements AddressSpace {
 
         try (FileInputStream stream = new FileInputStream(toLoad); DataInputStream dataStream = new DataInputStream(stream)) {
             if (fileExtension.equals("zip")) {
-                //TODO implement zip loading
+                return getDataFromZip(toLoad);
             } else {
                 long fileSize = toLoad.length();
                 int[] rom = new int[(int) fileSize];
@@ -73,12 +75,9 @@ public class Cartridge implements AddressSpace {
                 return rom;
             }
 
-
         } catch (IOException e) {
             throw new IOException("Error while loading rom file: " + toLoad.getName(), e);
         }
-
-        return new int[0];
     }
 
     @Override
@@ -179,6 +178,32 @@ public class Cartridge implements AddressSpace {
         }
 
         return new Cartridge(romFile);
+    }
+
+    public int[] getDataFromZip(File zipFile) throws IOException {
+        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry entry = zipInputStream.getNextEntry();
+
+            while (entry != null) {
+                if (!entry.isDirectory() && FilenameUtils.getExtension(entry.getName()).matches("gb|txt|bin")) {
+
+                    int fileSize = (int) entry.getSize();
+                    int[] rom = new int[fileSize];
+
+                    try (DataInputStream dataInputStream = new DataInputStream(zipInputStream)) {
+                        for (int i = 0; i < fileSize; i++) {
+                            rom[i] = dataInputStream.read();
+                        }
+                    }
+
+                    return rom;
+                }
+
+                entry = zipInputStream.getNextEntry();
+            }
+        }
+
+        throw new IOException("No .gb, .txt or .bin file found in the zip archive: " + zipFile.getName());
     }
 }
 
