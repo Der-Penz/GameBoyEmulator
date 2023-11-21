@@ -83,7 +83,6 @@ public class Cartridge implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        //TODO implement cartridge memory bank switching and correct address range
         return data.accepts(address) || address == 0xFF50;
     }
 
