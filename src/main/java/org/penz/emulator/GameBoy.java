@@ -1,18 +1,14 @@
 package org.penz.emulator;
 
-import org.apache.commons.io.FilenameUtils;
 import org.penz.emulator.cpu.Cpu;
 import org.penz.emulator.cpu.Timer;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.input.ButtonController;
 import org.penz.emulator.input.Joypad;
-import org.penz.emulator.memory.AddressSpace;
-import org.penz.emulator.memory.BootRom;
-import org.penz.emulator.memory.Mmu;
+import org.penz.emulator.memory.*;
+import org.penz.emulator.memory.cartridge.CGBFlag;
 import org.penz.emulator.memory.cartridge.Cartridge;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class GameBoy {
@@ -28,7 +24,7 @@ public class GameBoy {
 
     public GameBoy(String romPath, ButtonController controls) throws IOException {
 
-        cartridge = loadCartridge(romPath);
+        cartridge = Cartridge.loadCartridge(romPath);
 
         if (cartridge.isColorGameBoy() == CGBFlag.CGB_ONLY) {
             throw new UnsupportedOperationException("GameBoy Color is not supported yet");
@@ -46,6 +42,7 @@ public class GameBoy {
         this.mmu.addMemoryBank(new Joypad(interruptManager, controls));
         this.mmu.addMemoryBank(interruptManager);
         this.mmu.addMemoryBank(this.timer);
+        this.mmu.addMemoryBank(new Ram(0xFF80, 0xFFFE)); //High ram
         this.mmu.indexBanks();
         this.cpu = new Cpu(mmu, interruptManager);
     }
@@ -82,7 +79,7 @@ public class GameBoy {
 
     public void start() {
         while (true) {
-            System.out.println("gameboy clock tick");
+            System.out.println("game boy clock tick");
             tick();
         }
     }
@@ -100,4 +97,7 @@ public class GameBoy {
         return cpu;
     }
 
+    public Cartridge getCartridge() {
+        return cartridge;
+    }
 }

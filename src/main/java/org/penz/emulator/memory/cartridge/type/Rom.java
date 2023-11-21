@@ -2,11 +2,11 @@ package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.memory.AddressSpace;
 
+/**
+ * Basic implementation of a read-only memory address space
+ */
 public class Rom implements AddressSpace {
 
-    /**
-     * rom data
-     */
     private final int[] data;
 
     public Rom(int[] data) {

@@ -1,21 +1,28 @@
 package org.penz.emulator.memory.cartridge;
 
+import org.apache.commons.io.FilenameUtils;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.cartridge.type.Mbc1;
 import org.penz.emulator.memory.cartridge.type.Rom;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class Cartridge implements AddressSpace {
 
+    /**
+     * The raw data of the cartridge. Should not be used directly, only for reading the headers
+     */
     private final int[] rawData;
 
+    /**
+     * The boot rom of the gameboy
+     */
     private final BootRom bootRom;
 
+    /**
+     * The data of the cartridge, now able to be memory bank switched
+     */
     private final AddressSpace data;
 
     /**
@@ -32,18 +39,16 @@ public class Cartridge implements AddressSpace {
 
         if (type.isMbc1()) {
             data = new Mbc1(rawData, getRomSize().numberOfBanks(), getRamSize().numberOfBanks());
+        } else if (type == CartridgeType.ROM) {
+            data = new Rom(rawData);
         } else {
-            if (type == CartridgeType.ROM) {
-                data = new Rom(rawData);
-            } else {
-                throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
-            }
+            throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
         }
-
     }
 
     /**
      * Loads a rom file
+     *
      * @param toLoad the rom file to load, either a .gb or .zip file
      * @return the rom data as an array of bytes
      * @throws IOException if an error occurs while loading the rom file
@@ -136,6 +141,37 @@ public class Cartridge implements AddressSpace {
     public CartridgeType getCartridgeType() {
         int cartridgeTypePos = 0x147;
         return CartridgeType.fromValue(rawData[cartridgeTypePos]);
+    }
+
+    public int getChecksum() {
+        return rawData[0x14D];
+    }
+
+    public int getGlobalChecksum() {
+        return (rawData[0x14E] << 8) | rawData[0x14F];
+    }
+
+    /**
+     * Load a cartridge by a given file path
+     *
+     * @param path the path to the rom file
+     * @return the loaded cartridge
+     * @throws FileNotFoundException         if the file is not found
+     * @throws IOException                   if an error occurs while loading the rom file
+     * @throws UnsupportedOperationException if the cartridge type is not supported
+     */
+    public static Cartridge loadCartridge(String path) throws IOException {
+        File romFile = new File(path);
+
+        if (!romFile.exists()) {
+            throw new FileNotFoundException("File not found: " + path);
+        }
+
+        if (!FilenameUtils.getExtension(romFile.getName()).matches("gb|txt|bin|zip")) {
+            throw new IllegalArgumentException("Unsupported file type: " + FilenameUtils.getExtension(romFile.getName()));
+        }
+
+        return new Cartridge(romFile);
     }
 }
 
