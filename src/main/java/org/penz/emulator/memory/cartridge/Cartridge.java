@@ -16,7 +16,7 @@ public class Cartridge implements AddressSpace {
     private final int[] rawData;
 
     /**
-     * The boot rom of the gameboy
+     * The boot rom of the Game boy
      */
     private final BootRom bootRom;
 
@@ -33,14 +33,14 @@ public class Cartridge implements AddressSpace {
     public Cartridge(File romFile) throws IOException {
         this.bootRom = new BootRom();
         this.bootRomEnabled = true;
-        this.rawData = loadRom(romFile);
+        rawData = loadRom(romFile);
 
-        CartridgeType type = this.getCartridgeType();
+        CartridgeType type = getCartridgeType(rawData);
 
         if (type.isMbc1()) {
-            data = new Mbc1(rawData, getRomSize().numberOfBanks(), getRamSize().numberOfBanks());
+            data = new Mbc1(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData).numberOfBanks());
         } else if (type == CartridgeType.ROM) {
-            data = new Rom(rawData);
+            data = new Rom(rawData, 0x0000, 0x7FFFF);
         } else {
             throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
         }
@@ -101,54 +101,59 @@ public class Cartridge implements AddressSpace {
         return data.readByte(address);
     }
 
-    /**
-     * Get the game name from the cartridge (0x134 - 0x142)
-     *
-     * @return the game name
-     */
     public String getTitle() {
         int length = 15;
         int start = 0x134;
 
-        return new String(rawData, start, length).trim();
+        return new String(AddressSpace.readRange(this, start, length), 0, length).trim();
     }
 
-    /**
-     * Check if the Cartridge is a GameBoy Color cartridge (0x143)
-     *
-     * @return
-     */
     public CGBFlag isColorGameBoy() {
         int colorGameBoyFlag = 0x143;
-        return CGBFlag.fromValue(rawData[colorGameBoyFlag]);
+        return CGBFlag.fromValue(readByte(colorGameBoyFlag));
     }
 
     public ROMSize getRomSize() {
         int romSizePos = 0x148;
-        return ROMSize.fromValue(rawData[romSizePos]);
+        return ROMSize.fromValue(readByte(romSizePos));
+    }
+
+    public ROMSize getRomSize(int[] data) {
+        int romSizePos = 0x148;
+        return ROMSize.fromValue(data[romSizePos]);
     }
 
     public RAMSize getRamSize() {
         int ramSizePos = 0x149;
-        return RAMSize.fromValue(rawData[ramSizePos]);
+        return RAMSize.fromValue(readByte(ramSizePos));
+    }
+
+    public RAMSize getRamSize(int[] data) {
+        int ramSizePos = 0x149;
+        return RAMSize.fromValue(data[ramSizePos]);
     }
 
     public DestinationCode getDestinationCode() {
         int destinationCodePos = 0x14A;
-        return DestinationCode.fromValue(rawData[destinationCodePos]);
+        return DestinationCode.fromValue(readByte(destinationCodePos));
     }
 
     public CartridgeType getCartridgeType() {
         int cartridgeTypePos = 0x147;
-        return CartridgeType.fromValue(rawData[cartridgeTypePos]);
+        return CartridgeType.fromValue(readByte(cartridgeTypePos));
+    }
+
+    public CartridgeType getCartridgeType(int[] data) {
+        int cartridgeTypePos = 0x147;
+        return CartridgeType.fromValue(data[cartridgeTypePos]);
     }
 
     public int getChecksum() {
-        return rawData[0x14D];
+        return readByte(0x14D);
     }
 
     public int getGlobalChecksum() {
-        return (rawData[0x14E] << 8) | rawData[0x14F];
+        return (readByte(0x14E) << 8) | readByte(0x14F);
     }
 
     /**

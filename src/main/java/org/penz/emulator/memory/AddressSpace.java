@@ -24,4 +24,12 @@ public interface AddressSpace {
      * @return byte read from the given address
      */
     int readByte(int address);
+
+    static int[] readRange(AddressSpace addressSpace, int address, int length) {
+        int[] data = new int[length];
+        for (int i = 0; i < length; i++) {
+            data[i] = addressSpace.readByte(address + i);
+        }
+        return data;
+    }
 }

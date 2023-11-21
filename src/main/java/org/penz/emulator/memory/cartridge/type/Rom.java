@@ -9,13 +9,21 @@ public class Rom implements AddressSpace {
 
     private final int[] data;
 
+    private final int start;
+
     public Rom(int[] data) {
-        this.data = data;
+        this(data, 0, data.length);
+    }
+
+    public Rom(int[] data, int from, int to) {
+        this.start = from;
+        this.data = new int[to - from + 1];
+        System.arraycopy(data, 0, this.data, 0, Math.min(to - from, data.length));
     }
 
     @Override
     public boolean accepts(int address) {
-        return address >= 0x0000 && address <= 0x7FFF;
+        return address >= start && address <= data.length;
     }
 
     @Override
