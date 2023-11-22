@@ -54,29 +54,6 @@ public class GameBoy {
         gameBoy.start();
     }
 
-    /**
-     * Load a cartridge by a given file path
-     *
-     * @param path the path to the rom file
-     * @return the loaded cartridge
-     * @throws FileNotFoundException         if the file is not found
-     * @throws IOException                   if an error occurs while loading the rom file
-     * @throws UnsupportedOperationException if the cartridge type is not supported
-     */
-    public Cartridge loadCartridge(String path) throws IOException {
-        File romFile = new File(path);
-
-        if (!romFile.exists()) {
-            throw new FileNotFoundException("File not found: " + path);
-        }
-
-        if (!FilenameUtils.getExtension(romFile.getName()).matches("gb|txt|bin|zip")) {
-            throw new IllegalArgumentException("Unsupported file type: " + FilenameUtils.getExtension(romFile.getName()));
-        }
-
-        return new Cartridge(romFile);
-    }
-
     public void start() {
         while (true) {
             System.out.println("game boy clock tick");
