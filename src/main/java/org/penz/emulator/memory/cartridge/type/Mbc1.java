@@ -46,7 +46,11 @@ public class Mbc1 implements AddressSpace {
         }
 
         if (address >= 0x2000 && address <= 0x3fff) {
-            selectedRomBank = (value & 0b11111) & (romBanks.length - 1);
+            int lower5Bits = value & 0x1F;
+            selectedRomBank = (selectedRomBank & 0b11100000) | lower5Bits;
+            if (selectedRomBank == 0) {
+                selectedRomBank++;
+            }
             return;
         }
 
@@ -54,7 +58,9 @@ public class Mbc1 implements AddressSpace {
             if (bankingMode == 0) {
                 selectedRamBank = value & 0b11;
             } else {
-                selectedRomBank = ((value & 0b11) << 5) + selectedRamBank;
+                selectedRomBank &= 0x1F;
+                value = value & 0b11100000;
+                selectedRomBank |= value;
             }
             return;
         }
@@ -89,7 +95,7 @@ public class Mbc1 implements AddressSpace {
     }
 
     private Rom getRomBank() {
-        return romBanks[selectedRomBank == 0 ? 1 : selectedRomBank];
+        return romBanks[selectedRomBank];
     }
 
 }
