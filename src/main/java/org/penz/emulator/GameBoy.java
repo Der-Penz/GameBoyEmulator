@@ -62,8 +62,8 @@ public class GameBoy {
     }
 
     public void tick() {
-        timer.tick();
-        cpu.tick();
+        int passedCycles = cpu.tick();
+        timer.tick(passedCycles);
     }
 
     public AddressSpace getMemory() {

@@ -2,6 +2,7 @@ package org.penz.emulator.cpu;
 
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.interrupt.InterruptType;
+import org.penz.emulator.cpu.timer.Frequency;
 import org.penz.emulator.memory.AddressSpace;
 
 public class Timer implements AddressSpace {
@@ -30,9 +31,9 @@ public class Timer implements AddressSpace {
 
     private int ticksSinceLastOverflow;
 
-    private boolean previousBit;
+    private int divCyclesCounter = 0;
 
-    private static final int[] FREQ_TO_BIT = {9, 3, 5, 7};
+    private int timaCyclesCounter = 0;
 
     private final InterruptManager interruptManager;
 
@@ -41,19 +42,26 @@ public class Timer implements AddressSpace {
     }
 
     /**
-     * One tick of the timer
-     */
-    public void tick() {
-        div = (div + 1) & 0xFFFF;
-        //inc every 4096 clock ticks
-        //TODO understand how timer works
-        int bitPos = FREQ_TO_BIT[tac & 0b11];
-        boolean bit = (div & (1 << bitPos)) != 0;
-        bit &= (tac & (1 << 2)) != 0;
-        if (!bit && previousBit) {
+     * Controls the timer ticks by synchronizing with the passed cycles from the CPU
+     * @param passedCycles the cycles passed since the last tick
+     * */
+    public void tick(int passedCycles) {
+        divCyclesCounter += passedCycles;
+        timaCyclesCounter += passedCycles;
+
+        //inc every 256 clock ticks
+        // GameBoy.clockSpeed / 16384
+        if (divCyclesCounter >= 256) {
+            divCyclesCounter -= 256;
+            div = (div + 1) & 0xFFFF;
+        }
+
+        //inc every n clock ticks specified by TAC and the corresponding Frequency
+        Frequency frequency = Frequency.fromBitValue(tac & 0b11);
+        if (timaCyclesCounter >= frequency.getCycles()) {
+            timaCyclesCounter -= frequency.getCycles();
             incrementTIMA();
         }
-        previousBit = bit;
 
         if (overflowed) {
             ticksSinceLastOverflow += 1;
@@ -69,6 +77,9 @@ public class Timer implements AddressSpace {
 
     }
 
+    /**
+     * Increments the TIMA register only if it is enabled and checks for overflow
+     */
     private void incrementTIMA() {
         if (enabled()) {
             tima++;
@@ -104,7 +115,7 @@ public class Timer implements AddressSpace {
     @Override
     public int readByte(int address) {
         if (address == 0xFF04) {
-            return div >> 8;
+            return div;
         } else if (address == 0xFF05) {
             return tima;
         } else if (address == 0xFF06) {

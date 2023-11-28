@@ -173,7 +173,7 @@ public class Cpu {
     /**
      * Execute one CPU tick
      */
-    public void tick() {
+    public int tick() {
 
         if (state == CpuState.HALTED || state == CpuState.OPCODE || state == CpuState.STOPPED) {
             if (registers.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
@@ -187,12 +187,11 @@ public class Cpu {
         }
 
         if (CpuState.isInterruptState(state)) {
-            int cycles = handleInterrupt();
-            return;
+            return handleInterrupt();
         }
 
         if (state == CpuState.HALTED) {
-            return;
+            return 4;
         }
 
         int opcode = memory.readByte(registers.getAndIncPC());
@@ -203,7 +202,8 @@ public class Cpu {
             opcode = memory.readByte(registers.getAndIncPC());
         }
         OpCode instruction = getOpcode(opcode, isBitInstruction);
-        int cycles = executeInstruction(instruction);
+
+        return executeInstruction(instruction);
     }
 
     /**
