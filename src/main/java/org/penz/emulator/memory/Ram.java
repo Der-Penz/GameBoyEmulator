@@ -11,9 +11,14 @@ public class Ram implements AddressSpace {
         data = new int[to - from + 1];
     }
 
+    public Ram(int from, int[] data) {
+        this.offset = from;
+        this.data = data;
+    }
+
     @Override
     public boolean accepts(int address) {
-        return address >= offset && address <= offset + data.length;
+        return address >= offset && address <= offset + data.length - 1;
     }
 
     @Override
@@ -24,5 +29,9 @@ public class Ram implements AddressSpace {
     @Override
     public int readByte(int address) {
         return data[address - offset];
+    }
+
+    public int getOffset() {
+        return offset;
     }
 }
