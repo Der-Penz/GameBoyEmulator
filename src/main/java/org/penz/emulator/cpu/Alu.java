@@ -228,14 +228,32 @@ public class Alu {
 
 //      bcd adjust the accumulator
         registerFunction("DAA", DataType.d8, (flags, a) -> {
-            int result = a;
-            //TODO implement bcd adjustment
 
-            flags.setZ(result == 0);
+            if (flags.isN()) {
+                //previous instruction was a subtraction
+                if (flags.isH()) {
+                    a = (a - 0x06) & 0xFF;
+                }
+                if (flags.isC()) {
+                    a -= 0x60;
+                }
+            } else {
+                //previous instruction was an addition
+                if ((a & 0x0F) > 0x09 || flags.isH()) {
+                    a += 0x06;
+                }
+                if (a > 0x9F || flags.isC()) {
+                    a += 0x60;
+                }
+            }
+
+            flags.setC(a > 0xFF);
+
+            a &= 0xFF;
+            flags.setZ(a == 0);
             flags.setH(false);
-            //TODO set C flag
 
-            return result;
+            return a;
         });
 
 //      set carry flag
