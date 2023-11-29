@@ -115,11 +115,12 @@ public class Alu {
         registerFunction("ADD", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a + b);
 
+            flags.setC(result > Constants.BYTE_MAX_VALUE);
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(false);
-            flags.setC(result > Constants.BYTE_MAX_VALUE);
             flags.setH((BitUtil.getLSByte(a) + BitUtil.getLSByte(b)) > 0x0F);
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         }));
 
 //      add two 16 bit arguments
@@ -146,54 +147,59 @@ public class Alu {
         registerFunction("SUB", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a - b);
 
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(true);
             flags.setC(b > a);
             flags.setH(BitUtil.getLSByte(b) > BitUtil.getLSByte(a));
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         }));
 
 //     bitwise and two 8 bit arguments
         registerFunction("AND", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a & b);
 
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(false);
             flags.setH(true);
             flags.setC(false);
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         }));
 
 //      bitwise or two 8 bit arguments
         registerFunction("OR", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a | b);
 
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(false);
             flags.setH(false);
             flags.setC(false);
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         }));
 
 //      bitwise xor two 8 bit arguments
         registerFunction("XOR", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a ^ b);
 
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(false);
             flags.setH(false);
             flags.setC(false);
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         }));
 
 //      compare two 8 bit arguments
         registerFunction("CP", DataType.d8, DataType.d8, ((flags, a, b) -> {
             int result = (a - b);
 
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(true);
             flags.setC(b > a);
@@ -206,24 +212,26 @@ public class Alu {
         registerFunction("ADC", DataType.d8, DataType.d8, (flags, a, b) -> {
             int result = (a + b + (flags.isC() ? 1 : 0));
 
+            flags.setC(result > Constants.BYTE_MAX_VALUE);
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(false);
-            flags.setC(result > Constants.BYTE_MAX_VALUE);
             flags.setH((BitUtil.getLSByte(a) + BitUtil.getLSByte(b) + (flags.isC() ? 1 : 0)) > 0x0F);
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         });
 
 //      subtract two 8 bit arguments and the carry
         registerFunction("SBC", DataType.d8, DataType.d8, (flags, a, b) -> {
             int result = (a - b - (flags.isC() ? 1 : 0));
 
+            flags.setC(result < 0);
+            result &= Constants.BYTE_MAX_VALUE;
             flags.setZ(result == 0);
             flags.setN(true);
-            flags.setC(result < 0);
             flags.setH((BitUtil.getLSByte(b) + (flags.isC() ? 1 : 0)) > BitUtil.getLSByte(a));
 
-            return result & Constants.BYTE_MAX_VALUE;
+            return result;
         });
 
 //      bcd adjust the accumulator
@@ -232,7 +240,7 @@ public class Alu {
             if (flags.isN()) {
                 //previous instruction was a subtraction
                 if (flags.isH()) {
-                    a = (a - 0x06) & 0xFF;
+                    a = (a - 0x06) & Constants.BYTE_MAX_VALUE;
                 }
                 if (flags.isC()) {
                     a -= 0x60;
@@ -247,9 +255,9 @@ public class Alu {
                 }
             }
 
-            flags.setC(a > 0xFF);
+            flags.setC(a > Constants.BYTE_MAX_VALUE);
 
-            a &= 0xFF;
+            a &= Constants.BYTE_MAX_VALUE;
             flags.setZ(a == 0);
             flags.setH(false);
 
