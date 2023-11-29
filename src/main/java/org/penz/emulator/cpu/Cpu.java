@@ -169,7 +169,7 @@ public class Cpu {
      * @return The number of cycles that passed
      */
     public int tick() {
-
+        //TODO implement interrupt nesting
         if (state == CpuState.HALTED || state == CpuState.OPCODE || state == CpuState.STOPPED) {
             if (registers.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
                 state = CpuState.IT_REQUESTED;
@@ -177,7 +177,7 @@ public class Cpu {
         }
 
         // wake up from halt
-        if (state == CpuState.HALTED && interruptManager.anyInterruptsRequested()) {
+        if ((state == CpuState.HALTED || state == CpuState.STOPPED) && interruptManager.anyInterruptsRequested()) {
             state = CpuState.OPCODE;
         }
 
