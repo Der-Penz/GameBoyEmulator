@@ -18,9 +18,6 @@ import java.util.Map;
 
 public class Cpu {
 
-    /**
-     * Cpu Registers and Flags
-     */
     private final Registers registers;
 
     private final AddressSpace memory;
@@ -38,7 +35,8 @@ public class Cpu {
     private InterruptType requestedInterrupt;
 
     {
-        getOpcodesClasses().forEach(this::registerOpcodeInChipset);
+        //when class gets first loaded, register all opcodes
+        getAllOpcodesClasses().forEach(this::registerOpcodeInChipset);
     }
 
     public Cpu(AddressSpace memory, InterruptManager interruptManager) {
@@ -48,16 +46,13 @@ public class Cpu {
         this.interruptManager = interruptManager;
     }
 
-    private static List<Class<?>> getOpcodesClasses() {
-
-        //TODO rewrite maybe put it in a separate class
+    private static List<Class<?>> getAllOpcodesClasses() {
         List<Class<?>> classes = new ArrayList<>();
 
         String moduleName = Constants.INSTRUCTIONS_MODULE_PATH;
 
         String path = moduleName.replace('.', '/');
         URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
-
         if (resource != null) {
             File directory = new File(resource.getFile());
 
@@ -74,8 +69,7 @@ public class Cpu {
                     Class<?> clazz = Class.forName(modulePath);
                     classes.add(clazz);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-
+                    throw new RuntimeException("Could not load class: " + modulePath);
                 }
             });
         }
@@ -172,6 +166,7 @@ public class Cpu {
 
     /**
      * Execute one CPU tick
+     * @return The number of cycles that passed
      */
     public int tick() {
 
@@ -220,7 +215,7 @@ public class Cpu {
 
                 if (requestedInterrupt == null) {
                     state = CpuState.OPCODE;
-                } else {
+                } else{
                     registers.disableInterrupts();
                     interruptManager.clearInterrupt(requestedInterrupt);
                     state = CpuState.IT_PUSH_LOW;
