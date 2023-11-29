@@ -8,7 +8,6 @@ import org.penz.emulator.memory.AddressSpace;
 
 /**
  * Game boy switches to low power mode until an interrupt occurs.
- * TODO: might need an implementation
  */
 @SuppressWarnings("unused")
 public class StopInstruction extends OpCode {
