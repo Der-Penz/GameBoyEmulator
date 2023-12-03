@@ -1,8 +1,6 @@
 package org.penz.emulator.graphics;
 
-import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
-import org.penz.emulator.memory.AddressSpace;
 
 public class LcdRegister {
 
@@ -24,11 +22,6 @@ public class LcdRegister {
         sTAT.setLYLYCEquals(this.lY == lYC);
     }
 
-    public void setlYC(int lYC) {
-        this.lYC = lYC;
-        sTAT.setLYLYCEquals(lY == lYC);
-    }
-
     public int getLY() {
         return lY;
     }
@@ -40,6 +33,10 @@ public class LcdRegister {
     public void setLYC(int lYC) {
         this.lYC = lYC;
         sTAT.setLYLYCEquals(lY == lYC);
+    }
+
+    public StatRegister getSTAT() {
+        return sTAT;
     }
 
 
