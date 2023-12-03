@@ -1,8 +1,8 @@
-package org.penz.emulator.cpu;
+package org.penz.emulator.cpu.timer;
 
+import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.interrupt.InterruptType;
-import org.penz.emulator.cpu.timer.Frequency;
 import org.penz.emulator.memory.AddressSpace;
 
 public class Timer implements AddressSpace {

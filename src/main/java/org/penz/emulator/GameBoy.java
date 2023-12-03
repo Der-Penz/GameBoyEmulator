@@ -1,8 +1,8 @@
 package org.penz.emulator;
 
 import org.penz.emulator.cpu.Cpu;
-import org.penz.emulator.cpu.Timer;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
+import org.penz.emulator.cpu.timer.Timer;
 import org.penz.emulator.input.ButtonController;
 import org.penz.emulator.input.Joypad;
 import org.penz.emulator.memory.*;
