@@ -115,6 +115,7 @@ public class Ppu implements AddressSpace {
             return;
         }
         if (address == 0xFE46) {
+            //TODO might need to pass 160 cycles here for better timing
             oam.doDMATransfer(value);
             return;
         }

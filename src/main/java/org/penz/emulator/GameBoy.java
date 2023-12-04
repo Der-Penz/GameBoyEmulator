@@ -3,6 +3,7 @@ package org.penz.emulator;
 import org.penz.emulator.cpu.Cpu;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.timer.Timer;
+import org.penz.emulator.graphics.Ppu;
 import org.penz.emulator.input.ButtonController;
 import org.penz.emulator.input.Joypad;
 import org.penz.emulator.memory.*;
@@ -17,6 +18,8 @@ public class GameBoy {
     private final Cpu cpu;
 
     private final Mmu mmu;
+
+    private final Ppu ppu;
 
     private final Timer timer;
 
@@ -35,6 +38,8 @@ public class GameBoy {
         Ram ram = new Ram(0xC000, 0xDFFF);
 
         this.mmu = new Mmu();
+        this.ppu = new Ppu(interruptManager, mmu);
+
         this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(cartridge);
         this.mmu.addMemoryBank(ram);
@@ -42,6 +47,7 @@ public class GameBoy {
         this.mmu.addMemoryBank(new Joypad(interruptManager, controls));
         this.mmu.addMemoryBank(interruptManager);
         this.mmu.addMemoryBank(this.timer);
+        this.mmu.addMemoryBank(ppu);
         this.mmu.addMemoryBank(new Ram(0xFF80, 0xFFFE)); //High ram
         this.mmu.indexBanks();
         this.cpu = new Cpu(mmu, interruptManager);
@@ -63,6 +69,7 @@ public class GameBoy {
 
     public void tick() {
         int passedCycles = cpu.tick();
+        ppu.tick(passedCycles);
         timer.tick(passedCycles);
     }
 
