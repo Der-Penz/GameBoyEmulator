@@ -12,12 +12,15 @@ public class Ppu implements AddressSpace {
 
     private final static int CYCLES_PER_SCANLINE = 456;
     private final LcdRegister lcdRegister;
-    private final AddressSpace vRam;
+    private final Ram vRam;
     private final InterruptManager interruptManager;
     private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
     private final LcdControl lcdControl;
 
-    public Ppu(InterruptManager interruptManager) {
+    private final Oam oam;
+
+    public Ppu(InterruptManager interruptManager, AddressSpace mmu) {
+        this.oam = new Oam(mmu);
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
         this.lcdRegister = new LcdRegister(interruptManager);
@@ -76,17 +79,22 @@ public class Ppu implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        if (vRam.accepts(address)) {
+        if (vRam.accepts(address) || oam.accepts(address)) {
             return true;
         }
 
-        return address == 0xFF40 || address == 0xFF41 || address == 0xFF44 || address == 0xFF45;
+        return address == 0xFF40 || address == 0xFF41 || address == 0xFF44 || address == 0xFF45 || address == 0xFE46;
     }
 
     @Override
     public void writeByte(int address, int value) {
         if (vRam.accepts(address) && lcdRegister.getSTAT().getPpuMode() != PpuMode.PIXEL_TRANSFER) {
             vRam.writeByte(address, value);
+            return;
+        }
+
+        if (oam.accepts(address)) {
+            oam.writeByte(address, value);
             return;
         }
 
@@ -100,8 +108,14 @@ public class Ppu implements AddressSpace {
         }
         if (address == 0xFF44) {
             throw new IllegalArgumentException("LY is read only");
-        } else if (address == 0xFF45) {
+        }
+
+        if (address == 0xFF45) {
             lcdRegister.setLYC(value);
+            return;
+        }
+        if (address == 0xFE46) {
+            oam.doDMATransfer(value);
             return;
         }
     }
@@ -123,6 +137,10 @@ public class Ppu implements AddressSpace {
                 return 0xFF;
             }
             return vRam.readByte(address);
+        }
+
+        if (oam.accepts(address)) {
+            return oam.readByte(address);
         }
 
         return 0;
