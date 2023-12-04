@@ -2,6 +2,7 @@ package org.penz.emulator.graphics;
 
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.interrupt.InterruptType;
+import org.penz.emulator.graphics.enums.LCDInterruptMode;
 import org.penz.emulator.graphics.enums.PpuMode;
 
 public class StatRegister {
@@ -21,6 +22,37 @@ public class StatRegister {
         this.interruptManager = interruptManager;
     }
 
+    /**
+     * Will request the LCD interrupt if the interrupt mode is enabled
+     *
+     * @param interruptMode the interrupt mode to check
+     */
+    public void tryRequestInterrupt(LCDInterruptMode interruptMode) {
+        //TODO: research STAT blocking
+        switch (interruptMode) {
+            case LYC:
+                if (modeLYCInt) {
+                    interruptManager.requestInterrupt(InterruptType.LCD);
+                }
+                break;
+            case MODE1:
+                if (mode1Int) {
+                    interruptManager.requestInterrupt(InterruptType.LCD);
+                }
+                break;
+            case MODE2:
+                if (mode2Int) {
+                    interruptManager.requestInterrupt(InterruptType.LCD);
+                }
+                break;
+            case MODE0:
+                if (mode0Int) {
+                    interruptManager.requestInterrupt(InterruptType.LCD);
+                }
+                break;
+        }
+    }
+
     public void setPpuMode(PpuMode ppuMode) {
         this.ppuMode = ppuMode;
     }
@@ -28,8 +60,8 @@ public class StatRegister {
     public void setLYLYCEquals(boolean lYLYCEquals) {
         this.lYLYCEquals = lYLYCEquals;
 
-        if (lYLYCEquals && modeLYCInt) {
-            interruptManager.requestInterrupt(InterruptType.LCD);
+        if (lYLYCEquals) {
+            tryRequestInterrupt(LCDInterruptMode.LYC);
         }
     }
 

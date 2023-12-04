@@ -1,6 +1,9 @@
 package org.penz.emulator.graphics;
 
 import org.penz.emulator.cpu.interrupt.InterruptManager;
+import org.penz.emulator.cpu.interrupt.InterruptType;
+import org.penz.emulator.graphics.enums.LCDInterruptMode;
+import org.penz.emulator.graphics.enums.PpuMode;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
@@ -8,15 +11,11 @@ public class Ppu implements AddressSpace {
 
 
     private final static int CYCLES_PER_SCANLINE = 456;
-
-    private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
-
-    private LcdControl lcdControl;
     private final LcdRegister lcdRegister;
-
     private final AddressSpace vRam;
-
     private final InterruptManager interruptManager;
+    private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
+    private final LcdControl lcdControl;
 
     public Ppu(InterruptManager interruptManager) {
         this.interruptManager = interruptManager;
@@ -25,27 +24,54 @@ public class Ppu implements AddressSpace {
         this.lcdControl = new LcdControl();
     }
 
-
     public void tick(int passedCycles) {
         if (!lcdControl.isLcdEnabled()) {
+            scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
+            lcdRegister.setLY(0);
+            lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
             return;
         }
 
+        scanlineCounter -= passedCycles;
 
-//        scanlineCounter -= passedCycles;
+        if (scanlineCounter <= 0) {
+            scanlineCounter += Ppu.CYCLES_PER_SCANLINE;
+            lcdRegister.incrementLYC(); //wrap around to 0 if 153
+        }
+        int currentLine = lcdRegister.getLY();
 
-//        if(scanlineCounter <= 0){
-//            scanlineCounter += Ppu.CYCLES_PER_SCANLINE;
-//            lcdRegister.incrementLYC();
-//
-//            int currentLine = lcdRegister.getLY();
-//            if(currentLine == 144) {
-//                interruptManager.requestInterrupt(InterruptType.VBLANK);
-//                lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
-//            }else if(currentLine < 144) {
-//                //render line
-//            }
-//        }
+        switch (lcdRegister.getSTAT().getPpuMode()) {
+            case H_BLANK:
+                //TODO implement H_BLANK wait
+
+
+                if (currentLine == 144) {
+                    interruptManager.requestInterrupt(InterruptType.VBLANK);
+                    lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
+                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
+                } else {
+                    lcdRegister.getSTAT().setPpuMode(PpuMode.OAM_SCAN);
+                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                }
+                break;
+            case V_BLANK:
+                //TODO implement V_BLANK wait
+                if (currentLine == 0) {
+                    lcdRegister.getSTAT().setPpuMode(PpuMode.OAM_SCAN);
+                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                }
+                break;
+            case OAM_SCAN:
+                //TODO: implement OAM scan
+
+                lcdRegister.getSTAT().setPpuMode(PpuMode.PIXEL_TRANSFER);
+                break;
+            case PIXEL_TRANSFER:
+                //TODO: implement pixel transfer
+
+                lcdRegister.getSTAT().setPpuMode(PpuMode.H_BLANK);
+                lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE0);
+        }
     }
 
     @Override
@@ -59,7 +85,7 @@ public class Ppu implements AddressSpace {
 
     @Override
     public void writeByte(int address, int value) {
-        if (vRam.accepts(address)) {
+        if (vRam.accepts(address) && lcdRegister.getSTAT().getPpuMode() != PpuMode.PIXEL_TRANSFER) {
             vRam.writeByte(address, value);
             return;
         }
@@ -93,6 +119,9 @@ public class Ppu implements AddressSpace {
         }
 
         if (vRam.accepts(address)) {
+            if (lcdRegister.getSTAT().getPpuMode() == PpuMode.PIXEL_TRANSFER) {
+                return 0xFF;
+            }
             return vRam.readByte(address);
         }
 

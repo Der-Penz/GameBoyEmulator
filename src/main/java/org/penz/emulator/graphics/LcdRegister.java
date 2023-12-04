@@ -16,7 +16,7 @@ public class LcdRegister {
 
     public void incrementLYC() {
         this.lY++;
-        if (lY > 153) {
+        if (lY == 153) {
             this.lY = 0;
         }
         sTAT.setLYLYCEquals(this.lY == lYC);
@@ -33,6 +33,10 @@ public class LcdRegister {
     public void setLYC(int lYC) {
         this.lYC = lYC;
         sTAT.setLYLYCEquals(lY == lYC);
+    }
+
+    public void setLY(int lY) {
+        this.lY = lY;
     }
 
     public StatRegister getSTAT() {
