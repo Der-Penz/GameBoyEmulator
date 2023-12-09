@@ -1,5 +1,6 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
@@ -23,12 +24,13 @@ public class Rom implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        return address >= start && address <= data.length;
+        return address >= start && address <= data.length - 1;
     }
 
     @Override
     public void writeByte(int address, int value) {
-        throw new UnsupportedOperationException("Cannot write to ROM");
+        //address to hex
+        throw new UnsupportedOperationException("Cannot write to ROM. " + BitUtil.toHex(address));
     }
 
     @Override

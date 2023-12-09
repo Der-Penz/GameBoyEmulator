@@ -115,4 +115,8 @@ public final class BitUtil {
     public static int toByte(int value) {
         return value & Constants.BYTE_MAX_VALUE;
     }
+
+    public static String toHex(int value) {
+        return Integer.toHexString(value);
+    }
 }

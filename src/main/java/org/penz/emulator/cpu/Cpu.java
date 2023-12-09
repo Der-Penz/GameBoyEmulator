@@ -198,7 +198,16 @@ public class Cpu {
         }
         OpCode instruction = getOpcode(opcode, isBitInstruction);
 
-        return executeInstruction(instruction);
+        try {
+            return executeInstruction(instruction);
+
+        } catch (Exception e) {
+            System.err.println("Error executing instruction: " + instruction.getName());
+            System.err.println("Opcode: " + BitUtil.toHex(opcode));
+            System.err.println("PC: " + BitUtil.toHex(registers.getPC()));
+            System.err.println("SP: " + BitUtil.toHex(registers.getSP()));
+            throw e;
+        }
     }
 
     /**
@@ -215,7 +224,7 @@ public class Cpu {
 
                 if (requestedInterrupt == null) {
                     state = CpuState.OPCODE;
-                } else{
+                } else {
                     registers.disableInterrupts();
                     interruptManager.clearInterrupt(requestedInterrupt);
                     state = CpuState.IT_PUSH_LOW;
