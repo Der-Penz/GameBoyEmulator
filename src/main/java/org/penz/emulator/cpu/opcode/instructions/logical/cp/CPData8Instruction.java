@@ -19,7 +19,7 @@ public class CPData8Instruction extends OpCode {
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("CP", DataType.d8, DataType.d8);
-        aluOperation.apply(registers.getFlags(), registers.getA(), args[0]);
+        aluOperation.apply(registers.getFlags(), registers.getA(), registers.getA());
 
         return cycles;
     }

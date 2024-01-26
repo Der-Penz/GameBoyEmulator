@@ -2,6 +2,7 @@ package org.penz.emulator.cpu.opcode.instructions.load.misc;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
+import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
@@ -14,7 +15,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class LDHRamAInstruction extends OpCode {
 
     public LDHRamAInstruction() {
-        super(0xE0, "LDH (a8), A", 12);
+        super(0xE0, "LDH (a8), A", 12, new DataType[]{DataType.d8});
     }
 
     @Override
