@@ -14,31 +14,35 @@ public class Ppu implements AddressSpace {
     private final LcdRegister lcdRegister;
     private final Ram vRam;
     private final InterruptManager interruptManager;
-    private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
     private final LcdControl lcdControl;
-
+    private final PixelFIFO pixelFIFO;
     private final Oam oam;
+    private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
 
-    public Ppu(InterruptManager interruptManager, AddressSpace mmu) {
+    public Ppu(InterruptManager interruptManager, AddressSpace mmu, Display display) {
         this.oam = new Oam(mmu);
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
         this.lcdRegister = new LcdRegister(interruptManager);
         this.lcdControl = new LcdControl();
+        PixelFetcher pixelFetcher = new PixelFetcher(vRam, lcdControl, lcdRegister);
+        this.pixelFIFO = new PixelFIFO(display, pixelFetcher, lcdControl, lcdRegister);
     }
 
     public void tick(int passedCycles) {
+        System.out.println(lcdControl.isLcdEnabled());
         if (!lcdControl.isLcdEnabled()) {
-            scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
+            scanlineCounter = 0;
             lcdRegister.setLY(0);
             lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
             return;
         }
 
-        scanlineCounter -= passedCycles;
+        scanlineCounter += passedCycles;
 
-        if (scanlineCounter <= 0) {
-            scanlineCounter += Ppu.CYCLES_PER_SCANLINE;
+
+        if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
+            scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
             lcdRegister.incrementLYC(); //wrap around to 0 if 153
         }
         int currentLine = lcdRegister.getLY();
@@ -47,33 +51,58 @@ public class Ppu implements AddressSpace {
             case H_BLANK:
                 //TODO implement H_BLANK wait
 
-
                 if (currentLine == 144) {
-                    interruptManager.requestInterrupt(InterruptType.VBLANK);
-                    lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
-                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
+                    changeMode(PpuMode.V_BLANK);
                 } else {
-                    lcdRegister.getSTAT().setPpuMode(PpuMode.OAM_SCAN);
-                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                    changeMode(PpuMode.OAM_SCAN);
                 }
                 break;
             case V_BLANK:
                 //TODO implement V_BLANK wait
                 if (currentLine == 0) {
-                    lcdRegister.getSTAT().setPpuMode(PpuMode.OAM_SCAN);
-                    lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                    changeMode(PpuMode.OAM_SCAN);
                 }
                 break;
             case OAM_SCAN:
                 //TODO: implement OAM scan
 
-                lcdRegister.getSTAT().setPpuMode(PpuMode.PIXEL_TRANSFER);
+                if (scanlineCounter >= 80) {
+                    changeMode(PpuMode.PIXEL_TRANSFER);
+                }
                 break;
             case PIXEL_TRANSFER:
                 //TODO: implement pixel transfer
+                for (int i = 0; i < passedCycles; i++) {
+                    pixelFIFO.tick();
+                    if (pixelFIFO.getX() == 160) {
+                        changeMode(PpuMode.H_BLANK);
+                    }
+                }
 
-                lcdRegister.getSTAT().setPpuMode(PpuMode.H_BLANK);
+        }
+    }
+
+    /**
+     * Change the current PPU mode and request interrupts if necessary
+     *
+     * @param nextMode The next mode to change to
+     */
+    private void changeMode(PpuMode nextMode) {
+        lcdRegister.getSTAT().setPpuMode(nextMode);
+
+        switch (nextMode) {
+            case H_BLANK:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE0);
+                break;
+            case V_BLANK:
+                interruptManager.requestInterrupt(InterruptType.VBLANK);
+                lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
+                break;
+            case OAM_SCAN:
+                lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                break;
+            default:
+                break;
         }
     }
 
@@ -93,7 +122,9 @@ public class Ppu implements AddressSpace {
             return;
         }
 
-        if (oam.accepts(address)) {
+        if (oam.accepts(address)
+                && lcdRegister.getSTAT().getPpuMode() != PpuMode.PIXEL_TRANSFER
+                && lcdRegister.getSTAT().getPpuMode() != PpuMode.OAM_SCAN) {
             oam.writeByte(address, value);
             return;
         }

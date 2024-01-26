@@ -38,7 +38,7 @@ public class GameBoy {
         Ram ram = new Ram(0xC000, 0xDFFF);
 
         this.mmu = new Mmu();
-        this.ppu = new Ppu(interruptManager, mmu);
+        this.ppu = new Ppu(interruptManager, mmu, new ConsoleDisplay());
 
         this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(cartridge);

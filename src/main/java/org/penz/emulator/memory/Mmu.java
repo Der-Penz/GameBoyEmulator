@@ -25,7 +25,8 @@ public class Mmu implements AddressSpace {
     private final AddressSpace VOID_BANK = new AddressSpace() {
         @Override
         public boolean accepts(int address) {
-            throw new UnsupportedOperationException("Trying to access void memory bank. No memory mapped to address " + address);
+//            throw new UnsupportedOperationException("Trying to access void memory bank. No memory mapped to address " + address);
+            return true;
         }
 
         @Override
@@ -52,7 +53,7 @@ public class Mmu implements AddressSpace {
      * This method should be called after all memory banks have been added to the MMU
      */
     public void indexBanks() {
-//        TODO: Memory should be indexed differently in the future to not need a extra array
+//      TODO: Memory should be indexed differently in the future to not need a extra array
         addressToBank = new AddressSpace[0x10000];
         for (int i = 0; i < addressToBank.length; i++) {
             addressToBank[i] = VOID_BANK;
