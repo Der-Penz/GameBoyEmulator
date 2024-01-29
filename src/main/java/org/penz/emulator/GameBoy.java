@@ -38,7 +38,7 @@ public class GameBoy {
         Ram ram = new Ram(0xC000, 0xDFFF);
 
         this.mmu = new Mmu();
-        this.ppu = new Ppu(interruptManager, mmu, new ConsoleDisplay());
+        this.ppu = new Ppu(interruptManager, mmu, new SimpleDisplay());
 
         this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(cartridge);
@@ -62,7 +62,7 @@ public class GameBoy {
 
     public void start() {
         while (true) {
-            System.out.println("game boy clock tick");
+//            System.out.println("game boy clock tick");
             tick();
         }
     }

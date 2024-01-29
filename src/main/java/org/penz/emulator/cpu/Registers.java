@@ -109,7 +109,7 @@ public class Registers {
     }
 
     public void setA(int a) {
-        this.a = a;
+        this.a = a & Constants.BYTE_MAX_VALUE;
     }
 
     public int getB() {

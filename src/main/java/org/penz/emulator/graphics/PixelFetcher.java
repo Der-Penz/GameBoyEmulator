@@ -20,7 +20,7 @@ public class PixelFetcher {
 
     private int currentTileId;
 
-    private ArrayList<Integer> currentTileData;
+    private final ArrayList<Integer> currentTileData;
 
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
@@ -57,7 +57,7 @@ public class PixelFetcher {
         TileMapArea tileMapArea = lcdControl.getBackgroundTileMapArea();
 
         // TODO window support
-        int fetcherX = ((scx / 8) + x) & 0x1F;
+        int fetcherX = ((scx + x) / 8) & 0x1F;
         int fetcherY = (lcdRegister.getLY() + scy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
 
@@ -88,7 +88,6 @@ public class PixelFetcher {
             int tileDataAddress = TileDataArea.AREA_2.getStartAddress() + currentTileId * sizeOfTileRow;
             tileDataAddress += tileLine * 2;
             if (!isLowByte) tileDataAddress += 1;
-
             tileData = vram.readByte(tileDataAddress);
         }
 
@@ -123,6 +122,7 @@ public class PixelFetcher {
 
         Integer[] pixelData = new Integer[8];
         for (int i = 0; i < 8; i++) {
+            pixelData[i] = 0;
             pixelData[i] |= (BitUtil.getBit(msb, i) ? 1 : 0) << 1;
             pixelData[i] |= BitUtil.getBit(lsb, i) ? 1 : 0;
         }

@@ -38,13 +38,15 @@ public class PixelFIFO implements AddressSpace {
         this.lcdRegister = lcdRegister;
     }
 
-
-    public void incX() {
-        x++;
+    public void reset() {
+        x = 0;
+        counter = 0;
+        pixelQueue.clear();
     }
 
     public void tick() {
-        if (counter++ % 2 == 0) {
+        counter++;
+        if (counter == 2) {
             counter = 0;
             pixelFetcher.fetch(x, scx, scy);
         }
@@ -53,9 +55,9 @@ public class PixelFIFO implements AddressSpace {
             pixelQueue.addAll(Arrays.stream(pixelFetcher.pullPixelData()).toList());
         }
 
-        x++;
-
         display.putPixel(x, lcdRegister.getLY(), getNextPixel());
+
+        x++;
     }
 
     /**

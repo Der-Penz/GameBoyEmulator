@@ -17,10 +17,13 @@ public class Ppu implements AddressSpace {
     private final LcdControl lcdControl;
     private final PixelFIFO pixelFIFO;
     private final Oam oam;
+
+    private final Display display;
     private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
 
     public Ppu(InterruptManager interruptManager, AddressSpace mmu, Display display) {
         this.oam = new Oam(mmu);
+        this.display = display;
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
         this.lcdRegister = new LcdRegister(interruptManager);
@@ -30,7 +33,6 @@ public class Ppu implements AddressSpace {
     }
 
     public void tick(int passedCycles) {
-        System.out.println(lcdControl.isLcdEnabled());
         if (!lcdControl.isLcdEnabled()) {
             scanlineCounter = 0;
             lcdRegister.setLY(0);
@@ -72,10 +74,12 @@ public class Ppu implements AddressSpace {
                 break;
             case PIXEL_TRANSFER:
                 //TODO: implement pixel transfer
+
                 for (int i = 0; i < passedCycles; i++) {
                     pixelFIFO.tick();
                     if (pixelFIFO.getX() == 160) {
                         changeMode(PpuMode.H_BLANK);
+                        break;
                     }
                 }
 
@@ -96,10 +100,14 @@ public class Ppu implements AddressSpace {
                 break;
             case V_BLANK:
                 interruptManager.requestInterrupt(InterruptType.VBLANK);
+                display.onFrameReady();
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
                 break;
             case OAM_SCAN:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
+                break;
+            case PIXEL_TRANSFER:
+                pixelFIFO.reset();
                 break;
             default:
                 break;
