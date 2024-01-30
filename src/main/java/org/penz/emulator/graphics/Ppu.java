@@ -53,7 +53,7 @@ public class Ppu implements AddressSpace {
             case H_BLANK:
                 //TODO implement H_BLANK wait
 
-                if (currentLine == 144) {
+                if (currentLine == 143) {
                     changeMode(PpuMode.V_BLANK);
                 } else {
                     changeMode(PpuMode.OAM_SCAN);
@@ -68,13 +68,11 @@ public class Ppu implements AddressSpace {
             case OAM_SCAN:
                 //TODO: implement OAM scan
 
-                if (scanlineCounter >= 80) {
+                if (scanlineCounter >= 70) {
                     changeMode(PpuMode.PIXEL_TRANSFER);
                 }
                 break;
             case PIXEL_TRANSFER:
-                //TODO: implement pixel transfer
-
                 for (int i = 0; i < passedCycles; i++) {
                     pixelFIFO.tick();
                     if (pixelFIFO.getX() == 160) {

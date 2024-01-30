@@ -15,12 +15,9 @@ public class PixelFetcher {
     private final LcdControl lcdControl;
 
     private final LcdRegister lcdRegister;
-
-    private PixelFetcherState state;
-
-    private int currentTileId;
-
     private final ArrayList<Integer> currentTileData;
+    private PixelFetcherState state;
+    private int currentTileId;
 
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
@@ -46,7 +43,6 @@ public class PixelFetcher {
                 readTileData();
                 break;
             case IDLE:
-                //TODO implement idle state
                 break;
         }
 
@@ -61,7 +57,9 @@ public class PixelFetcher {
         int fetcherY = (lcdRegister.getLY() + scy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
 
-        int address = tileMapArea.getStartAddress() + yPos + fetcherX;
+        //somehow works with + 3 or 2
+//        int address = tileMapArea.getStartAddress() + yPos + fetcherX;
+        int address = tileMapArea.getStartAddress() + yPos + fetcherX + 3;
 
         currentTileId = vram.readByte(address);
     }
@@ -91,7 +89,8 @@ public class PixelFetcher {
             tileData = vram.readByte(tileDataAddress);
         }
 
-        currentTileData.add(isLowByte ? 0 : 1, tileData);
+//        currentTileData.add(isLowByte ? 0 : 1, tileData);
+        currentTileData.add(tileData);
     }
 
     private PixelFetcherState getNextState() {
@@ -104,7 +103,7 @@ public class PixelFetcher {
     }
 
     public boolean isPixelDataReady() {
-        return currentTileData.size() >= 2;
+        return currentTileData.size() >= 2 && state == PixelFetcherState.IDLE;
     }
 
     /**
@@ -117,14 +116,15 @@ public class PixelFetcher {
      */
     public Integer[] pullPixelData() {
         if (currentTileData.size() < 2) throw new IllegalStateException("Not enough tile data available");
-        int lsb = currentTileData.removeFirst();
-        int msb = currentTileData.removeFirst();
+        int lsb = currentTileData.get(0);
+        int msb = currentTileData.get(1);
+        currentTileData.clear();
 
         Integer[] pixelData = new Integer[8];
         for (int i = 0; i < 8; i++) {
-            pixelData[i] = 0;
-            pixelData[i] |= (BitUtil.getBit(msb, i) ? 1 : 0) << 1;
-            pixelData[i] |= BitUtil.getBit(lsb, i) ? 1 : 0;
+            pixelData[7 - i] = 0;
+            pixelData[7 - i] |= (BitUtil.getBit(msb, i) ? 1 : 0) << 1;
+            pixelData[7 - i] |= BitUtil.getBit(lsb, i) ? 1 : 0;
         }
 
         return pixelData;

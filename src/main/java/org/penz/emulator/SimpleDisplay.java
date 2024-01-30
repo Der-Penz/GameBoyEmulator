@@ -20,7 +20,7 @@ public class SimpleDisplay extends JFrame implements Display {
     private void initializeUI() {
         setTitle("Color Array Display");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(144, 160);
+        setSize(160, 144);
 
         panel = new ColorArrayPanel();
         add(panel);
@@ -42,8 +42,8 @@ public class SimpleDisplay extends JFrame implements Display {
 
     private class ColorArrayPanel extends JPanel {
         private List<Integer> pixelColors;
-        private int width = 144;
-        private int height = 160;
+        private int width = 160;
+        private int height = 144;
 
         public ColorArrayPanel() {
             pixelColors = new ArrayList<>(width * height);

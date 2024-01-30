@@ -30,12 +30,13 @@ public class PixelFIFO implements AddressSpace {
     private final LcdRegister lcdRegister;
 
     public PixelFIFO(Display display, PixelFetcher pixelFetcher, LcdControl lcdControl, LcdRegister lcdRegister) {
-        x = 0;
         this.display = display;
         this.pixelFetcher = pixelFetcher;
         this.pixelQueue = new ArrayDeque<>();
         this.lcdControl = lcdControl;
         this.lcdRegister = lcdRegister;
+
+        reset();
     }
 
     public void reset() {
@@ -48,16 +49,17 @@ public class PixelFIFO implements AddressSpace {
         counter++;
         if (counter == 2) {
             counter = 0;
+            if (pixelFetcher.isPixelDataReady()) {
+                pixelQueue.addAll(Arrays.stream(pixelFetcher.pullPixelData()).toList());
+            }
             pixelFetcher.fetch(x, scx, scy);
         }
 
-        if (pixelFetcher.isPixelDataReady()) {
-            pixelQueue.addAll(Arrays.stream(pixelFetcher.pullPixelData()).toList());
+
+        if (pixelQueue.size() > 8) {
+            display.putPixel(x, lcdRegister.getLY(), getNextPixel());
+            x++;
         }
-
-        display.putPixel(x, lcdRegister.getLY(), getNextPixel());
-
-        x++;
     }
 
     /**

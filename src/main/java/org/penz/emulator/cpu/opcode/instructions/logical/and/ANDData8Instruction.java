@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class ANDData8Instruction extends OpCode {
 
     public ANDData8Instruction() {
-        super(0xE6, "AND d8", 8);
+        super(0xE6, "AND d8", 8, new DataType[]{DataType.d8});
     }
 
     @Override

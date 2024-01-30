@@ -13,13 +13,13 @@ import org.penz.emulator.memory.AddressSpace;
 public class CPData8Instruction extends OpCode {
 
     public CPData8Instruction() {
-        super(0xFE, "CP A", 8);
+        super(0xFE, "CP d8", 8, new DataType[]{DataType.d8});
     }
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("CP", DataType.d8, DataType.d8);
-        aluOperation.apply(registers.getFlags(), registers.getA(), registers.getA());
+        aluOperation.apply(registers.getFlags(), registers.getA(), args[0]);
 
         return cycles;
     }

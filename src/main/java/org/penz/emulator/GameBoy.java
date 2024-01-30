@@ -65,6 +65,7 @@ public class GameBoy {
 //            System.out.println("game boy clock tick");
             tick();
         }
+
     }
 
     public void tick() {

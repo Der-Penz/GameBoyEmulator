@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class ORData8Instruction extends OpCode {
 
     public ORData8Instruction() {
-        super(0xF6, "OR d8", 8);
+        super(0xF6, "OR d8", 8, new DataType[]{DataType.d8});
     }
 
     @Override
