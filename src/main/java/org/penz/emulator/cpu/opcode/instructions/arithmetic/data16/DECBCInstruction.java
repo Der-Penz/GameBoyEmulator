@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class DECBCInstruction extends OpCode {
 
     public DECBCInstruction() {
-        super(0x0D, "DEC BC", 8);
+        super(0x0B, "DEC BC", 8);
     }
 
     @Override

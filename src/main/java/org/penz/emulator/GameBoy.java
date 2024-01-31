@@ -6,7 +6,10 @@ import org.penz.emulator.cpu.timer.Timer;
 import org.penz.emulator.graphics.Ppu;
 import org.penz.emulator.input.ButtonController;
 import org.penz.emulator.input.Joypad;
-import org.penz.emulator.memory.*;
+import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.memory.EchoAddressSpace;
+import org.penz.emulator.memory.Mmu;
+import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.CGBFlag;
 import org.penz.emulator.memory.cartridge.Cartridge;
 
@@ -40,7 +43,6 @@ public class GameBoy {
         this.mmu = new Mmu();
         this.ppu = new Ppu(interruptManager, mmu, new SimpleDisplay());
 
-        this.mmu.addMemoryBank(new BootRom());
         this.mmu.addMemoryBank(cartridge);
         this.mmu.addMemoryBank(ram);
         this.mmu.addMemoryBank(new EchoAddressSpace(ram, 0xC000, 0xE000, 0xFDFF));

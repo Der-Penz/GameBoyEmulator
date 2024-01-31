@@ -30,7 +30,7 @@ public class Rom implements AddressSpace {
     @Override
     public void writeByte(int address, int value) {
         //address to hex
-        throw new UnsupportedOperationException("Cannot write to ROM. " + BitUtil.toHex(address));
+        throw new UnsupportedOperationException("Cannot write to ROM Address: 0x" + BitUtil.toHex(address));
     }
 
     @Override

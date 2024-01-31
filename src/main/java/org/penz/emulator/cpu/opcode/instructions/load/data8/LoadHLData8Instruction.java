@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class LoadHLData8Instruction extends OpCode {
 
     public LoadHLData8Instruction() {
-        super(0x2E, "LD (HL), d8", 8, new DataType[]{DataType.d8});
+        super(0x36, "LD (HL), d8", 8, new DataType[]{DataType.d8});
     }
 
     @Override

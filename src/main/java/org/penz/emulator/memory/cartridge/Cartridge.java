@@ -82,6 +82,9 @@ public class Cartridge implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
+        if (bootRomEnabled && bootRom.accepts(address)) {
+            return true;
+        }
         return data.accepts(address) || address == 0xFF50;
     }
 
@@ -89,6 +92,7 @@ public class Cartridge implements AddressSpace {
     public void writeByte(int address, int value) {
         if (address == 0xFF50 && value == 1) {
             bootRomEnabled = false;
+            return;
         }
 
         data.writeByte(address, value);
