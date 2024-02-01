@@ -203,7 +203,7 @@ public class Cpu {
 
         } catch (Exception e) {
             System.err.println("Error executing instruction: " + instruction.getName());
-            System.err.println("Opcode: " + BitUtil.toHex(opcode));
+            System.err.println("Opcode: 0x" + BitUtil.toHex(opcode));
             System.err.println("PC: " + BitUtil.toHex(registers.getPC()));
             System.err.println("SP: " + BitUtil.toHex(registers.getSP()));
             throw e;

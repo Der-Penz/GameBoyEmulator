@@ -95,6 +95,10 @@ public class Cartridge implements AddressSpace {
             return;
         }
 
+        if (getCartridgeType() == CartridgeType.ROM) {
+            return;
+        }
+
         data.writeByte(address, value);
     }
 
@@ -151,6 +155,11 @@ public class Cartridge implements AddressSpace {
     public CartridgeType getCartridgeType(int[] data) {
         int cartridgeTypePos = 0x147;
         return CartridgeType.fromValue(data[cartridgeTypePos]);
+    }
+
+    public int getLicenseeCode() {
+        int licenseeCodePos = 0x14B;
+        return readByte(licenseeCodePos);
     }
 
     public int getChecksum() {

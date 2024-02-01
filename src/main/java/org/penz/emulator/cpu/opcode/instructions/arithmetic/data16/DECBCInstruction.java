@@ -19,7 +19,7 @@ public class DECBCInstruction extends OpCode {
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("DEC", DataType.d16);
-        registers.setBC(aluOperation.apply(registers.getFlags(), registers.getDE()));
+        registers.setBC(aluOperation.apply(registers.getFlags(), registers.getBC()));
         return cycles;
     }
 }
