@@ -230,18 +230,18 @@ public class Cpu {
                 } else {
                     registers.disableInterrupts();
                     interruptManager.clearInterrupt(requestedInterrupt);
-                    state = CpuState.IT_PUSH_LOW;
+                    state = CpuState.IT_PUSH_HIGH;
                 }
 
                 //takes 2 cycles for reading IF and IE
                 return 8;
             case IT_PUSH_HIGH:
                 memory.writeByte(registers.decrementSP(), BitUtil.getMSByte(registers.getPC()));
-                state = CpuState.IT_JP_ADDRESS;
+                state = CpuState.IT_PUSH_LOW;
                 break;
             case IT_PUSH_LOW:
                 memory.writeByte(registers.decrementSP(), BitUtil.getLSByte(registers.getPC()));
-                state = CpuState.IT_PUSH_HIGH;
+                state = CpuState.IT_JP_ADDRESS;
                 break;
             case IT_JP_ADDRESS:
                 registers.setPC(requestedInterrupt.getJumpAddress());
