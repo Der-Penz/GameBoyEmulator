@@ -114,7 +114,7 @@ public class Ppu implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        if (vRam.accepts(address) || oam.accepts(address)) {
+        if (vRam.accepts(address) || oam.accepts(address) || pixelFIFO.accepts(address)) {
             return true;
         }
 
@@ -156,6 +156,11 @@ public class Ppu implements AddressSpace {
             oam.doDMATransfer(value);
             return;
         }
+
+        if (pixelFIFO.accepts(address)) {
+            pixelFIFO.writeByte(address, value);
+            return;
+        }
     }
 
     @Override
@@ -179,6 +184,10 @@ public class Ppu implements AddressSpace {
 
         if (oam.accepts(address)) {
             return oam.readByte(address);
+        }
+
+        if (pixelFIFO.accepts(address)) {
+            return pixelFIFO.readByte(address);
         }
 
         return 0;

@@ -18,7 +18,7 @@ public class RETIInstruction extends OpCode {
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         registers.setPC(addressSpace.readByte(registers.getSP()));
-        registers.setPC(BitUtil.toWord(addressSpace.readByte(registers.getSP() + 1), registers.getPC()));
+        registers.setPC(BitUtil.toWord(registers.getPC(), addressSpace.readByte(registers.getSP() + 1)));
         registers.setSP(registers.getSP() + 2);
 
         registers.enableInterrupts();

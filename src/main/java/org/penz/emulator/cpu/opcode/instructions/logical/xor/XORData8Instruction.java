@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class XORData8Instruction extends OpCode {
 
     public XORData8Instruction() {
-        super(0xEE, "XOR A", 8);
+        super(0xEE, "XOR A", 8, new DataType[]{DataType.d8});
     }
 
     @Override

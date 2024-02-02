@@ -149,7 +149,6 @@ public class Cpu {
                     args[i] = BitUtil.toSignedByte(data);
                 }
                 default -> throw new IllegalArgumentException("Unknown data type: " + dataType);
-
             }
         }
 
@@ -187,6 +186,10 @@ public class Cpu {
 
         if (state == CpuState.HALTED) {
             return 4;
+        }
+
+        if (registers.getPC() > 0x7FFF) {
+            System.out.println("PC: " + BitUtil.toHex(registers.getPC()));
         }
 
         int opcode = memory.readByte(registers.getAndIncPC());
@@ -234,11 +237,13 @@ public class Cpu {
                 return 8;
             case IT_PUSH_HIGH:
                 memory.writeByte(registers.decrementSP(), BitUtil.getMSByte(registers.getPC()));
+                state = CpuState.IT_JP_ADDRESS;
                 break;
             case IT_PUSH_LOW:
                 memory.writeByte(registers.decrementSP(), BitUtil.getLSByte(registers.getPC()));
+                state = CpuState.IT_PUSH_HIGH;
                 break;
-            case IH_JP_ADDRESS:
+            case IT_JP_ADDRESS:
                 registers.setPC(requestedInterrupt.getJumpAddress());
                 state = CpuState.OPCODE;
                 break;
