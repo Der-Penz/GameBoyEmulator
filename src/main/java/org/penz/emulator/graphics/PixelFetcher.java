@@ -78,18 +78,17 @@ public class PixelFetcher {
         int sizeOfTileRow = 16;
         int tileLine = lcdRegister.getLY() % 8;
         if (tileDataArea == TileDataArea.AREA_1) {
-            int tileDataAddress = TileDataArea.AREA_1.getStartAddress() + BitUtil.toSignedByte(currentTileId) * sizeOfTileRow;
+            int tileDataAddress = tileDataArea.getBaseAddress() + BitUtil.toSignedByte(currentTileId) * sizeOfTileRow;
             tileDataAddress += tileLine * 2;
             if (!isLowByte) tileDataAddress += 1;
             tileData = vram.readByte(tileDataAddress);
         } else {
-            int tileDataAddress = TileDataArea.AREA_2.getStartAddress() + currentTileId * sizeOfTileRow;
+            int tileDataAddress = tileDataArea.getBaseAddress() + currentTileId * sizeOfTileRow;
             tileDataAddress += tileLine * 2;
             if (!isLowByte) tileDataAddress += 1;
             tileData = vram.readByte(tileDataAddress);
         }
 
-//        currentTileData.add(isLowByte ? 0 : 1, tileData);
         currentTileData.add(tileData);
     }
 
@@ -120,6 +119,17 @@ public class PixelFetcher {
         int msb = currentTileData.get(1);
         currentTileData.clear();
 
+        return PixelFetcher.pixelDataToColorId(lsb, msb);
+    }
+
+    /**
+     * Converts the 2 byte tile data into 8 pixel data id's
+     *
+     * @param lsb low byte
+     * @param msb high byte
+     * @return 8 pixel color id's
+     */
+    public static Integer[] pixelDataToColorId(int lsb, int msb) {
         Integer[] pixelData = new Integer[8];
         for (int i = 0; i < 8; i++) {
             pixelData[7 - i] = 0;

@@ -2,15 +2,15 @@ package org.penz.emulator.graphics.enums;
 
 public enum TileDataArea {
 
-    AREA_1(0x8800, 0x97FF),
-    AREA_2(0x8000, 0x8FFF);
+    //Area 1: 0x8800-0x97FF signed pointer
+    AREA_1(0x9000),
+    //Area 2: 0x8000-0x8FFF unsigned pointer
+    AREA_2(0x8000);
 
-    private final int startAddress;
-    private final int endAddress;
+    private final int baseAddress;
 
-    TileDataArea(int startAddress, int endAddress) {
-        this.startAddress = startAddress;
-        this.endAddress = endAddress;
+    TileDataArea(int baseAddress) {
+        this.baseAddress = baseAddress;
     }
 
     public static TileDataArea fromValue(int value) {
@@ -21,16 +21,8 @@ public enum TileDataArea {
         }
     }
 
-    public boolean contains(int address) {
-        return address >= startAddress && address <= endAddress;
-    }
-
-    public int getStartAddress() {
-        return startAddress;
-    }
-
-    public int getEndAddress() {
-        return endAddress;
+    public int getBaseAddress() {
+        return baseAddress;
     }
 
 }

@@ -4,7 +4,6 @@ import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.interrupt.InterruptType;
 import org.penz.emulator.graphics.enums.LCDInterruptMode;
 import org.penz.emulator.graphics.enums.PpuMode;
-import org.penz.emulator.gui.TileDataViewer;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
@@ -21,7 +20,7 @@ public class Ppu implements AddressSpace {
 
     private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
 
-    public Ppu(InterruptManager interruptManager, AddressSpace mmu, Display display) {
+    public Ppu(InterruptManager interruptManager, AddressSpace mmu, IDisplay display) {
         this.oam = new Oam(mmu);
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
@@ -99,7 +98,6 @@ public class Ppu implements AddressSpace {
                 break;
             case V_BLANK:
                 interruptManager.requestInterrupt(InterruptType.VBLANK);
-                display.onFrameReady();
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
                 break;
             case OAM_SCAN:

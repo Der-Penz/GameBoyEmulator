@@ -78,7 +78,8 @@ public class GameBoy {
         while (!paused) {
             frame();
             try {
-                Thread.sleep(1000 / GameBoy.FPS);
+                int frameExecutionDuration = 3;
+                Thread.sleep((1000 / GameBoy.FPS) - frameExecutionDuration);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
