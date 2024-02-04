@@ -1,6 +1,6 @@
 package org.penz.emulator.graphics;
 
-public interface Display {
+public interface IDisplay {
 
     void putPixel(int x, int y, int color);
 

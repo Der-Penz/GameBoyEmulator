@@ -4,6 +4,7 @@ import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.interrupt.InterruptType;
 import org.penz.emulator.graphics.enums.LCDInterruptMode;
 import org.penz.emulator.graphics.enums.PpuMode;
+import org.penz.emulator.gui.TileDataViewer;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
@@ -18,12 +19,10 @@ public class Ppu implements AddressSpace {
     private final PixelFIFO pixelFIFO;
     private final Oam oam;
 
-    private final Display display;
     private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
 
     public Ppu(InterruptManager interruptManager, AddressSpace mmu, Display display) {
         this.oam = new Oam(mmu);
-        this.display = display;
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
         this.lcdRegister = new LcdRegister(interruptManager);
@@ -32,12 +31,12 @@ public class Ppu implements AddressSpace {
         this.pixelFIFO = new PixelFIFO(display, pixelFetcher, lcdControl, lcdRegister);
     }
 
-    public void tick(int passedCycles) {
+    public boolean tick(int passedCycles) {
         if (!lcdControl.isLcdEnabled()) {
             scanlineCounter = 0;
             lcdRegister.setLY(0);
             lcdRegister.getSTAT().setPpuMode(PpuMode.V_BLANK);
-            return;
+            return false;
         }
 
         scanlineCounter += passedCycles;
@@ -63,6 +62,7 @@ public class Ppu implements AddressSpace {
                 //TODO implement V_BLANK wait
                 if (currentLine == 0) {
                     changeMode(PpuMode.OAM_SCAN);
+                    return true;
                 }
                 break;
             case OAM_SCAN:
@@ -82,6 +82,7 @@ public class Ppu implements AddressSpace {
                 }
 
         }
+        return false;
     }
 
     /**

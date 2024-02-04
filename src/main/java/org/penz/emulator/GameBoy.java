@@ -3,8 +3,10 @@ package org.penz.emulator;
 import org.penz.emulator.cpu.Cpu;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.timer.Timer;
+import org.penz.emulator.graphics.IDisplay;
 import org.penz.emulator.graphics.Ppu;
-import org.penz.emulator.input.ButtonController;
+import org.penz.emulator.gui.SimpleDisplay;
+import org.penz.emulator.input.IButtonController;
 import org.penz.emulator.input.Joypad;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.EchoAddressSpace;
@@ -18,6 +20,7 @@ import java.io.IOException;
 public class GameBoy {
 
     public static final int CLOCK_SPEED = 4194304;
+    public static final int FPS = 60;
     private final Cpu cpu;
 
     private final Mmu mmu;
@@ -28,7 +31,11 @@ public class GameBoy {
 
     private Cartridge cartridge;
 
-    public GameBoy(String romPath, ButtonController controls) throws IOException {
+    private final IDisplay display;
+
+    private boolean paused = false;
+
+    public GameBoy(String romPath, IButtonController controls, IDisplay display) throws IOException {
 
         cartridge = Cartridge.loadCartridge(romPath);
 
@@ -40,8 +47,9 @@ public class GameBoy {
         this.timer = new Timer(interruptManager);
         Ram ram = new Ram(0xC000, 0xDFFF);
 
+        this.display = display;
         this.mmu = new Mmu();
-        this.ppu = new Ppu(interruptManager, mmu, new SimpleDisplay());
+        this.ppu = new Ppu(interruptManager, mmu, display);
 
         this.mmu.addMemoryBank(cartridge);
         this.mmu.addMemoryBank(ram);
@@ -58,22 +66,44 @@ public class GameBoy {
     public static void main(String[] args) throws IOException {
         var romPath = "src/main/resources/roms/tetris.gb";
 
-        var gameBoy = new GameBoy(romPath, null);
-        gameBoy.start();
+        var gameBoy = new GameBoy(romPath, null, new SimpleDisplay());
+        gameBoy.run();
     }
 
-    public void start() {
-        while (true) {
-//            System.out.println("game boy clock tick");
-            tick();
+    /**
+     * Runs the Game Boy as long as the pause flag is not set
+     */
+    public void run() {
+        paused = false;
+        while (!paused) {
+            frame();
+            try {
+                Thread.sleep(1000 / GameBoy.FPS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-
     }
 
-    public void tick() {
+    /***
+     * Executes one Machine cycle
+     * @return true if a new frame is ready to be drawn
+     */
+    public boolean tick() {
         int passedCycles = cpu.tick();
-        ppu.tick(passedCycles);
         timer.tick(passedCycles);
+        return ppu.tick(passedCycles);
+    }
+
+    /**
+     * Executes one frame
+     */
+    public void frame() {
+        boolean frameReady = false;
+        while (!frameReady) {
+            frameReady = tick();
+        }
+        display.onFrameReady();
     }
 
     public AddressSpace getMemory() {
@@ -86,5 +116,13 @@ public class GameBoy {
 
     public Cartridge getCartridge() {
         return cartridge;
+    }
+
+    public void pause() {
+        paused = true;
+    }
+
+    public boolean isRunning() {
+        return !paused;
     }
 }

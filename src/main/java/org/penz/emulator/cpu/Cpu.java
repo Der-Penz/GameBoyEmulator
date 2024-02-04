@@ -188,10 +188,6 @@ public class Cpu {
             return 4;
         }
 
-        if (registers.getPC() > 0x7FFF) {
-            System.out.println("PC: " + BitUtil.toHex(registers.getPC()));
-        }
-
         int opcode = memory.readByte(registers.getAndIncPC());
 
         // CB prefix means bit instructions

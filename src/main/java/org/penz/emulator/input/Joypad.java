@@ -23,7 +23,7 @@ public class Joypad implements AddressSpace {
      */
     int p1 = 0x00;
 
-    public Joypad(InterruptManager interruptManager, ButtonController buttonController) {
+    public Joypad(InterruptManager interruptManager, IButtonController buttonController) {
         if (buttonController == null) {
             return;
         }
@@ -42,10 +42,12 @@ public class Joypad implements AddressSpace {
     }
 
     private void pressButton(Button button) {
+        System.out.println("Button pressed: " + button.name());
         pressedButtons.add(button);
     }
 
     private void releaseButton(Button button) {
+        System.out.println("Button released: " + button.name());
         pressedButtons.remove(button);
     }
 

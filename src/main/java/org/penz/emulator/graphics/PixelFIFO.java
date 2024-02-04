@@ -9,7 +9,7 @@ import java.util.Queue;
 
 public class PixelFIFO implements AddressSpace {
 
-    private final Display display;
+    private final IDisplay display;
     private int x;
 
     private int scy;
@@ -29,7 +29,7 @@ public class PixelFIFO implements AddressSpace {
     private final LcdControl lcdControl;
     private final LcdRegister lcdRegister;
 
-    public PixelFIFO(Display display, PixelFetcher pixelFetcher, LcdControl lcdControl, LcdRegister lcdRegister) {
+    public PixelFIFO(IDisplay display, PixelFetcher pixelFetcher, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.display = display;
         this.pixelFetcher = pixelFetcher;
         this.pixelQueue = new ArrayDeque<>();
