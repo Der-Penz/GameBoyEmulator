@@ -17,7 +17,7 @@ public class TileDataViewer extends JFrame {
     private static final int TILES_PER_ROW = 32;
     private final AddressSpace mmu;
 
-    private Tile[] tiles;
+    private TilePanel[] tiles;
 
     private TileMapArea tileMapArea;
 
@@ -66,9 +66,9 @@ public class TileDataViewer extends JFrame {
             updateTileData();
         });
 
-        tiles = new Tile[TILES_PER_ROW * TILES_PER_ROW];
+        tiles = new TilePanel[TILES_PER_ROW * TILES_PER_ROW];
         for (int i = 0; i < TILES_PER_ROW * TILES_PER_ROW; i++) {
-            tiles[i] = new Tile();
+            tiles[i] = new TilePanel();
             add(tiles[i]);
         }
 
@@ -92,7 +92,7 @@ public class TileDataViewer extends JFrame {
     public void updateTileData() {
         Palette palette = Palette.PALETTE_1;
         for (int i = 0; i < tiles.length; i++) {
-            Tile current = tiles[i];
+            TilePanel current = tiles[i];
 
             int tileId = fetchTileId(i);
             int[] tileData = fetchTileData(tileId);

@@ -15,6 +15,8 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     private GameBoy gameBoy;
     private int framesCounter = 0;
 
+    private RegisterViewer registerViewer;
+
     public SimpleDisplay() {
         gameBoy = null;
         initializeUI();
@@ -39,6 +41,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         tick.addActionListener(e -> {
             if (gameBoy != null && !gameBoy.isRunning()) {
                 gameBoy.tick();
+                if (registerViewer != null) {
+                    registerViewer.updateRegisterData();
+                }
             }
         });
         JMenuItem run = new JMenuItem("Start");
@@ -85,8 +90,16 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             t.setLocation(getX() + getWidth(), getY());
             t.updateTileData();
         });
+        JMenuItem registerViewer = new JMenuItem("Register Viewer");
+        registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+        registerViewer.addActionListener(e -> {
+            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters());
+            r.setLocation(getX() + getWidth(), getY());
+            this.registerViewer = r;
+        });
 
         debugMenu.add(tileDataViewer);
+        debugMenu.add(registerViewer);
 
         menuBar.add(controlMenu);
         menuBar.add(debugMenu);
@@ -111,6 +124,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         framesCounter++;
         setTitle("Color Array Display, Frame: " + framesCounter);
         panel.paintImage();
+        if (registerViewer != null) {
+            registerViewer.updateRegisterData();
+        }
     }
 
 }

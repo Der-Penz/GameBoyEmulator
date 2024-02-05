@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-class Tile extends JPanel {
+class TilePanel extends JPanel {
 
     private final int imageWidth = 8;
     private Integer[] pixelBuffer;
 
-    public Tile() {
+    public TilePanel() {
         setSize(imageWidth, imageWidth);
     }
 
