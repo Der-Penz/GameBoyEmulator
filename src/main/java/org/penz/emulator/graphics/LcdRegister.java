@@ -14,7 +14,7 @@ public class LcdRegister {
         this.sTAT = new StatRegister(interruptManager);
     }
 
-    public void incrementLYC() {
+    public void incrementLY() {
         this.lY++;
         if (lY == 153) {
             this.lY = 0;

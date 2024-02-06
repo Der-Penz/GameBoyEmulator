@@ -43,7 +43,7 @@ public class Ppu implements AddressSpace {
 
         if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
             scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
-            lcdRegister.incrementLYC(); //wrap around to 0 if 153
+            lcdRegister.incrementLY(); //wrap around to 0 if 153
         }
         int currentLine = lcdRegister.getLY();
 
@@ -74,7 +74,8 @@ public class Ppu implements AddressSpace {
             case PIXEL_TRANSFER:
                 for (int i = 0; i < passedCycles; i++) {
                     pixelFIFO.tick();
-                    if (pixelFIFO.getX() == 160) {
+                    if (pixelFIFO.getX() >= 160) {
+                        pixelFIFO.reset();
                         changeMode(PpuMode.H_BLANK);
                         break;
                     }
@@ -102,9 +103,6 @@ public class Ppu implements AddressSpace {
                 break;
             case OAM_SCAN:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
-                break;
-            case PIXEL_TRANSFER:
-                pixelFIFO.reset();
                 break;
             default:
                 break;
