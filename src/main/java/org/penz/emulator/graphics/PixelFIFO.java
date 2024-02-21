@@ -22,6 +22,8 @@ public class PixelFIFO implements AddressSpace {
 
     private int counter;
 
+    private int xShift;
+
     private final PixelFetcher pixelFetcher;
 
     private final Queue<Integer> pixelQueue;
@@ -35,12 +37,11 @@ public class PixelFIFO implements AddressSpace {
         this.pixelQueue = new ArrayDeque<>();
         this.lcdControl = lcdControl;
         this.lcdRegister = lcdRegister;
-
-        reset();
     }
 
-    public void reset() {
+    public void startScanline() {
         x = 0;
+        xShift = scx % 8;
         counter = 0;
         pixelQueue.clear();
     }
@@ -55,16 +56,18 @@ public class PixelFIFO implements AddressSpace {
             pixelFetcher.fetch(x, scx, scy);
         }
 
-
         if (pixelQueue.size() > 8) {
+            if (xShift > 0) {
+                pixelQueue.poll();
+                xShift--;
+                return;
+            }
             display.putPixel(x, lcdRegister.getLY(), getNextPixel());
-            x++;
         }
     }
 
     /**
      * Returns the color of the next pixel to be drawn on the screen in HEX RGB format
-     *
      * @return color in HEX RGB format
      */
     public int getNextPixel() {
@@ -75,6 +78,7 @@ public class PixelFIFO implements AddressSpace {
         }
 
         Palette palette = Palette.PALETTE_1;
+        x++;
 
         return palette.getColorById(pixelPaletteID);
     }

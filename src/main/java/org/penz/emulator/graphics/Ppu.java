@@ -41,24 +41,32 @@ public class Ppu implements AddressSpace {
         scanlineCounter += passedCycles;
 
 
-        if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
-            scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
-            lcdRegister.incrementLY(); //wrap around to 0 if 153
-        }
+//        if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
+//            scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
+//            lcdRegister.incrementLY(); //wrap around to 0 if 153
+//        }
         int currentLine = lcdRegister.getLY();
 
         switch (lcdRegister.getSTAT().getPpuMode()) {
             case H_BLANK:
                 //TODO implement H_BLANK wait
 
-                if (currentLine == 143) {
-                    changeMode(PpuMode.V_BLANK);
-                } else {
-                    changeMode(PpuMode.OAM_SCAN);
+                if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
+                    scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
+                    lcdRegister.incrementLY();
+
+                    if (currentLine == 143) {
+                        changeMode(PpuMode.V_BLANK);
+                    } else {
+                        changeMode(PpuMode.OAM_SCAN);
+                    }
                 }
                 break;
             case V_BLANK:
-                //TODO implement V_BLANK wait
+                if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
+                    scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
+                    lcdRegister.incrementLY();
+                }
                 if (currentLine == 0) {
                     changeMode(PpuMode.OAM_SCAN);
                     return true;
@@ -75,7 +83,6 @@ public class Ppu implements AddressSpace {
                 for (int i = 0; i < passedCycles; i++) {
                     pixelFIFO.tick();
                     if (pixelFIFO.getX() >= 160) {
-                        pixelFIFO.reset();
                         changeMode(PpuMode.H_BLANK);
                         break;
                     }
@@ -104,7 +111,8 @@ public class Ppu implements AddressSpace {
             case OAM_SCAN:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE2);
                 break;
-            default:
+            case PIXEL_TRANSFER:
+                pixelFIFO.startScanline();
                 break;
         }
     }

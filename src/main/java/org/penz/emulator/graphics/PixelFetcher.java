@@ -37,6 +37,7 @@ public class PixelFetcher {
     public void fetch(int x, int scx, int scy) {
         switch (state) {
             case READ_TILE_ID:
+
                 readTileId(x, scx, scy);
                 break;
             case READ_TILE_DATA_1, READ_TILE_DATA_2:
