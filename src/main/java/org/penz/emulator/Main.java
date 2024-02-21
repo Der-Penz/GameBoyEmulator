@@ -9,7 +9,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        var romPath = "src/main/resources/roms/tetris.gb";
+        var romPath = args.length > 0 ? args[0] : "src/main/resources/roms/tetris.gb";
 
         var display = new SimpleDisplay();
         KeyboardController controls = new KeyboardController();
