@@ -33,7 +33,11 @@ public class TileDataViewer extends JFrame {
     private void initializeUI(int frame) {
         setTitle("Tile Data Viewer, Frame: " + frame);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(TILES_PER_ROW, TILES_PER_ROW, -1, -1));
+        setLayout(new GridBagLayout());
+        setResizable(false);
+        setMaximumSize(new Dimension(256, 256));
+        setSize(500, 500);
+
 
         JMenuBar menuBar = new JMenuBar();
         JMenu tileMapAreaMenu = new JMenu("Tile map");
@@ -69,7 +73,13 @@ public class TileDataViewer extends JFrame {
         tiles = new TilePanel[TILES_PER_ROW * TILES_PER_ROW];
         for (int i = 0; i < TILES_PER_ROW * TILES_PER_ROW; i++) {
             tiles[i] = new TilePanel();
-            add(tiles[i]);
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.ipadx = -2;
+            gbc.ipady = -2;
+
+            gbc.gridx = i % TILES_PER_ROW;
+            gbc.gridy = i / TILES_PER_ROW;
+            add(tiles[i], gbc);
         }
 
         tileMapAreaMenu.add(tileMap1);
@@ -82,7 +92,6 @@ public class TileDataViewer extends JFrame {
         menuBar.add(tileDataAreaMenu);
         setJMenuBar(menuBar);
 
-        pack();
 
         setLocationRelativeTo(null);
         requestFocus();

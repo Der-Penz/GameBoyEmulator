@@ -27,19 +27,15 @@ public class PixelFetcher {
         this.lcdRegister = lcdRegister;
         this.state = PixelFetcherState.READ_TILE_ID;
         currentTileData = new ArrayList<>();
-
     }
 
     /**
      * Fetches the Tile data for the next 8 pixel from VRAM.
      * Depending on the current state it will perform different actions
-     *
-     * @return true if the next 8 pixel are ready to be pulled
      */
     public void fetch(int x, int scx, int scy) {
         switch (state) {
             case READ_TILE_ID:
-
                 readTileId(x, scx, scy);
                 break;
             case READ_TILE_DATA_1, READ_TILE_DATA_2:
@@ -82,15 +78,15 @@ public class PixelFetcher {
         int tileData;
 
         int sizeOfTileRow = 16;
-        int tileLine = (lcdRegister.getLY() + scy) % 8;
+        int tileLine = ((lcdRegister.getLY() + scy) % 8) * 2;
         if (tileDataArea == TileDataArea.AREA_1) {
             int tileDataAddress = tileDataArea.getBaseAddress() + BitUtil.toSignedByte(currentTileId) * sizeOfTileRow;
-            tileDataAddress += tileLine * 2;
+            tileDataAddress += tileLine;
             if (!isLowByte) tileDataAddress += 1;
             tileData = vram.readByte(tileDataAddress);
         } else {
             int tileDataAddress = tileDataArea.getBaseAddress() + currentTileId * sizeOfTileRow;
-            tileDataAddress += tileLine * 2;
+            tileDataAddress += tileLine;
             if (!isLowByte) tileDataAddress += 1;
             tileData = vram.readByte(tileDataAddress);
         }
