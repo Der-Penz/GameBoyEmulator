@@ -56,7 +56,7 @@ public class PixelFIFO implements AddressSpace {
             pixelFetcher.fetch(x, scx, scy);
         }
 
-        if (pixelQueue.size() > 8) {
+        if (!pixelQueue.isEmpty()) {
             if (xShift > 0) {
                 pixelQueue.poll();
                 xShift--;
