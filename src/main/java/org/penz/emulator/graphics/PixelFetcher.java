@@ -41,7 +41,7 @@ public class PixelFetcher {
                 readTileId(x, scx, scy);
                 break;
             case READ_TILE_DATA_1, READ_TILE_DATA_2:
-                readTileData();
+                readTileData(scy);
                 break;
             case IDLE:
                 break;
@@ -58,9 +58,8 @@ public class PixelFetcher {
         int fetcherY = (lcdRegister.getLY() + scy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
 
-        //somehow works with + 3 or 2
 //        int address = tileMapArea.getStartAddress() + yPos + fetcherX;
-        int address = tileMapArea.getStartAddress() + yPos + fetcherX + 3;
+        int address = tileMapArea.getStartAddress() + yPos + fetcherX + 2;
 
         currentTileId = vram.readByte(address);
     }
@@ -70,14 +69,14 @@ public class PixelFetcher {
      * uses currentTileId to determine which tile to read and depending on
      * state reads either low or high byte
      */
-    private void readTileData() {
+    private void readTileData(int scy) {
         //TODO check for object tile data if enabled
         TileDataArea tileDataArea = lcdControl.getTileDataArea();
         boolean isLowByte = (state == PixelFetcherState.READ_TILE_DATA_1);
         int tileData;
 
         int sizeOfTileRow = 16;
-        int tileLine = lcdRegister.getLY() % 8;
+        int tileLine = (lcdRegister.getLY() + scy) % 8;
         if (tileDataArea == TileDataArea.AREA_1) {
             int tileDataAddress = tileDataArea.getBaseAddress() + BitUtil.toSignedByte(currentTileId) * sizeOfTileRow;
             tileDataAddress += tileLine * 2;
