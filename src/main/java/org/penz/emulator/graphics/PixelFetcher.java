@@ -19,6 +19,8 @@ public class PixelFetcher {
     private PixelFetcherState state;
     private int currentTileId;
 
+    private boolean discardFirstFetch;
+
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
         this.lcdControl = lcdControl;
@@ -47,6 +49,11 @@ public class PixelFetcher {
                 break;
         }
 
+        if (!discardFirstFetch && isPixelDataReady()) {
+            discardFirstFetch = true;
+            currentTileData.clear();
+            return;
+        }
         state = getNextState();
     }
 
@@ -58,8 +65,7 @@ public class PixelFetcher {
         int fetcherY = (lcdRegister.getLY() + scy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
 
-//        int address = tileMapArea.getStartAddress() + yPos + fetcherX;
-        int address = tileMapArea.getStartAddress() + yPos + fetcherX + 2;
+        int address = tileMapArea.getStartAddress() + yPos + fetcherX + 1;
 
         currentTileId = vram.readByte(address);
     }
@@ -138,5 +144,11 @@ public class PixelFetcher {
         }
 
         return pixelData;
+    }
+
+    public void reset() {
+        state = PixelFetcherState.READ_TILE_ID;
+        currentTileData.clear();
+        discardFirstFetch = false;
     }
 }

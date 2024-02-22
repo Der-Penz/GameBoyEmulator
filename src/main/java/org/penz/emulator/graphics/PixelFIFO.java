@@ -44,6 +44,7 @@ public class PixelFIFO implements AddressSpace {
         xShift = scx % 8;
         counter = 0;
         pixelQueue.clear();
+        pixelFetcher.reset();
     }
 
     public void tick() {
