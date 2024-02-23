@@ -44,11 +44,19 @@ public class PixelFIFO implements AddressSpace {
         xShift = scx % 8;
         counter = 0;
         pixelQueue.clear();
-        pixelFetcher.reset(scx, scy);
+        pixelFetcher.reset(scx, scy, false);
     }
 
     public void tick() {
         counter++;
+
+        if (inWindow() && !pixelFetcher.isWindowFetching()) {
+            pixelQueue.clear();
+            x = 0;
+            xShift = 0;
+            pixelFetcher.reset(0, 0, true);
+        }
+
         if (counter == 2) {
             counter = 0;
             pixelFetcher.fetch();
@@ -57,7 +65,7 @@ public class PixelFIFO implements AddressSpace {
             }
         }
 
-        if (!pixelQueue.isEmpty()) {
+        if (pixelQueue.size() > 8) {
             if (xShift > 0) {
                 pixelQueue.poll();
                 xShift--;
@@ -88,8 +96,13 @@ public class PixelFIFO implements AddressSpace {
         return x;
     }
 
+    /**
+     * Checks if the current pixel is in the window
+     *
+     * @return true if the current pixel is in the window
+     */
     private boolean inWindow() {
-        return lcdControl.isWindowEnabled() && x >= wx && x <= 166 && lcdRegister.getLY() >= wy && wy <= 143;
+        return lcdControl.isWindowEnabled() && lcdControl.isBackgroundWindowEnabled() && x >= wx - 7 && x <= 166 && lcdRegister.getLY() >= wy && wy <= 143;
     }
 
 

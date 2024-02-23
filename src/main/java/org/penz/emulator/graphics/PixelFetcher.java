@@ -21,7 +21,7 @@ public class PixelFetcher {
     private int x;
     private int curScx;
     private int curScy;
-
+    private boolean windowFetching;
 
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
@@ -52,12 +52,15 @@ public class PixelFetcher {
     /**
      * Reset the pixel fetcher to be ready for a new scanline
      */
-    public void reset(int scx, int scy) {
-        x = 0;
+    public void reset(int scx, int scy, boolean window) {
+        if (!window) {
+            x = 0;
+        }
         curScy = scy;
         curScx = scx;
         state = PixelFetcherState.READ_TILE_ID;
         currentTileData.clear();
+        windowFetching = window;
     }
 
     /**
@@ -81,9 +84,8 @@ public class PixelFetcher {
     }
 
     private void readTileId() {
-        TileMapArea tileMapArea = lcdControl.getBackgroundTileMapArea();
+        TileMapArea tileMapArea = windowFetching ? lcdControl.getWindowTileMapArea() : lcdControl.getBackgroundTileMapArea();
 
-        // TODO window support
         int fetcherX = ((curScx + x) / 8) & 0x1F;
         int fetcherY = (lcdRegister.getLY() + curScy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
@@ -158,5 +160,9 @@ public class PixelFetcher {
         currentTileData.clear();
 
         return PixelFetcher.pixelDataToColorId(lsb, msb);
+    }
+
+    public boolean isWindowFetching() {
+        return windowFetching;
     }
 }
