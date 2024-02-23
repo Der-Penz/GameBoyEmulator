@@ -34,6 +34,7 @@ public class LcdControl {
         this.backgroundWindowEnabled = false;
     }
 
+
     public int getLcdControlRegister() {
         int lcdControlReg = 0;
         lcdControlReg |= ((lcdEnabled ? 1 : 0) << 7);

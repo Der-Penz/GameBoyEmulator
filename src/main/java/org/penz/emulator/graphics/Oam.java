@@ -1,6 +1,5 @@
 package org.penz.emulator.graphics;
 
-import org.penz.emulator.Constants;
 import org.penz.emulator.memory.AddressSpace;
 
 public class Oam implements AddressSpace {
@@ -8,6 +7,8 @@ public class Oam implements AddressSpace {
 
     private final AddressSpace memory;
     private final int[] data = new int[160];
+
+    private int dmaRegister;
 
     public Oam(AddressSpace memory) {
         this.memory = memory;
@@ -23,8 +24,8 @@ public class Oam implements AddressSpace {
             throw new IllegalArgumentException("Invalid DMA transfer sourceAddress 0x" +
                     Integer.toHexString(sourceAddress) + ". Must be in range 0x00-0xDF");
         }
-
-        int startAddress = (sourceAddress << 8) % Constants.WORD_MAX_VALUE;
+        int startAddress = sourceAddress * 0x100;
+        dmaRegister = (startAddress >> 8) & 0xFF;
 
         for (int i = 0; i < 160; i++) {
             writeByte(0xFE00 + i, memory.readByte(startAddress + i));
@@ -34,16 +35,23 @@ public class Oam implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        return address >= 0xFE00 && address <= 0xFE9F;
+        return address >= 0xFE00 && address <= 0xFE9F || address == 0xFF46;
     }
 
     @Override
     public void writeByte(int address, int value) {
+        if (address == 0xFF46) {
+            doDMATransfer(value);
+            return;
+        }
         data[address - 0xFE00] = value;
     }
 
     @Override
     public int readByte(int address) {
+        if (address == 0xFF46) {
+            return dmaRegister;
+        }
         return data[address - 0xFE00];
     }
 }
