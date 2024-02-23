@@ -99,7 +99,7 @@ public class TileDataViewer extends JFrame {
     }
 
     public void updateTileData() {
-        Palette palette = Palette.PALETTE_1;
+        Palette palette = Palette.GRAYSCALE;
         for (int i = 0; i < tiles.length; i++) {
             TilePanel current = tiles[i];
 

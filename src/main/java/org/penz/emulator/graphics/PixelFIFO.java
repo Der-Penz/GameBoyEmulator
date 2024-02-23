@@ -24,6 +24,8 @@ public class PixelFIFO implements AddressSpace {
 
     private int xShift;
 
+    private int bgPalette;
+
     private final PixelFetcher pixelFetcher;
 
     private final Queue<Integer> pixelQueue;
@@ -52,7 +54,6 @@ public class PixelFIFO implements AddressSpace {
 
         if (inWindow() && !pixelFetcher.isWindowFetching()) {
             pixelQueue.clear();
-            x = 0;
             xShift = 0;
             pixelFetcher.reset(0, 0, true);
         }
@@ -85,11 +86,11 @@ public class PixelFIFO implements AddressSpace {
         if (pixelPaletteID == null) {
             return 0;
         }
-
-        Palette palette = Palette.PALETTE_1;
+        int paletteIndex = (bgPalette >> (2 * pixelPaletteID)) & 0b11;
         x++;
 
-        return palette.getColorById(pixelPaletteID);
+        Palette palette = Palette.GRAYSCALE;
+        return palette.getColorById(paletteIndex);
     }
 
     public int getX() {
@@ -108,7 +109,7 @@ public class PixelFIFO implements AddressSpace {
 
     @Override
     public boolean accepts(int address) {
-        return address == 0xFF42 || address == 0xFF43 || address == 0xFF4A || address == 0xFF4B;
+        return address == 0xFF42 || address == 0xFF43 || address == 0xFF4A || address == 0xFF4B || address == 0xFF47;
     }
 
     @Override
@@ -118,6 +119,7 @@ public class PixelFIFO implements AddressSpace {
             case 0xFF43 -> scx = value;
             case 0xFF4A -> wy = value;
             case 0xFF4B -> wx = value;
+            case 0xFF47 -> bgPalette = value;
         }
     }
 
@@ -128,6 +130,7 @@ public class PixelFIFO implements AddressSpace {
             case 0xFF43 -> scx;
             case 0xFF4A -> wy;
             case 0xFF4B -> wx;
+            case 0xFF47 -> bgPalette;
             default -> 0x00;
         };
     }
