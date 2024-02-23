@@ -134,5 +134,9 @@ public class PixelFIFO implements AddressSpace {
             default -> 0x00;
         };
     }
+
+    public PixelFetcher getPixelFetcher() {
+        return pixelFetcher;
+    }
 }
 

@@ -7,6 +7,7 @@ import org.penz.emulator.graphics.enums.TileMapArea;
 import org.penz.emulator.memory.AddressSpace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PixelFetcher {
 
@@ -23,12 +24,15 @@ public class PixelFetcher {
     private int curScy;
     private boolean windowFetching;
 
+    private int[] objects;
+
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
         this.lcdControl = lcdControl;
         this.lcdRegister = lcdRegister;
         this.state = PixelFetcherState.READ_TILE_ID;
         currentTileData = new ArrayList<>();
+        objects = null;
     }
 
     /**
@@ -164,5 +168,18 @@ public class PixelFetcher {
 
     public boolean isWindowFetching() {
         return windowFetching;
+    }
+
+    public void setObjects(int[] objects) {
+        if (objects != null && objects[0] != 0) {
+            System.out.println("got objects in scanline " + lcdRegister.getLY());
+            System.out.println(Arrays.toString(objects));
+
+        }
+        this.objects = objects;
+    }
+
+    public boolean hasObjects() {
+        return objects != null;
     }
 }
