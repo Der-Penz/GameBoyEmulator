@@ -53,7 +53,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
                 SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
-                        gameBoy.run();
+                        gameBoy.run(false);
                         return null;
                     }
                 };

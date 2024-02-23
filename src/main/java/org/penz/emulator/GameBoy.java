@@ -28,11 +28,8 @@ public class GameBoy {
     private final Ppu ppu;
 
     private final Timer timer;
-
-    private Cartridge cartridge;
-
     private final IDisplay display;
-
+    private Cartridge cartridge;
     private boolean paused = false;
 
     public GameBoy(String romPath, IButtonController controls, IDisplay display) throws IOException {
@@ -67,27 +64,31 @@ public class GameBoy {
         var romPath = "src/main/resources/roms/tetris.gb";
 
         var gameBoy = new GameBoy(romPath, null, new SimpleDisplay());
-        gameBoy.run();
+        gameBoy.run(true);
     }
 
     /**
      * Runs the Game Boy as long as the pause flag is not set
      */
-    public void run() {
+    public void run(boolean fastMode) {
         paused = false;
         while (!paused) {
             frame();
-            try {
-                int frameExecutionDuration = 3;
-                Thread.sleep((1000 / GameBoy.FPS) - frameExecutionDuration);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            if (!fastMode) {
+
+                try {
+                    int frameExecutionDuration = 3;
+                    Thread.sleep((1000 / GameBoy.FPS) - frameExecutionDuration);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
 
-    /***
+    /**
      * Executes one Machine cycle
+     *
      * @return true if a new frame is ready to be drawn
      */
     public boolean tick() {

@@ -16,6 +16,6 @@ public class Main {
         display.addKeyListener(controls);
         var gameBoy = new GameBoy(romPath, controls, display);
         display.setGameBoy(gameBoy);
-        gameBoy.run();
+        gameBoy.run(true);
     }
 }
