@@ -44,17 +44,17 @@ public class PixelFIFO implements AddressSpace {
         xShift = scx % 8;
         counter = 0;
         pixelQueue.clear();
-        pixelFetcher.reset();
+        pixelFetcher.reset(scx, scy);
     }
 
     public void tick() {
         counter++;
         if (counter == 2) {
             counter = 0;
+            pixelFetcher.fetch();
             if (pixelFetcher.isPixelDataReady()) {
                 pixelQueue.addAll(Arrays.stream(pixelFetcher.pullPixelData()).toList());
             }
-            pixelFetcher.fetch(x, scx, scy);
         }
 
         if (!pixelQueue.isEmpty()) {

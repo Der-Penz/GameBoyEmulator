@@ -39,12 +39,6 @@ public class Ppu implements AddressSpace {
         }
 
         scanlineCounter += passedCycles;
-
-
-//        if (scanlineCounter >= Ppu.CYCLES_PER_SCANLINE) {
-//            scanlineCounter -= Ppu.CYCLES_PER_SCANLINE;
-//            lcdRegister.incrementLY(); //wrap around to 0 if 153
-//        }
         int currentLine = lcdRegister.getLY();
 
         switch (lcdRegister.getSTAT().getPpuMode()) {
