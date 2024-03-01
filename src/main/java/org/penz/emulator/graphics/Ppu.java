@@ -65,9 +65,9 @@ public class Ppu implements AddressSpace {
                 }
                 break;
             case OAM_SCAN:
-                if (!pixelFIFO.getPixelFetcher().hasObjects()) {
+                if (!pixelFIFO.hasObjects()) {
                     int[] objects = oam.doOAMScan(currentLine, lcdControl.getObjSize());
-                    pixelFIFO.getPixelFetcher().setObjects(objects);
+                    pixelFIFO.setObjects(objects);
                 }
                 if (scanlineCounter >= 70) {
                     changeMode(PpuMode.PIXEL_TRANSFER);
@@ -97,7 +97,7 @@ public class Ppu implements AddressSpace {
         switch (nextMode) {
             case H_BLANK:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE0);
-                pixelFIFO.getPixelFetcher().setObjects(null);
+                pixelFIFO.setObjects(null);
                 break;
             case V_BLANK:
                 interruptManager.requestInterrupt(InterruptType.VBLANK);

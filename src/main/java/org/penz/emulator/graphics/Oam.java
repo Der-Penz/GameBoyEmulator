@@ -3,6 +3,8 @@ package org.penz.emulator.graphics;
 import org.penz.emulator.graphics.enums.ObjSize;
 import org.penz.emulator.memory.AddressSpace;
 
+import java.util.Arrays;
+
 public class Oam implements AddressSpace {
 
 
@@ -43,6 +45,7 @@ public class Oam implements AddressSpace {
      */
     public int[] doOAMScan(int lcy, ObjSize size) {
         int[] spritesData = new int[40];
+        Arrays.fill(spritesData, -1);
         int spritesOnScanline = 0;
         for (int i = 0; i < data.length; i += 4) {
             int yPosition = data[i] - 16;

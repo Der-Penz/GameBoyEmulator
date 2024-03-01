@@ -7,7 +7,6 @@ import org.penz.emulator.graphics.enums.TileMapArea;
 import org.penz.emulator.memory.AddressSpace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class PixelFetcher {
 
@@ -24,15 +23,12 @@ public class PixelFetcher {
     private int curScy;
     private boolean windowFetching;
 
-    private int[] objects;
-
     public PixelFetcher(AddressSpace vram, LcdControl lcdControl, LcdRegister lcdRegister) {
         this.vram = vram;
         this.lcdControl = lcdControl;
         this.lcdRegister = lcdRegister;
         this.state = PixelFetcherState.READ_TILE_ID;
         currentTileData = new ArrayList<>();
-        objects = null;
     }
 
     /**
@@ -76,14 +72,16 @@ public class PixelFetcher {
             case READ_TILE_ID:
                 readTileId();
                 break;
-            case READ_TILE_DATA_1, READ_TILE_DATA_2:
+            case READ_TILE_DATA_1, READ_TILE_DATA_2, READ_TILE_DATA_OBJ_1, READ_TILE_DATA_OBJ_2:
                 readTileData();
                 break;
             case IDLE:
                 break;
         }
 
-        this.x += 2;
+        if (!isObjectFetching()) {
+            this.x += 2;
+        }
         state = getNextState();
     }
 
@@ -104,8 +102,7 @@ public class PixelFetcher {
      * state reads either low or high byte
      */
     private void readTileData() {
-        //TODO check for object tile data if enabled
-        TileDataArea tileDataArea = lcdControl.getTileDataArea();
+        TileDataArea tileDataArea = state == PixelFetcherState.READ_TILE_DATA_OBJ_1 ? TileDataArea.AREA_2 : lcdControl.getTileDataArea();
         boolean isLowByte = (state == PixelFetcherState.READ_TILE_DATA_1);
         int tileData;
 
@@ -135,8 +132,10 @@ public class PixelFetcher {
         return switch (state) {
             case READ_TILE_ID -> PixelFetcherState.READ_TILE_DATA_1;
             case READ_TILE_DATA_1 -> PixelFetcherState.READ_TILE_DATA_2;
+            case READ_TILE_DATA_OBJ_1 -> PixelFetcherState.READ_TILE_DATA_OBJ_2;
             case READ_TILE_DATA_2 -> PixelFetcherState.IDLE;
-            case IDLE -> PixelFetcherState.READ_TILE_ID;
+            case READ_TILE_DATA_OBJ_2 -> PixelFetcherState.IDLE_OBJ;
+            case IDLE, IDLE_OBJ -> PixelFetcherState.READ_TILE_ID;
         };
     }
 
@@ -146,7 +145,7 @@ public class PixelFetcher {
      * @return true if 2 byte tile data is available
      */
     public boolean isPixelDataReady() {
-        return currentTileData.size() >= 2 && state == PixelFetcherState.IDLE;
+        return currentTileData.size() >= 2 && (state == PixelFetcherState.IDLE || state == PixelFetcherState.IDLE_OBJ);
     }
 
     /**
@@ -170,16 +169,18 @@ public class PixelFetcher {
         return windowFetching;
     }
 
-    public void setObjects(int[] objects) {
-        if (objects != null && objects[0] != 0) {
-            System.out.println("got objects in scanline " + lcdRegister.getLY());
-            System.out.println(Arrays.toString(objects));
-
-        }
-        this.objects = objects;
+    public boolean isObjectFetching() {
+        return state == PixelFetcherState.READ_TILE_DATA_OBJ_1 || state == PixelFetcherState.READ_TILE_DATA_OBJ_2 || state == PixelFetcherState.IDLE_OBJ;
     }
 
-    public boolean hasObjects() {
-        return objects != null;
+    /**
+     * Sets the Fetcher into object tile data fetching mode
+     *
+     * @param tileId the id of the tile for the object
+     */
+    public void fetchObjectTileData(int tileId) {
+        currentTileId = tileId;
+        currentTileData.clear();
+        state = PixelFetcherState.READ_TILE_DATA_OBJ_1;
     }
 }
