@@ -12,7 +12,7 @@ public enum Palette {
         this.hexValues = hexValues;
     }
 
-    public int getColorById(int id) {
-        return hexValues[id & 0x3];
+    public int getColorByIndex(int index) {
+        return hexValues[index & 0x3];
     }
 }

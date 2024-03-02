@@ -112,7 +112,7 @@ public class TileDataViewer extends JFrame {
 
                 Integer[] colorIds = PixelFetcher.pixelDataToColorId(lsb, msb);
 
-                Integer[] rowOfColors = Arrays.stream(colorIds).map(palette::getColorById).toArray(Integer[]::new);
+                Integer[] rowOfColors = Arrays.stream(colorIds).map(palette::getColorByIndex).toArray(Integer[]::new);
                 System.arraycopy(rowOfColors, 0, colors, j * 4, 8);
             }
             current.setPixel(colors);

@@ -2,6 +2,7 @@ package org.penz.emulator.graphics;
 
 import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.graphics.enums.ObjSize;
+import org.penz.emulator.graphics.enums.PixelType;
 import org.penz.emulator.graphics.enums.TileDataArea;
 import org.penz.emulator.memory.AddressSpace;
 
@@ -173,5 +174,14 @@ public class Object {
      */
     public boolean isRendered() {
         return renderedOnScanline;
+    }
+
+    /**
+     * gets the pixel type of the object to be later used to determine the right palette
+     *
+     * @return the pixel type of the object
+     */
+    public PixelType getPixelType() {
+        return BitUtil.getBit(flags, 4) ? PixelType.OBJ1 : PixelType.OBJ0;
     }
 }

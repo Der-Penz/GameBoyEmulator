@@ -2,18 +2,16 @@ package org.penz.emulator.graphics;
 
 import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.graphics.enums.Palette;
+import org.penz.emulator.graphics.enums.PixelType;
 import org.penz.emulator.memory.AddressSpace;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class PixelFIFO implements AddressSpace {
 
     private final IDisplay display;
     private final PixelFetcher pixelFetcher;
-    private final Queue<Integer> pixelQueue;
+    private final Queue<Pixel> pixelQueue;
     private final LcdControl lcdControl;
     private final LcdRegister lcdRegister;
     private int x;
@@ -62,7 +60,7 @@ public class PixelFIFO implements AddressSpace {
         Object object = checkForObject();
         if (object != null) {
             List<Integer> pixels = object.fetchPixels(lcdRegister.getLY(), scy, pixelFetcher.getVram(), lcdControl.getObjSize());
-            addCombinedObjPixelData(pixels);
+            combinedObjPixelData(pixels, object);
             objectPenaltyTicks += Object.OBJECT_TICK_PENALTY;
         }
 
@@ -76,7 +74,7 @@ public class PixelFIFO implements AddressSpace {
             counter = 0;
             pixelFetcher.fetch();
             if (pixelFetcher.isPixelDataReady()) {
-                pixelQueue.addAll(Arrays.stream(pixelFetcher.pullPixelData()).toList());
+                Arrays.stream(pixelFetcher.pullPixelData()).map(Pixel::createBgPixel).forEach(pixelQueue::add);
             }
         }
 
@@ -91,39 +89,50 @@ public class PixelFIFO implements AddressSpace {
     }
 
     /**
+     * returns the index of a color in the color palette from a given ID and palette
+     *
+     * @param palette        the palette to use
+     * @param pixelPaletteID the ID of the color in the palette
+     * @return the index of the color in the color palette
+     */
+    private int paletteIndexFromId(int palette, int pixelPaletteID) {
+        return (palette >> (2 * pixelPaletteID)) & 0b11;
+    }
+
+    /**
      * Returns the color of the next pixel to be drawn on the screen in HEX RGB format
      *
      * @return color in HEX RGB format
      */
     public int getNextPixel() {
-        var pixelPaletteID = pixelQueue.poll();
+        var pixel = pixelQueue.poll();
 
-        if (pixelPaletteID == null) {
-            return 0;
+        if (pixel == null) {
+            throw new IllegalStateException("Cannot get next pixel, pixel queue is empty");
         }
-        int paletteIndex = (bgPalette >> (2 * pixelPaletteID)) & 0b11;
         x++;
 
-        Palette palette = Palette.GRAYSCALE;
-        return palette.getColorById(paletteIndex);
+        if (pixel.isObjPixel()) {
+            return pixel.toHexColor(pixel.getPixelType() == PixelType.OBJ0 ? objPalette0 : objPalette1, Palette.GRAYSCALE);
+        } else {
+            return pixel.toHexColor(bgPalette, Palette.GRAYSCALE);
+        }
     }
 
-    private void addCombinedObjPixelData(List<Integer> objPixelData) {
-        Integer[] pixelArray = pixelQueue.toArray(Integer[]::new);
+    private void combinedObjPixelData(List<Integer> objPixelData, Object object) {
+        List<Pixel> pixelArray = new ArrayList<>(pixelQueue);
 
-        //TODO Selecting the palette
-        //TODO handling sprite overlap, remember pixel authority
         for (int i = 0; i < 8; i++) {
             int pixel = objPixelData.get(i);
-
             if (pixel != 0) {
-                pixelArray[i] = pixel;
+                if (!pixelArray.get(i).isObjPixel()) {
+                    pixelArray.set(i, new Pixel(pixel, object.getPixelType()));
+                }
             }
         }
 
         pixelQueue.clear();
-        pixelQueue.addAll(List.of(pixelArray));
-
+        pixelQueue.addAll(pixelArray);
     }
 
     public int getX() {
