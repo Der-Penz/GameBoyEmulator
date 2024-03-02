@@ -72,16 +72,14 @@ public class PixelFetcher {
             case READ_TILE_ID:
                 readTileId();
                 break;
-            case READ_TILE_DATA_1, READ_TILE_DATA_2, READ_TILE_DATA_OBJ_1, READ_TILE_DATA_OBJ_2:
+            case READ_TILE_DATA_1, READ_TILE_DATA_2:
                 readTileData();
                 break;
             case IDLE:
                 break;
         }
 
-        if (!isObjectFetching()) {
-            this.x += 2;
-        }
+        this.x += 2;
         state = getNextState();
     }
 
@@ -102,7 +100,7 @@ public class PixelFetcher {
      * state reads either low or high byte
      */
     private void readTileData() {
-        TileDataArea tileDataArea = state == PixelFetcherState.READ_TILE_DATA_OBJ_1 ? TileDataArea.AREA_2 : lcdControl.getTileDataArea();
+        TileDataArea tileDataArea = lcdControl.getTileDataArea();
         boolean isLowByte = (state == PixelFetcherState.READ_TILE_DATA_1);
         int tileData;
 
@@ -132,10 +130,8 @@ public class PixelFetcher {
         return switch (state) {
             case READ_TILE_ID -> PixelFetcherState.READ_TILE_DATA_1;
             case READ_TILE_DATA_1 -> PixelFetcherState.READ_TILE_DATA_2;
-            case READ_TILE_DATA_OBJ_1 -> PixelFetcherState.READ_TILE_DATA_OBJ_2;
             case READ_TILE_DATA_2 -> PixelFetcherState.IDLE;
-            case READ_TILE_DATA_OBJ_2 -> PixelFetcherState.IDLE_OBJ;
-            case IDLE, IDLE_OBJ -> PixelFetcherState.READ_TILE_ID;
+            case IDLE -> PixelFetcherState.READ_TILE_ID;
         };
     }
 
@@ -145,7 +141,7 @@ public class PixelFetcher {
      * @return true if 2 byte tile data is available
      */
     public boolean isPixelDataReady() {
-        return currentTileData.size() >= 2 && (state == PixelFetcherState.IDLE || state == PixelFetcherState.IDLE_OBJ);
+        return currentTileData.size() >= 2 && state == PixelFetcherState.IDLE;
     }
 
     /**
@@ -169,18 +165,7 @@ public class PixelFetcher {
         return windowFetching;
     }
 
-    public boolean isObjectFetching() {
-        return state == PixelFetcherState.READ_TILE_DATA_OBJ_1 || state == PixelFetcherState.READ_TILE_DATA_OBJ_2 || state == PixelFetcherState.IDLE_OBJ;
-    }
-
-    /**
-     * Sets the Fetcher into object tile data fetching mode
-     *
-     * @param tileId the id of the tile for the object
-     */
-    public void fetchObjectTileData(int tileId) {
-        currentTileId = tileId;
-        currentTileData.clear();
-        state = PixelFetcherState.READ_TILE_DATA_OBJ_1;
+    public AddressSpace getVram() {
+        return vram;
     }
 }

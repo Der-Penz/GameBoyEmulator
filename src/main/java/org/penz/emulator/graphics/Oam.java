@@ -3,7 +3,8 @@ package org.penz.emulator.graphics;
 import org.penz.emulator.graphics.enums.ObjSize;
 import org.penz.emulator.memory.AddressSpace;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Oam implements AddressSpace {
 
@@ -24,8 +25,7 @@ public class Oam implements AddressSpace {
      */
     public void doDMATransfer(int sourceAddress) {
         if ((sourceAddress & 0xFF) > 0xDF) {
-            throw new IllegalArgumentException("Invalid DMA transfer sourceAddress 0x" +
-                    Integer.toHexString(sourceAddress) + ". Must be in range 0x00-0xDF");
+            throw new IllegalArgumentException("Invalid DMA transfer sourceAddress 0x" + Integer.toHexString(sourceAddress) + ". Must be in range 0x00-0xDF");
         }
         int startAddress = sourceAddress * 0x100;
         dmaRegister = (startAddress >> 8) & 0xFF;
@@ -43,23 +43,9 @@ public class Oam implements AddressSpace {
      * @param size the size of the sprites
      * @return the data for the sprites on the given scanline
      */
-    public int[] doOAMScan(int lcy, ObjSize size) {
-        int[] spritesData = new int[40];
-        Arrays.fill(spritesData, -1);
-        int spritesOnScanline = 0;
-        for (int i = 0; i < data.length; i += 4) {
-            int yPosition = data[i] - 16;
-            int sizeOffset = size == ObjSize.SIZE_8x16 ? 16 : 8;
-            if (yPosition <= lcy && yPosition + sizeOffset > lcy) {
-                spritesOnScanline++;
-                System.arraycopy(data, i, spritesData, (spritesOnScanline - 1) * 4, 4);
-            }
-            if (spritesOnScanline == 10) {
-                break;
-            }
-        }
-
-        return spritesData;
+    public List<Object> doOAMScan(int lcy, ObjSize size) {
+        List<Object> objects = Object.fromOAM(data);
+        return objects.stream().filter(object -> object.inScanline(lcy, size)).limit(10).collect(Collectors.toList());
     }
 
     @Override

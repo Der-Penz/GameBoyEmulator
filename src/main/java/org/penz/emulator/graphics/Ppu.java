@@ -7,6 +7,8 @@ import org.penz.emulator.graphics.enums.PpuMode;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
+import java.util.List;
+
 public class Ppu implements AddressSpace {
 
 
@@ -66,8 +68,8 @@ public class Ppu implements AddressSpace {
                 break;
             case OAM_SCAN:
                 if (!pixelFIFO.hasObjects()) {
-                    int[] objects = oam.doOAMScan(currentLine, lcdControl.getObjSize());
-                    pixelFIFO.setObjects(objects);
+                    List<Object> objects = oam.doOAMScan(currentLine, lcdControl.getObjSize());
+                    pixelFIFO.setObjectsOnScanline(objects);
                 }
                 if (scanlineCounter >= 70) {
                     changeMode(PpuMode.PIXEL_TRANSFER);
@@ -97,7 +99,7 @@ public class Ppu implements AddressSpace {
         switch (nextMode) {
             case H_BLANK:
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE0);
-                pixelFIFO.setObjects(null);
+                pixelFIFO.setObjectsOnScanline(null);
                 break;
             case V_BLANK:
                 interruptManager.requestInterrupt(InterruptType.VBLANK);

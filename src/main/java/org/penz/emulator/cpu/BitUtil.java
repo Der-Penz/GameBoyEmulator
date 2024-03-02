@@ -119,4 +119,8 @@ public final class BitUtil {
     public static String toHex(int value) {
         return Integer.toHexString(value);
     }
+
+    public static boolean inRange(int value, int min, int max) {
+        return value >= min && value <= max;
+    }
 }
