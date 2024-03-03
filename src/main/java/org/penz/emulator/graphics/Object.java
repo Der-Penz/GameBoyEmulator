@@ -153,6 +153,7 @@ public class Object {
      * @return true if the background and window is drawing over the object
      */
     public boolean priority() {
+        //TODO implement this
         return BitUtil.getBit(flags, 7);
     }
 

@@ -89,17 +89,6 @@ public class PixelFIFO implements AddressSpace {
     }
 
     /**
-     * returns the index of a color in the color palette from a given ID and palette
-     *
-     * @param palette        the palette to use
-     * @param pixelPaletteID the ID of the color in the palette
-     * @return the index of the color in the color palette
-     */
-    private int paletteIndexFromId(int palette, int pixelPaletteID) {
-        return (palette >> (2 * pixelPaletteID)) & 0b11;
-    }
-
-    /**
      * Returns the color of the next pixel to be drawn on the screen in HEX RGB format
      *
      * @return color in HEX RGB format
