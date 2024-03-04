@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class ADDSPData8SInstruction extends OpCode {
 
     public ADDSPData8SInstruction() {
-        super(0xE8, "ADD SP, r8", 16);
+        super(0xE8, "ADD SP, r8", 16, new DataType[]{DataType.r8});
     }
 
     @Override
