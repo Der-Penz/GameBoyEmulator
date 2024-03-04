@@ -93,7 +93,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         JMenuItem registerViewer = new JMenuItem("Register Viewer");
         registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         registerViewer.addActionListener(e -> {
-            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters());
+            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory());
             r.setLocation(getX() + getWidth(), getY());
             this.registerViewer = r;
         });
