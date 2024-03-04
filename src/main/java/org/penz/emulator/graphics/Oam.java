@@ -12,7 +12,7 @@ public class Oam implements AddressSpace {
     private final AddressSpace memory;
     private final int[] data = new int[160];
 
-    private int dmaRegister;
+    private int dmaRegister = 0xFF;
 
     public Oam(AddressSpace memory) {
         this.memory = memory;

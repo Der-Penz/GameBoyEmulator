@@ -82,14 +82,23 @@ public class StatRegister {
     }
 
     public int getSTATRegister() {
-        int statReg = ppuMode.ordinal();
+        int statReg = ppuMode.getBitRepresentation();
         statReg |= ((lYLYCEquals ? 1 : 0) << 2);
         statReg |= ((mode0Int ? 1 : 0) << 3);
         statReg |= ((mode1Int ? 1 : 0) << 4);
         statReg |= ((mode2Int ? 1 : 0) << 5);
         statReg |= ((modeLYCInt ? 1 : 0) << 6);
+        statReg |= 0b10000000;
 
         return statReg;
+    }
+
+    public void setSTATRegister(int value) {
+        setLYLYCEquals((value & 0x04) != 0);
+        setMode0Int((value & 0x08) != 0);
+        setMode1Int((value & 0x10) != 0);
+        setMode2Int((value & 0x20) != 0);
+        setModeLYCInt((value & 0x40) != 0);
     }
 
     public boolean getLYLYCEquals() {

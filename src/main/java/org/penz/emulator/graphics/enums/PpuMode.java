@@ -1,10 +1,19 @@
 package org.penz.emulator.graphics.enums;
 
 public enum PpuMode {
-    PIXEL_TRANSFER,
-    OAM_SCAN,
-    H_BLANK,
-    V_BLANK
+    PIXEL_TRANSFER(0b00),
+    OAM_SCAN(0b10),
+    H_BLANK(0b01),
+    V_BLANK(0b11);
 
+    private final int bitRepresentation;
 
+    PpuMode(int bitRepresentation) {
+        this.bitRepresentation = bitRepresentation;
     }
+
+    public int getBitRepresentation() {
+        return bitRepresentation;
+    }
+
+}

@@ -13,7 +13,7 @@ public class InterruptManager implements AddressSpace {
     /**
      * Interrupt Flag Register. Indicates which interrupts are requested and have been triggered.
      */
-    private int interruptFlag;
+    private int interruptFlag = 0xE0;
 
     public InterruptManager() {
 

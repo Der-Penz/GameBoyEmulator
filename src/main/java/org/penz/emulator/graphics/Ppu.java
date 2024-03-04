@@ -142,7 +142,7 @@ public class Ppu implements AddressSpace {
             return;
         }
         if (address == 0xFF41) {
-            lcdRegister.getSTAT().getSTATRegister();
+            lcdRegister.getSTAT().setSTATRegister(value);
             return;
         }
         if (address == 0xFF44) {
