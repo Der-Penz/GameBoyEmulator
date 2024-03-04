@@ -25,7 +25,7 @@ public class Timer implements AddressSpace {
     /**
      * Timer control register, controls the timer speed and whether it is enabled
      */
-    private int tac;
+    private int tac = 0xF8;
 
     private boolean overflowed;
 
@@ -53,7 +53,7 @@ public class Timer implements AddressSpace {
         // GameBoy.clockSpeed / 16384
         if (divCyclesCounter >= 256) {
             divCyclesCounter -= 256;
-            div = (div + 1) & 0xFFFF;
+            div = (div + 1) & 0xFF;
         }
 
         //inc every n clock ticks specified by TAC and the corresponding Frequency
