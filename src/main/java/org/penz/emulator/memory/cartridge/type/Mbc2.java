@@ -4,6 +4,8 @@ import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.ROMSize;
 
+import java.util.Arrays;
+
 /**
  * MBC2 memory bank controller
  */
@@ -25,7 +27,12 @@ public class Mbc2 implements AddressSpace {
 
         this.romBanks = new Rom[romBanks];
         for (int i = 0; i < romBanks; i++) {
-            this.romBanks[i] = new Rom(cartridge, i * ROMSize.ROM_BANK_SIZE, ((i + 1) * ROMSize.ROM_BANK_SIZE) - 1);
+            int[] data = Arrays.copyOfRange(cartridge, i * ROMSize.ROM_BANK_SIZE, (i + 1) * ROMSize.ROM_BANK_SIZE);
+            if (i == 0) {
+                this.romBanks[i] = new Rom(data, 0, ROMSize.ROM_BANK_SIZE);
+            } else {
+                this.romBanks[i] = new Rom(data, ROMSize.ROM_BANK_SIZE, 2 * ROMSize.ROM_BANK_SIZE);
+            }
         }
 
         ramBank = new Ram(0xA000, 0xA1FF);

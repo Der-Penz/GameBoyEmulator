@@ -5,6 +5,8 @@ import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
 import org.penz.emulator.memory.cartridge.ROMSize;
 
+import java.util.Arrays;
+
 public class Mbc1 implements AddressSpace {
 
     private final Rom[] romBanks;
@@ -22,12 +24,17 @@ public class Mbc1 implements AddressSpace {
 
         this.romBanks = new Rom[romBanks];
         for (int i = 0; i < romBanks; i++) {
-            this.romBanks[i] = new Rom(cartridge, i * ROMSize.ROM_BANK_SIZE, ((i + 1) * ROMSize.ROM_BANK_SIZE) - 1);
+            int[] data = Arrays.copyOfRange(cartridge, i * ROMSize.ROM_BANK_SIZE, (i + 1) * ROMSize.ROM_BANK_SIZE);
+            if (i == 0) {
+                this.romBanks[i] = new Rom(data, 0, ROMSize.ROM_BANK_SIZE);
+            } else {
+                this.romBanks[i] = new Rom(data, ROMSize.ROM_BANK_SIZE, 2 * ROMSize.ROM_BANK_SIZE);
+            }
         }
 
         this.ramBanks = new Ram[ramBanks];
         for (int i = 0; i < ramBanks; i++) {
-            this.ramBanks[i] = new Ram(i * RAMSize.RAM_BANK_SIZE, ((i + 1) * RAMSize.RAM_BANK_SIZE) - 1);
+            this.ramBanks[i] = new Ram(i * RAMSize.RAM_BANK_SIZE, ((i + 1) * RAMSize.RAM_BANK_SIZE));
         }
 
         this.ramEnabled = false;

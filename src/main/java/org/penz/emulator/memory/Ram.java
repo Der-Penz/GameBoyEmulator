@@ -6,6 +6,12 @@ public class Ram implements AddressSpace {
 
     private final int offset;
 
+    /**
+     * Create a new RAM from the given address range
+     *
+     * @param from start address, inclusive
+     * @param to   end address, inclusive
+     */
     public Ram(int from, int to) {
         this.offset = from;
         data = new int[to - from + 1];

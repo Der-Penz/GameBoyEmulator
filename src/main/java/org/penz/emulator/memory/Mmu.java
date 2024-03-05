@@ -35,7 +35,7 @@ public class Mmu implements AddressSpace {
 
         @Override
         public int readByte(int address) {
-            return 0;
+            return 0xFF;
         }
     };
 
