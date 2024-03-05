@@ -17,17 +17,12 @@ import java.util.List;
 public class Object {
 
     public static final int OBJECT_TICK_PENALTY = 6;
-
     private static final int Y_OFFSET_LEFT_CORNER = 16;
 
     private final int x;
-
     private final int y;
-
     private final int tileId;
-
     private final int flags;
-
     private boolean renderedOnScanline = false;
 
     public Object(int y, int x, int tileNumber, int flags) {
@@ -148,12 +143,11 @@ public class Object {
     }
 
     /**
-     * priority of the object
+     * Does the background and window draw over the object
      *
      * @return true if the background and window is drawing over the object
      */
-    public boolean priority() {
-        //TODO implement this
+    public boolean bgPriority() {
         return BitUtil.getBit(flags, 7);
     }
 

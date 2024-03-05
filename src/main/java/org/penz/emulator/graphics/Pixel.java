@@ -3,26 +3,25 @@ package org.penz.emulator.graphics;
 import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.graphics.enums.PixelType;
 
-public class Pixel {
+public record Pixel(int pixelId, PixelType pixelType) {
 
-    private final int pixelId;
-    private final PixelType pixelType;
-
-    public Pixel(int pixelId, PixelType pixelType) {
-        this.pixelId = pixelId;
-        this.pixelType = pixelType;
-    }
-
+    /**
+     * create a new BG pixel
+     *
+     * @param pixelId the color ID
+     * @return the new pixel
+     */
     public static Pixel createBgPixel(int pixelId) {
         return new Pixel(pixelId, PixelType.BG);
     }
 
+    /**
+     * whether this pixel is an object pixel (OBJ0 or OBJ1)
+     *
+     * @return true if this pixel is an object pixel
+     */
     public boolean isObjPixel() {
         return pixelType == PixelType.OBJ0 || pixelType == PixelType.OBJ1;
-    }
-
-    public PixelType getPixelType() {
-        return pixelType;
     }
 
     /**

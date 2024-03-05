@@ -7,6 +7,10 @@ import org.penz.emulator.memory.AddressSpace;
 
 import java.util.*;
 
+/**
+ * The PixelFIFO is responsible for drawing the pixels on the screen
+ * It also handles the fetching of pixels from the pixelFetcher
+ */
 public class PixelFIFO implements AddressSpace {
 
     private final IDisplay display;
@@ -22,11 +26,9 @@ public class PixelFIFO implements AddressSpace {
     private int counter;
     private int xShift;
     private int bgPalette;
-
     private int objPalette0;
     private int objPalette1;
     private List<Object> objectsOnScanline = null;
-
     private int objectPenaltyTicks = 0;
 
     public PixelFIFO(IDisplay display, PixelFetcher pixelFetcher, LcdControl lcdControl, LcdRegister lcdRegister) {
@@ -37,6 +39,9 @@ public class PixelFIFO implements AddressSpace {
         this.lcdRegister = lcdRegister;
     }
 
+    /**
+     * Resets the pixel FIFO for a new scanline
+     */
     public void startScanline() {
         x = 0;
         xShift = scx % 8;
@@ -50,6 +55,12 @@ public class PixelFIFO implements AddressSpace {
         }
     }
 
+    /**
+     * Tick the pixel FIFO once
+     * Will draw the next pixel on the screen if the pixel FIFO is full enough
+     * Will also check if there is an object to be rendered on the current pixel
+     * and handles the pixelFetchers fetching
+     */
     public void tick() {
         if (objectPenaltyTicks > 0) {
             objectPenaltyTicks--;
@@ -58,7 +69,7 @@ public class PixelFIFO implements AddressSpace {
         counter++;
 
         Object object = checkForObject();
-        if (object != null) {
+        if (object != null && pixelQueue.size() >= 8) {
             List<Integer> pixels = object.fetchPixels(lcdRegister.getLY(), scy, pixelFetcher.getVram(), lcdControl.getObjSize());
             combinedObjPixelData(pixels, object);
             objectPenaltyTicks += Object.OBJECT_TICK_PENALTY;
@@ -102,22 +113,43 @@ public class PixelFIFO implements AddressSpace {
         x++;
 
         if (pixel.isObjPixel()) {
-            return pixel.toHexColor(pixel.getPixelType() == PixelType.OBJ0 ? objPalette0 : objPalette1, Palette.GRAYSCALE);
+            return pixel.toHexColor(pixel.pixelType() == PixelType.OBJ0 ? objPalette0 : objPalette1, Palette.GRAYSCALE);
         } else {
             return pixel.toHexColor(bgPalette, Palette.GRAYSCALE);
         }
     }
 
+    /**
+     * Combines the object pixel data with the current pixel data
+     *
+     * @param objPixelData the object pixel data
+     * @param object       the object to be rendered
+     */
     private void combinedObjPixelData(List<Integer> objPixelData, Object object) {
         List<Pixel> pixelArray = new ArrayList<>(pixelQueue);
 
         for (int i = 0; i < 8; i++) {
             int pixel = objPixelData.get(i);
-            if (pixel != 0) {
-                if (!pixelArray.get(i).isObjPixel()) {
+
+            //transparent pixel
+            if (pixel == 0x0) {
+                continue;
+            }
+
+            //skip already drawn object pixels since they have priority
+            if (pixelArray.get(i).isObjPixel()) {
+                continue;
+            }
+
+            if (object.bgPriority()) {
+                //if the background has priority over the object only draw over the background if id is 0x0
+                if (pixelArray.get(i).pixelId() == 0x0) {
                     pixelArray.set(i, new Pixel(pixel, object.getPixelType()));
                 }
+            } else {
+                pixelArray.set(i, new Pixel(pixel, object.getPixelType()));
             }
+
         }
 
         pixelQueue.clear();
@@ -136,7 +168,6 @@ public class PixelFIFO implements AddressSpace {
     private boolean inWindow() {
         return lcdControl.isWindowEnabled() && lcdControl.isBackgroundWindowEnabled() && x >= wx - 7 && x <= 166 && lcdRegister.getLY() >= wy && wy <= 143;
     }
-
 
     @Override
     public boolean accepts(int address) {

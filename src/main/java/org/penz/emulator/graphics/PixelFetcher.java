@@ -8,12 +8,13 @@ import org.penz.emulator.memory.AddressSpace;
 
 import java.util.ArrayList;
 
+/**
+ * The PixelFetcher is responsible for fetching the pixel data from VRAM
+ */
 public class PixelFetcher {
 
     private final AddressSpace vram;
-
     private final LcdControl lcdControl;
-
     private final LcdRegister lcdRegister;
     private final ArrayList<Integer> currentTileData;
     private PixelFetcherState state;
@@ -83,6 +84,9 @@ public class PixelFetcher {
         state = getNextState();
     }
 
+    /**
+     * Reads the tile id from VRAM depending on the current position
+     */
     private void readTileId() {
         TileMapArea tileMapArea = windowFetching ? lcdControl.getWindowTileMapArea() : lcdControl.getBackgroundTileMapArea();
 
@@ -161,6 +165,11 @@ public class PixelFetcher {
         return PixelFetcher.pixelDataToColorId(lsb, msb);
     }
 
+    /**
+     * Checks if the pixel fetcher is currently fetching window data
+     *
+     * @return true if fetching window data
+     */
     public boolean isWindowFetching() {
         return windowFetching;
     }
