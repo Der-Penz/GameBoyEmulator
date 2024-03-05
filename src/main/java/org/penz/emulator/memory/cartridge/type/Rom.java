@@ -52,6 +52,6 @@ public class Rom implements AddressSpace {
 
     @Override
     public int readByte(int address) {
-        return data[address];
+        return data[address - start];
     }
 }
