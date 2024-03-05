@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class JPHLInstruction extends OpCode {
 
     public JPHLInstruction() {
-        super(0xE9, "JR (HL)", 4, new DataType[]{DataType.a16});
+        super(0xE9, "JP (HL)", 4, new DataType[]{DataType.a16});
     }
 
     @Override

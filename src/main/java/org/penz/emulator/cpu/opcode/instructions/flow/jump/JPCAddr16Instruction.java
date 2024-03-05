@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class JPCAddr16Instruction extends OpCode {
 
     public JPCAddr16Instruction() {
-        super(0xDA, "JR C, a16", 16, new DataType[]{DataType.a16});
+        super(0xDA, "JP C, a16", 16, new DataType[]{DataType.a16});
     }
 
     @Override

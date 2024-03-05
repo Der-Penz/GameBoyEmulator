@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class JPNCAddr16Instruction extends OpCode {
 
     public JPNCAddr16Instruction() {
-        super(0xD2, "JR NC, a16", 16, new DataType[]{DataType.a16});
+        super(0xD2, "JP NC, a16", 16, new DataType[]{DataType.a16});
     }
 
     @Override
