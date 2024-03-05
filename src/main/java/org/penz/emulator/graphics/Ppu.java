@@ -13,6 +13,7 @@ public class Ppu implements AddressSpace {
 
 
     private final static int CYCLES_PER_SCANLINE = 456;
+    private final IDisplay display;
     private final LcdRegister lcdRegister;
     private final Ram vRam;
     private final InterruptManager interruptManager;
@@ -23,6 +24,7 @@ public class Ppu implements AddressSpace {
     private int scanlineCounter = Ppu.CYCLES_PER_SCANLINE;
 
     public Ppu(InterruptManager interruptManager, AddressSpace mmu, IDisplay display) {
+        this.display = display;
         this.oam = new Oam(mmu);
         this.interruptManager = interruptManager;
         this.vRam = new Ram(0x8000, 0x9FFF);
@@ -139,6 +141,11 @@ public class Ppu implements AddressSpace {
 
         if (address == 0xFF40) {
             lcdControl.setLcdControlRegister(value);
+            if (lcdControl.isLcdEnabled()) {
+                display.enableDisplay();
+            } else {
+                display.disableDisplay();
+            }
             return;
         }
         if (address == 0xFF41) {

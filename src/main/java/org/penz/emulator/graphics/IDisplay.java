@@ -4,9 +4,9 @@ public interface IDisplay {
 
     void putPixel(int x, int y, int color);
 
-    void enable();
+    void enableDisplay();
 
-    void disable();
+    void disableDisplay();
 
     void onFrameReady();
 }

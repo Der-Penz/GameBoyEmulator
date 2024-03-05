@@ -129,4 +129,13 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         }
     }
 
+    @Override
+    public void enableDisplay() {
+        panel.setVisible(true);
+    }
+
+    @Override
+    public void disableDisplay() {
+        panel.setVisible(true);
+    }
 }
