@@ -116,7 +116,7 @@ public class Object {
         int lsb = vram.readByte(tileDataAddress);
         int msb = vram.readByte(tileDataAddress + 1);
 
-        List<Integer> pixelData = Arrays.stream(PixelFetcher.pixelDataToColorId(lsb, msb)).toList();
+        List<Integer> pixelData = Arrays.stream(PixelFetcher.pixelDataToColorId(lsb, msb)).boxed().toList();
 
         if (xFlip()) {
             return pixelData.reversed();

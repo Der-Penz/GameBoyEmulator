@@ -85,7 +85,7 @@ public class PixelFIFO implements AddressSpace {
             counter = 0;
             pixelFetcher.fetch();
             if (pixelFetcher.isPixelDataReady()) {
-                Arrays.stream(pixelFetcher.pullPixelData()).map(Pixel::createBgPixel).forEach(pixelQueue::add);
+                Arrays.stream(pixelFetcher.pullPixelData()).boxed().map(Pixel::createBgPixel).forEach(pixelQueue::add);
             }
         }
 

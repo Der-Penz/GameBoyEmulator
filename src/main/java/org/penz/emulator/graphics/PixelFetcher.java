@@ -39,8 +39,8 @@ public class PixelFetcher {
      * @param msb high byte
      * @return 8 pixel color id's
      */
-    public static Integer[] pixelDataToColorId(int lsb, int msb) {
-        Integer[] pixelData = new Integer[8];
+    public static int[] pixelDataToColorId(int lsb, int msb) {
+        int[] pixelData = new int[8];
         for (int i = 0; i < 8; i++) {
             pixelData[7 - i] = 0;
             pixelData[7 - i] |= (BitUtil.getBit(msb, i) ? 1 : 0) << 1;
@@ -156,7 +156,7 @@ public class PixelFetcher {
      *
      * @return 8 pixel color data in an array
      */
-    public Integer[] pullPixelData() {
+    public int[] pullPixelData() {
         if (currentTileData.size() < 2) throw new IllegalStateException("Not enough tile data available");
         int lsb = currentTileData.get(0);
         int msb = currentTileData.get(1);
