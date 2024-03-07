@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class DECHLInstruction extends OpCode {
 
     public DECHLInstruction() {
-        super(0x2D, "DEC HL", 8);
+        super(0x2B, "DEC HL", 8);
     }
 
     @Override
