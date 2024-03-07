@@ -35,6 +35,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         controlMenu.setMnemonic(KeyEvent.VK_C);
         JMenu debugMenu = new JMenu("Debug");
         debugMenu.setMnemonic(KeyEvent.VK_D);
+        JMenu settingsMenu = new JMenu("Settings");
 
         JMenuItem tick = new JMenuItem("Tick");
         tick.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
@@ -98,14 +99,43 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             this.registerViewer = r;
         });
 
+        JMenu displaySize = new JMenu("Size");
+
+        JRadioButtonMenuItem x1 = new JRadioButtonMenuItem("1x1");
+        x1.addActionListener(e -> {
+            panel.setScale(1);
+            pack();
+        });
+        JRadioButtonMenuItem x2 = new JRadioButtonMenuItem("2x2");
+        x2.addActionListener(e -> {
+            panel.setScale(2);
+            pack();
+        });
+        JRadioButtonMenuItem x3 = new JRadioButtonMenuItem("3x3");
+        x3.addActionListener(e -> {
+            panel.setScale(3);
+            pack();
+        });
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(x1);
+        group.add(x2);
+        group.add(x3);
+        displaySize.add(x1);
+        displaySize.add(x2);
+        displaySize.add(x3);
+
+        settingsMenu.add(displaySize);
+
         debugMenu.add(tileDataViewer);
         debugMenu.add(registerViewer);
 
+        menuBar.add(settingsMenu);
         menuBar.add(controlMenu);
         menuBar.add(debugMenu);
         setJMenuBar(menuBar);
 
-        panel = new ImageDisplay(160, 144);
+        panel = new ImageDisplay(160, 144, 1);
         add(panel);
 
         setLocationRelativeTo(null);
