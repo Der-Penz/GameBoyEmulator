@@ -17,6 +17,8 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
     private RegisterViewer registerViewer;
 
+    private BGMapViewer tileDataViewer;
+
     public SimpleDisplay() {
         gameBoy = null;
         initializeUI();
@@ -35,7 +37,6 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         controlMenu.setMnemonic(KeyEvent.VK_C);
         JMenu debugMenu = new JMenu("Debug");
         debugMenu.setMnemonic(KeyEvent.VK_D);
-        JMenu settingsMenu = new JMenu("Settings");
 
         JMenuItem tick = new JMenuItem("Tick");
         tick.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
@@ -86,10 +87,10 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         JMenuItem tileDataViewer = new JMenuItem("Tile Data Viewer");
         tileDataViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
         tileDataViewer.addActionListener(e -> {
-            gameBoy.pause();
-            TileDataViewer t = new TileDataViewer(gameBoy.getMemory(), framesCounter);
-            t.setLocation(getX() + getWidth(), getY());
+            BGMapViewer t = new BGMapViewer(gameBoy);
+            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
             t.updateTileData();
+            this.tileDataViewer = t;
         });
         JMenuItem registerViewer = new JMenuItem("Register Viewer");
         registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
@@ -99,33 +100,8 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             this.registerViewer = r;
         });
 
-        JMenu displaySize = new JMenu("Size");
+        JMenu settingsMenu = getSettingsMenu();
 
-        JRadioButtonMenuItem x1 = new JRadioButtonMenuItem("1x1");
-        x1.addActionListener(e -> {
-            panel.setScale(1);
-            pack();
-        });
-        JRadioButtonMenuItem x2 = new JRadioButtonMenuItem("2x2");
-        x2.addActionListener(e -> {
-            panel.setScale(2);
-            pack();
-        });
-        JRadioButtonMenuItem x3 = new JRadioButtonMenuItem("3x3");
-        x3.addActionListener(e -> {
-            panel.setScale(3);
-            pack();
-        });
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(x1);
-        group.add(x2);
-        group.add(x3);
-        displaySize.add(x1);
-        displaySize.add(x2);
-        displaySize.add(x3);
-
-        settingsMenu.add(displaySize);
 
         debugMenu.add(tileDataViewer);
         debugMenu.add(registerViewer);
@@ -135,13 +111,34 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         menuBar.add(debugMenu);
         setJMenuBar(menuBar);
 
-        panel = new ImageDisplay(160, 144, 1);
+        panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, 1);
         add(panel);
 
         setLocationRelativeTo(null);
         setVisible(true);
         requestFocus();
         pack();
+    }
+
+    private JMenu getSettingsMenu() {
+        JMenu settingsMenu = new JMenu("Settings");
+
+        JMenu displaySize = new JMenu("Size");
+        ButtonGroup group = new ButtonGroup();
+
+        for (int i = 0; i < 7; i++) {
+            int scale = i + 1;
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(scale + "x" + scale);
+            item.addActionListener(e -> {
+                panel.setScale(scale);
+                pack();
+            });
+            group.add(item);
+            displaySize.add(item);
+        }
+
+        settingsMenu.add(displaySize);
+        return displaySize;
     }
 
     @Override
@@ -156,6 +153,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         panel.paintImage();
         if (registerViewer != null) {
             registerViewer.updateRegisterData();
+        }
+        if (tileDataViewer != null) {
+            tileDataViewer.updateTileData();
         }
     }
 

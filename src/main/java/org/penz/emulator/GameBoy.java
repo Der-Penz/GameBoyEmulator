@@ -21,6 +21,8 @@ public class GameBoy {
 
     public static final int CLOCK_SPEED = 4194304;
     public static final int FPS = 60;
+    public static final int SCREEN_WIDTH = 160;
+    public static final int SCREEN_HEIGHT = 144;
     private final Cpu cpu;
 
     private final Mmu mmu;

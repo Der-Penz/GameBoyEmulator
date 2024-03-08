@@ -1,6 +1,8 @@
 package org.penz.emulator.gui;
 
+import org.penz.emulator.GameBoy;
 import org.penz.emulator.cpu.BitUtil;
+import org.penz.emulator.graphics.Pixel;
 import org.penz.emulator.graphics.PixelFetcher;
 import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.graphics.enums.TileDataArea;
@@ -8,36 +10,29 @@ import org.penz.emulator.graphics.enums.TileMapArea;
 import org.penz.emulator.memory.AddressSpace;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 
-public class TileDataViewer extends JFrame {
+public class BGMapViewer extends JFrame {
 
     private static final int TILES_PER_ROW = 32;
-    private final AddressSpace mmu;
 
-    private TilePanel[] tiles;
-
+    private static final int TILE_SIZE = 8;
+    private final GameBoy gameBoy;
     private TileMapArea tileMapArea;
-
     private TileDataArea tileDataArea;
+    private ViewportImageDisplay imagePanel;
 
-    public TileDataViewer(AddressSpace mmu, int frame) {
+    public BGMapViewer(GameBoy gameBoy) {
         this.tileMapArea = TileMapArea.AREA_1;
         this.tileDataArea = TileDataArea.AREA_2;
-        this.mmu = mmu;
-        initializeUI(frame);
+        this.gameBoy = gameBoy;
+        initializeUI();
     }
 
-    private void initializeUI(int frame) {
-        setTitle("Tile Data Viewer, Frame: " + frame);
+    private void initializeUI() {
+        setTitle("Background map Viewer");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridBagLayout());
         setResizable(false);
-        setMaximumSize(new Dimension(256, 256));
-        setSize(500, 500);
-
 
         JMenuBar menuBar = new JMenuBar();
         JMenu tileMapAreaMenu = new JMenu("Tile map");
@@ -70,18 +65,6 @@ public class TileDataViewer extends JFrame {
             updateTileData();
         });
 
-        tiles = new TilePanel[TILES_PER_ROW * TILES_PER_ROW];
-        for (int i = 0; i < TILES_PER_ROW * TILES_PER_ROW; i++) {
-            tiles[i] = new TilePanel();
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.ipadx = -2;
-            gbc.ipady = -2;
-
-            gbc.gridx = i % TILES_PER_ROW;
-            gbc.gridy = i / TILES_PER_ROW;
-            add(tiles[i], gbc);
-        }
-
         tileMapAreaMenu.add(tileMap1);
         tileMapAreaMenu.add(tileMap2);
 
@@ -92,7 +75,10 @@ public class TileDataViewer extends JFrame {
         menuBar.add(tileDataAreaMenu);
         setJMenuBar(menuBar);
 
+        imagePanel = new ViewportImageDisplay(TILES_PER_ROW * TILE_SIZE, TILES_PER_ROW * TILE_SIZE, 2);
+        add(imagePanel);
 
+        pack();
         setLocationRelativeTo(null);
         requestFocus();
         setVisible(true);
@@ -100,28 +86,39 @@ public class TileDataViewer extends JFrame {
 
     public void updateTileData() {
         Palette palette = Palette.GRAYSCALE;
-        for (int i = 0; i < tiles.length; i++) {
-            TilePanel current = tiles[i];
+        int indexPalette = gameBoy.getMemory().readByte(0xFF47);
 
+        int[] buffer = new int[TILES_PER_ROW * TILES_PER_ROW * TILE_SIZE * TILE_SIZE];
+        for (int i = 0; i < TILES_PER_ROW * TILES_PER_ROW; i++) {
             int tileId = fetchTileId(i);
             int[] tileData = fetchTileData(tileId);
-            Integer[] colors = new Integer[64];
+
             for (int j = 0; j < 16; j += 2) {
                 int lsb = tileData[j];
                 int msb = tileData[j + 1];
 
-                Integer[] colorIds = PixelFetcher.pixelDataToColorId(lsb, msb);
+                int[] colorIds = PixelFetcher.pixelDataToColorId(lsb, msb);
+                for (int k = 0; k < TILE_SIZE; k++) {
+                    var pixel = Pixel.createBgPixel(colorIds[k]);
+                    pixel.toHexColor(indexPalette, palette);
+                    colorIds[k] = palette.getColorByIndex(colorIds[k]);
+                }
 
-                Integer[] rowOfColors = Arrays.stream(colorIds).map(palette::getColorByIndex).toArray(Integer[]::new);
-                System.arraycopy(rowOfColors, 0, colors, j * 4, 8);
+                int x = (i % TILES_PER_ROW) * TILE_SIZE;
+                int y = (j / 2) + (i / TILES_PER_ROW) * TILE_SIZE;
+                int pos = (y * TILES_PER_ROW * TILE_SIZE) + (x);
+
+                System.arraycopy(colorIds, 0, buffer, pos, TILE_SIZE);
             }
-            current.setPixel(colors);
         }
+        imagePanel.putPixel(buffer);
+        imagePanel.setViewport(gameBoy.getMemory().readByte(0xFF42), gameBoy.getMemory().readByte(0xFF43));
+        imagePanel.paintImage();
     }
 
     private int fetchTileId(int index) {
         int address = tileMapArea.getStartAddress() + index;
-        return mmu.readByte(address);
+        return gameBoy.getMemory().readByte(address);
     }
 
     private int[] fetchTileData(int tileId) {
@@ -132,7 +129,7 @@ public class TileDataViewer extends JFrame {
         } else {
             address = tileDataArea.getBaseAddress() + (tileId * tileSize);
         }
-        return AddressSpace.readRange(mmu, address, tileSize);
+        return AddressSpace.readRange(gameBoy.getMemory(), address, tileSize);
     }
 
 }
