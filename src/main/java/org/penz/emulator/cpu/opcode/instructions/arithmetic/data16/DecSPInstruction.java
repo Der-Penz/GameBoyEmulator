@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class DecSPInstruction extends OpCode {
 
     public DecSPInstruction() {
-        super(0x3D, "DEC SP", 8);
+        super(0x3B, "DEC SP", 8);
     }
 
     @Override

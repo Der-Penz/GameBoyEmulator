@@ -138,7 +138,7 @@ public class Alu {
             int result = (a + b);
             flags.setZ(false);
             flags.setN(false);
-            flags.setC((a & Constants.BYTE_MAX_VALUE) + (b & Constants.BYTE_MAX_VALUE) > Constants.BYTE_MAX_VALUE);
+            flags.setC(result > Constants.BYTE_MAX_VALUE);
             flags.setH((BitUtil.getLSByte(a) + BitUtil.getLSByte(b)) > 0x0f);
             return result & Constants.WORD_MAX_VALUE;
         }));

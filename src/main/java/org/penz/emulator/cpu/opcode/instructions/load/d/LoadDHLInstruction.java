@@ -12,7 +12,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class LoadDHLInstruction extends OpCode {
 
     public LoadDHLInstruction() {
-        super(0x56, "LD D, (HL)", 4);
+        super(0x56, "LD D, (HL)", 8);
     }
 
     @Override

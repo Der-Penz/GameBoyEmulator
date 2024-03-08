@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 @SuppressWarnings("unused")
 public class CallNCAddr16Instruction extends OpCode {
     public CallNCAddr16Instruction() {
-        super(0xD4, "CALL NC, a16", 12, new DataType[]{DataType.a16});
+        super(0xD4, "CALL NC, a16", 24, new DataType[]{DataType.a16});
     }
 
     @Override

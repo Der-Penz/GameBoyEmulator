@@ -25,7 +25,6 @@ public final class BitUtil {
      * @return least significant byte
      */
     public static int getLSByte(int value) {
-        checkIsWord(value);
         return (value & Constants.LSB_MASK);
     }
 
@@ -105,8 +104,9 @@ public final class BitUtil {
      * @return signed byte
      */
     public static int toSignedByte(int value) {
+        value &= Constants.BYTE_MAX_VALUE;
         if (getBit(value, 7)) {
-            return value - 0x100;
+            return (value - 0x100);
         } else {
             return value;
         }
@@ -117,7 +117,7 @@ public final class BitUtil {
     }
 
     public static String toHex(int value) {
-        return Integer.toHexString(value);
+        return "0x" + Integer.toHexString(value).toUpperCase();
     }
 
     public static boolean inRange(int value, int min, int max) {

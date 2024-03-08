@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class ANDAInstruction extends OpCode {
 
     public ANDAInstruction() {
-        super(0xA7, "AND A", 4);
+        super(0xA7, "AND A, A", 4);
     }
 
     @Override

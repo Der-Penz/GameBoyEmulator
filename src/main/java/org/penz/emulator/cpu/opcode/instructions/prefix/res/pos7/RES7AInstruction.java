@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class RES7AInstruction extends BitOpCode {
 
     public RES7AInstruction() {
-        super(0xBF, "RES 7, A", 8);
+        super(0xBF, "RES 7, A", 4);
     }
 
     @Override

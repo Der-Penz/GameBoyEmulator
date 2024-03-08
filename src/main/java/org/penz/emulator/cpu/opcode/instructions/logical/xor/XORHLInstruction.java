@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class XORHLInstruction extends OpCode {
 
     public XORHLInstruction() {
-        super(0xAE, "XOR (HL)", 4);
+        super(0xAE, "XOR (HL)", 8);
     }
 
     @Override

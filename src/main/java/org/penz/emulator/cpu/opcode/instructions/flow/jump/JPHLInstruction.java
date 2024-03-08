@@ -2,7 +2,6 @@ package org.penz.emulator.cpu.opcode.instructions.flow.jump;
 
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
-import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
@@ -13,7 +12,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class JPHLInstruction extends OpCode {
 
     public JPHLInstruction() {
-        super(0xE9, "JP (HL)", 4, new DataType[]{DataType.a16});
+        super(0xE9, "JP (HL)", 4);
     }
 
     @Override
