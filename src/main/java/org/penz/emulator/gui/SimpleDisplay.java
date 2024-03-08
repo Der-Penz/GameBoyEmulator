@@ -16,8 +16,8 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     private int framesCounter = 0;
 
     private RegisterViewer registerViewer;
-
     private BGMapViewer tileDataViewer;
+    private TilesViewer tilesViewer;
 
     public SimpleDisplay() {
         gameBoy = null;
@@ -35,8 +35,6 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         JMenuBar menuBar = new JMenuBar();
         JMenu controlMenu = new JMenu("Control");
         controlMenu.setMnemonic(KeyEvent.VK_C);
-        JMenu debugMenu = new JMenu("Debug");
-        debugMenu.setMnemonic(KeyEvent.VK_D);
 
         JMenuItem tick = new JMenuItem("Tick");
         tick.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
@@ -84,31 +82,12 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         controlMenu.add(frame);
         controlMenu.add(pause);
 
-        JMenuItem tileDataViewer = new JMenuItem("Tile Data Viewer");
-        tileDataViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-        tileDataViewer.addActionListener(e -> {
-            BGMapViewer t = new BGMapViewer(gameBoy);
-            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
-            t.updateTileData();
-            this.tileDataViewer = t;
-        });
-        JMenuItem registerViewer = new JMenuItem("Register Viewer");
-        registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-        registerViewer.addActionListener(e -> {
-            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory());
-            r.setLocation(getX() + getWidth(), getY());
-            this.registerViewer = r;
-        });
-
         JMenu settingsMenu = getSettingsMenu();
-
-
-        debugMenu.add(tileDataViewer);
-        debugMenu.add(registerViewer);
+        JMenu debugMenu = getDebugMenu();
 
         menuBar.add(settingsMenu);
-        menuBar.add(controlMenu);
         menuBar.add(debugMenu);
+        menuBar.add(controlMenu);
         setJMenuBar(menuBar);
 
         panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, 1);
@@ -118,6 +97,50 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         setVisible(true);
         requestFocus();
         pack();
+    }
+
+    private JMenu getDebugMenu() {
+        JMenu debugMenu = new JMenu("Debug");
+        debugMenu.setMnemonic(KeyEvent.VK_D);
+
+        JMenuItem tileDataViewer = new JMenuItem("Tile Data Viewer");
+        tileDataViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
+        tileDataViewer.addActionListener(e -> {
+            if (this.tileDataViewer != null) {
+                this.tileDataViewer.dispose();
+            }
+            BGMapViewer t = new BGMapViewer(gameBoy);
+            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
+            t.updateTileData();
+            this.tileDataViewer = t;
+        });
+        JMenuItem registerViewer = new JMenuItem("Register Viewer");
+        registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+        registerViewer.addActionListener(e -> {
+            if (this.registerViewer != null) {
+                this.registerViewer.dispose();
+            }
+            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory());
+            r.setLocation(getX() + getWidth(), getY());
+            this.registerViewer = r;
+        });
+        JMenuItem tilesViewer = new JMenuItem("Tiles Viewer");
+        tilesViewer.addActionListener(e -> {
+            if (this.tilesViewer != null) {
+                this.tilesViewer.dispose();
+            }
+            gameBoy.pause();
+            TilesViewer t = new TilesViewer(gameBoy);
+            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
+            t.updateTileData();
+            this.tilesViewer = t;
+        });
+
+        debugMenu.add(tileDataViewer);
+        debugMenu.add(registerViewer);
+        debugMenu.add(tilesViewer);
+
+        return debugMenu;
     }
 
     private JMenu getSettingsMenu() {
@@ -149,7 +172,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     @Override
     public void onFrameReady() {
         framesCounter++;
-        setTitle("Color Array Display, Frame: " + framesCounter);
+        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + framesCounter);
         panel.paintImage();
         if (registerViewer != null) {
             registerViewer.updateRegisterData();
