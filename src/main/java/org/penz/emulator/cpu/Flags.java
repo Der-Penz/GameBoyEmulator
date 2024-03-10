@@ -17,7 +17,7 @@ public class Flags {
      * H - Half Carry Flag
      * C - Carry Flag
      */
-    private byte flags;
+    private int flags;
 
     public Flags() {
         this.flags = 0x00;
@@ -28,7 +28,7 @@ public class Flags {
      * @param bitValue true if bit should be set, false if bit should be cleared
      */
     public void setZ(boolean bitValue) {
-        this.flags = (byte) BitUtil.setBit(flags, Z_BYTE_POS, bitValue);
+        this.flags = BitUtil.setBit(flags, Z_BYTE_POS, bitValue);
     }
 
     /**
@@ -36,7 +36,7 @@ public class Flags {
      * @param bitValue true if bit should be set, false if bit should be cleared
      */
     public void setN(boolean bitValue) {
-        this.flags = (byte) BitUtil.setBit(flags, N_BYTE_POS, bitValue);
+        this.flags = BitUtil.setBit(flags, N_BYTE_POS, bitValue);
     }
 
     /**
@@ -44,7 +44,7 @@ public class Flags {
      * @param bitValue true if bit should be set, false if bit should be cleared
      */
     public void setH(boolean bitValue) {
-        this.flags = (byte) BitUtil.setBit(flags, H_BYTE_POS, bitValue);
+        this.flags = BitUtil.setBit(flags, H_BYTE_POS, bitValue);
     }
 
     /**
@@ -52,7 +52,7 @@ public class Flags {
      * @param bitValue true if bit should be set, false if bit should be cleared
      */
     public void setC(boolean bitValue) {
-        this.flags = (byte) BitUtil.setBit(flags, C_BYTE_POS, bitValue);
+        this.flags = BitUtil.setBit(flags, C_BYTE_POS, bitValue);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Flags {
      * Returns the value of the flags register
      * @return the value of the flags register
      */
-    public byte getFlags() {
+    public int getFlags() {
         return flags;
     }
 
@@ -103,8 +103,8 @@ public class Flags {
      * Sets the value of the flags register
      * @param flags the value of the flags register
      */
-    public void setFlags(byte flags) {
-        this.flags = flags;
+    public void setFlags(int flags) {
+        this.flags = flags & 0xF0;
     }
 
     @Override

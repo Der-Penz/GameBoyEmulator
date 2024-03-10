@@ -186,7 +186,7 @@ public class Registers {
 
     public void setAF(int value) {
         a = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
-        flags.setFlags((byte) (value & Constants.BYTE_MAX_VALUE));
+        flags.setFlags(value);
     }
 
     public int getBC() {

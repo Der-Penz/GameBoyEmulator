@@ -17,7 +17,7 @@ public class PopAFInstruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        registers.getFlags().setFlags((byte) addressSpace.readByte(registers.getSP()));
+        registers.getFlags().setFlags(addressSpace.readByte(registers.getSP()));
         registers.incrementSP();
         registers.setA(addressSpace.readByte(registers.getSP()));
         registers.incrementSP();
