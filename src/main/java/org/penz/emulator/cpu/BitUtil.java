@@ -14,7 +14,7 @@ public final class BitUtil {
      * @return most significant byte
      */
     public static int getMSByte(int value) {
-        checkIsWord(value);
+//        checkIsWord(value);
         return (value & Constants.MSB_MASK) >> Constants.BYTE_SIZE;
     }
 
