@@ -6,12 +6,13 @@ import org.penz.emulator.graphics.IDisplay;
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SimpleDisplay extends JFrame implements IDisplay {
 
+    AtomicBoolean isInFastMode = new AtomicBoolean(false);
     private ImageDisplay panel;
-
     private GameBoy gameBoy;
     private int framesCounter = 0;
 
@@ -26,13 +27,31 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
     public void setGameBoy(GameBoy gameBoy) {
         this.gameBoy = gameBoy;
+        gameBoy.run(isInFastMode.get());
     }
 
     private void initializeUI() {
         setTitle("Gameboy Display");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setVisible(true);
 
         JMenuBar menuBar = new JMenuBar();
+        menuBar.add(getSettingsMenu());
+        menuBar.add(getControlsMenu());
+        menuBar.add(getDebugMenu());
+        setJMenuBar(menuBar);
+
+        int DEFAULT_SCALE = 1;
+        panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, DEFAULT_SCALE);
+        add(panel);
+
+        pack();
+        setLocationRelativeTo(null);
+        requestFocus();
+    }
+
+    private JMenu getControlsMenu() {
         JMenu controlMenu = new JMenu("Control");
         controlMenu.setMnemonic(KeyEvent.VK_C);
 
@@ -46,6 +65,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
                 }
             }
         });
+
         JMenuItem run = new JMenuItem("Start");
         run.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
         run.addActionListener(e -> {
@@ -53,7 +73,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
                 SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
-                        gameBoy.run(false);
+                        gameBoy.run(isInFastMode.get());
                         return null;
                     }
                 };
@@ -77,26 +97,26 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             }
         });
 
-        controlMenu.add(tick);
+        JCheckBoxMenuItem fastMode = new JCheckBoxMenuItem("Fast Mode");
+        fastMode.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.SHIFT_DOWN_MASK));
+        fastMode.addActionListener(e -> {
+            if (gameBoy == null) {
+                return;
+            }
+            isInFastMode.set(fastMode.getState());
+            if (gameBoy.isRunning()) {
+                gameBoy.pause();
+                run.doClick();
+            }
+        });
+        fastMode.setState(isInFastMode.get());
+
+        controlMenu.add(fastMode);
         controlMenu.add(run);
-        controlMenu.add(frame);
         controlMenu.add(pause);
-
-        JMenu settingsMenu = getSettingsMenu();
-        JMenu debugMenu = getDebugMenu();
-
-        menuBar.add(settingsMenu);
-        menuBar.add(debugMenu);
-        menuBar.add(controlMenu);
-        setJMenuBar(menuBar);
-
-        panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, 1);
-        add(panel);
-
-        setLocationRelativeTo(null);
-        setVisible(true);
-        requestFocus();
-        pack();
+        controlMenu.add(tick);
+        controlMenu.add(frame);
+        return controlMenu;
     }
 
     private JMenu getDebugMenu() {
@@ -152,9 +172,11 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         for (int i = 0; i < 7; i++) {
             int scale = i + 1;
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(scale + "x" + scale);
+            item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + scale, InputEvent.SHIFT_DOWN_MASK));
             item.addActionListener(e -> {
                 panel.setScale(scale);
                 pack();
+                setLocationRelativeTo(null);
             });
             group.add(item);
             displaySize.add(item);
