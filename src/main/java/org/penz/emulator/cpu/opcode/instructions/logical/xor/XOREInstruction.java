@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 public class XOREInstruction extends OpCode {
 
     public XOREInstruction() {
-        super(0xAB, "XOR B", 4);
+        super(0xAB, "XOR E", 4);
     }
 
     @Override
