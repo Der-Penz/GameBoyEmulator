@@ -159,7 +159,6 @@ public class Alu {
             return result;
         });
 
-        //TODO: Implement the following operations
 //      bcd adjust the accumulator
         registerFunction("DAA", DataType.d8, (flags, a) -> {
             int result = a;
@@ -212,17 +211,8 @@ public class Alu {
             flags.setC(!flags.isC());
             return a;
         });
-
     }
 
-    public static void main(String[] args) {
-        Alu alu = new Alu();
-        var f = new Flags();
-        System.out.println(alu.getOperation("ADD", DataType.d16, DataType.r8).apply(f, 0xFFFE, BitUtil.toSignedByte(0xFF)));
-        f = new Flags();
-        System.out.println(alu.getOperation("DEC", DataType.d8).apply(f, 0x01));
-        System.out.println(f);
-    }
 
     /**
      * Get a one argument operation from the ALU by name and data type
