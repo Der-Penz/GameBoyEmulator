@@ -17,9 +17,9 @@ public class DAAInstruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        var operation = alu.getOperation("DAA", DataType.d8);
+        var aluOperation = alu.getOperation("DAA", DataType.d8);
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA()));
 
-        registers.setA(operation.apply(registers.getFlags(), registers.getA()));
         return cycles;
     }
 }
