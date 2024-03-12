@@ -276,6 +276,36 @@ public class Alu {
             flags.setC(false);
             return result;
         });
+
+//      shift right logically
+        registerFunction("SRL", DataType.d8, (flags, a) -> {
+            int result = (a >> 1);
+            flags.setC((a & 1) != 0);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+//      shift left arithmetically
+        registerFunction("SLA", DataType.d8, (flags, a) -> {
+            int result = (a << 1) & 0xff;
+            flags.setC((a & (1 << 7)) != 0);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+//      shift right arithmetically
+        registerFunction("SRA", DataType.d8, (flags, a) -> {
+            int result = (a >> 1) | (a & (1 << 7));
+            flags.setC((a & 1) != 0);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
     }
 
     /**

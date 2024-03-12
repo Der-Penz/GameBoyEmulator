@@ -1,9 +1,9 @@
-package org.penz.emulator.cpu.opcode.instructions.prefix.shift.arithmetic;
+package org.penz.emulator.cpu.opcode.instructions.prefix.shift.arithmetic.left;
 
 import org.penz.emulator.cpu.Alu;
-import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.cpu.Registers;
 import org.penz.emulator.cpu.opcode.BitOpCode;
+import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
@@ -18,12 +18,9 @@ public class SLADInstruction extends BitOpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        boolean bit7 = BitUtil.getBit(registers.getD(), 7);
-        registers.setD(registers.getD() << 1);
-        registers.getFlags().setC(bit7);
-        registers.getFlags().setZ(registers.getD() == 0);
-        registers.getFlags().setN(false);
-        registers.getFlags().setH(false);
+        var aluOperation = alu.getOperation("SLA", DataType.d8);
+        registers.setD(aluOperation.apply(registers.getFlags(), registers.getD()));
+
         return cycles;
     }
 }
