@@ -3,6 +3,7 @@ package org.penz.emulator.cpu.opcode.instructions.prefix.swap;
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.Registers;
 import org.penz.emulator.cpu.opcode.BitOpCode;
+import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.memory.AddressSpace;
 
 /**
@@ -17,13 +18,9 @@ public class SWAPAInstruction extends BitOpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        int highNibble = registers.getA() & 0xF0;
-        int lowNibble = registers.getA() & 0x0F;
-        registers.setA((lowNibble << 4) | (highNibble >> 4));
-        registers.getFlags().setZ(registers.getA() == 0);
-        registers.getFlags().setN(false);
-        registers.getFlags().setH(false);
-        registers.getFlags().setC(false);
+        var aluOperation = alu.getOperation("SWAP", DataType.d8);
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA()));
+
         return cycles;
     }
 }

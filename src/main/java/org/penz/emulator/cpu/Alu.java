@@ -264,6 +264,18 @@ public class Alu {
             flags.setH(false);
             return result;
         });
+
+//      swap upper and lower nibbles
+        registerFunction("SWAP", DataType.d8, (flags, a) -> {
+            int upper = a & 0xf0;
+            int lower = a & 0x0f;
+            int result = (lower << 4) | (upper >> 4);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            flags.setC(false);
+            return result;
+        });
     }
 
     /**
