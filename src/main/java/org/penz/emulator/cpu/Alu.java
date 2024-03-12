@@ -211,8 +211,60 @@ public class Alu {
             flags.setC(!flags.isC());
             return a;
         });
-    }
 
+//      rotate left and set carry
+        registerFunction("RLC", DataType.d8, (flags, a) -> {
+            int result = (a << 1) & Constants.BYTE_MAX_VALUE;
+
+            if ((a & (1 << 7)) != 0) {
+                result |= 1;
+                flags.setC(true);
+            } else {
+                flags.setC(false);
+            }
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+//      rotate left and set carry
+        registerFunction("RRC", DataType.d8, (flags, a) -> {
+            int result = a >> 1;
+            if ((a & 1) == 1) {
+                result |= (1 << 7);
+                flags.setC(true);
+            } else {
+                flags.setC(false);
+            }
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+//      rotate right through carry
+        registerFunction("RR", DataType.d8, (flags, a) -> {
+            int result = a >> 1;
+            result |= flags.isC() ? (1 << 7) : 0;
+            flags.setC((a & 1) != 0);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+//      rotate right through carry
+        registerFunction("RL", DataType.d8, (flags, a) -> {
+            int result = (a << 1) & 0xff;
+            result |= flags.isC() ? 1 : 0;
+            flags.setC((a & (1 << 7)) != 0);
+            flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+    }
 
     /**
      * Get a one argument operation from the ALU by name and data type

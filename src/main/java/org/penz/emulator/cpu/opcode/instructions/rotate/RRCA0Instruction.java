@@ -1,8 +1,8 @@
-package org.penz.emulator.cpu.opcode.instructions.bit.rotate;
+package org.penz.emulator.cpu.opcode.instructions.rotate;
 
 import org.penz.emulator.cpu.Alu;
-import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.cpu.Registers;
+import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
 import org.penz.emulator.memory.AddressSpace;
 
@@ -18,13 +18,9 @@ public class RRCA0Instruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        boolean bit0 = BitUtil.getBit(registers.getA(), 0);
-        registers.setA(registers.getA() >> 1 | (bit0 ? 1 : 0) << 7);
-        registers.getFlags().setC(bit0);
+        var aluOperation = alu.getOperation("RRC", DataType.d8);
+        registers.setA(aluOperation.apply(registers.getFlags(), registers.getA()));
 
-        registers.getFlags().setZ(false);
-        registers.getFlags().setN(false);
-        registers.getFlags().setH(false);
         return cycles;
     }
 }
