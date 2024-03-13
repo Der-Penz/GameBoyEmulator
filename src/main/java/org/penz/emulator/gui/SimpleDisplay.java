@@ -2,6 +2,7 @@ package org.penz.emulator.gui;
 
 import org.penz.emulator.GameBoy;
 import org.penz.emulator.graphics.IDisplay;
+import org.penz.emulator.input.KeyboardController;
 
 import javax.swing.*;
 import java.awt.event.InputEvent;
@@ -14,14 +15,17 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     AtomicBoolean isInFastMode = new AtomicBoolean(false);
     private ImageDisplay panel;
     private GameBoy gameBoy;
+    private final KeyboardController controls;
     private int framesCounter = 0;
-
     private RegisterViewer registerViewer;
     private BGMapViewer tileDataViewer;
     private TilesViewer tilesViewer;
+    private KeyBoardControlViewer keyBoardControlViewer;
 
     public SimpleDisplay() {
         gameBoy = null;
+        controls = new KeyboardController();
+        addKeyListener(controls);
         initializeUI();
     }
 
@@ -182,8 +186,21 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             displaySize.add(item);
         }
 
+        JMenuItem keyBoardControl = new JMenuItem("KeyBoard Bindings");
+        keyBoardControl.addActionListener(e -> {
+            if (this.keyBoardControlViewer != null) {
+                this.keyBoardControlViewer.dispose();
+            }
+            gameBoy.pause();
+            KeyBoardControlViewer k = new KeyBoardControlViewer(controls);
+            k.setLocation(getX() + getWidth(), getY());
+            this.keyBoardControlViewer = k;
+        });
+
+
+        settingsMenu.add(keyBoardControl);
         settingsMenu.add(displaySize);
-        return displaySize;
+        return settingsMenu;
     }
 
     @Override
@@ -212,5 +229,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     @Override
     public void disableDisplay() {
         panel.setVisible(true);
+    }
+
+    public KeyboardController getControls() {
+        return controls;
     }
 }
