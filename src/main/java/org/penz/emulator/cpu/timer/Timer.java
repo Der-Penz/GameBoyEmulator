@@ -27,15 +27,11 @@ public class Timer implements AddressSpace {
      */
     private int tac = 0xF8;
 
-    private boolean overflowed;
-
-    private int ticksSinceLastOverflow;
-
     private int divCyclesCounter = 0;
-
     private int timaCyclesCounter = 0;
 
     private final InterruptManager interruptManager;
+    private Frequency frequency = Frequency.fromBitValue(0b00);
 
     public Timer(InterruptManager interruptManager) {
         this.interruptManager = interruptManager;
@@ -57,24 +53,10 @@ public class Timer implements AddressSpace {
         }
 
         //inc every n clock ticks specified by TAC and the corresponding Frequency
-        Frequency frequency = Frequency.fromBitValue(tac & 0b11);
         if (timaCyclesCounter >= frequency.getCycles()) {
             timaCyclesCounter -= frequency.getCycles();
             incrementTIMA();
         }
-
-        if (overflowed) {
-            ticksSinceLastOverflow += 1;
-            if (ticksSinceLastOverflow == 4) {
-                interruptManager.requestInterrupt(InterruptType.TIMER);
-            }
-            if (ticksSinceLastOverflow == 5) {
-                tima = tma;
-                overflowed = false;
-                ticksSinceLastOverflow = 0;
-            }
-        }
-
     }
 
     /**
@@ -85,8 +67,8 @@ public class Timer implements AddressSpace {
             tima++;
         }
         if (tima >= 0xFF) {
-            ticksSinceLastOverflow = 0;
-            overflowed = true;
+            interruptManager.requestInterrupt(InterruptType.TIMER);
+            tima = tma;
         }
     }
 
@@ -109,6 +91,8 @@ public class Timer implements AddressSpace {
             tma = value;
         } else if (address == 0xFF07) {
             tac = value & 0x07;
+            frequency = Frequency.fromBitValue(tac & 0b11);
+            timaCyclesCounter = 0;
         }
     }
 
@@ -121,7 +105,7 @@ public class Timer implements AddressSpace {
         } else if (address == 0xFF06) {
             return tma;
         } else if (address == 0xFF07) {
-            return tac;
+            return tac | 0xF8;
         }
         return 0;
     }
