@@ -12,12 +12,10 @@ public enum CpuState {
      * State indicating that a new opcode will be fetched.
      */
     OPCODE,
-
     /**
      * State indicating that any interrupt is requested.
      */
     IT_REQUESTED,
-
     /**
      * State indicating that the low byte of the PC will be pushed to the stack.
      */

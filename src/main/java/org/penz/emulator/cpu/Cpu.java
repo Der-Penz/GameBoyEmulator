@@ -159,7 +159,6 @@ public class Cpu {
             state = CpuState.STOPPED;
         }
 
-        //TODO add timing to instructions to have accurate memory timings
         return opCode.execute(registers, memory, alu, args);
     }
 
@@ -168,7 +167,6 @@ public class Cpu {
      * @return The number of cycles that passed
      */
     public int tick() {
-        //TODO implement interrupt nesting
         if (state == CpuState.HALTED || state == CpuState.OPCODE || state == CpuState.STOPPED) {
             if (registers.interruptsEnabled() && interruptManager.anyInterruptsRequested()) {
                 state = CpuState.IT_REQUESTED;
@@ -186,6 +184,10 @@ public class Cpu {
 
         if (state == CpuState.HALTED) {
             return 4;
+        }
+
+        if (registers.getPC() == 0xC317) {
+            System.out.println("PC: " + BitUtil.toHex(registers.getPC()));
         }
 
         int opcode = memory.readByte(registers.getAndIncPC());
