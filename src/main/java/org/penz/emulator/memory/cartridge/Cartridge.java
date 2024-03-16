@@ -14,6 +14,11 @@ import java.util.zip.ZipInputStream;
 public class Cartridge implements AddressSpace {
 
     /**
+     * The rom file of the Game
+     */
+    private File romFile;
+
+    /**
      * The boot rom of the Game boy
      */
     private final BootRom bootRom;
@@ -29,6 +34,7 @@ public class Cartridge implements AddressSpace {
     private boolean bootRomEnabled;
 
     public Cartridge(File romFile) throws IOException {
+        this.romFile = romFile;
         this.bootRom = new BootRom();
         this.bootRomEnabled = true;
         int[] rawData = loadRom(romFile);
@@ -163,6 +169,10 @@ public class Cartridge implements AddressSpace {
 
     public int getGlobalChecksum() {
         return (readByte(0x14E) << 8) | readByte(0x14F);
+    }
+
+    public File getRomFile() {
+        return romFile;
     }
 
     /**

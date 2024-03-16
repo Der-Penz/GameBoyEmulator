@@ -50,4 +50,9 @@ class ImageDisplay extends JPanel {
         Dimension size = new Dimension(imageWidth * scale, imageHeight * scale);
         setPreferredSize(size);
     }
+
+    public void clearImage() {
+        pixelBuffer = new int[imageWidth * imageHeight];
+        paintImage();
+    }
 }

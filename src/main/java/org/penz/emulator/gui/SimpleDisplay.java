@@ -14,10 +14,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SimpleDisplay extends JFrame implements IDisplay {
 
+    private final KeyboardController controls;
     AtomicBoolean isInFastMode = new AtomicBoolean(false);
     private ImageDisplay panel;
     private GameBoy gameBoy;
-    private final KeyboardController controls;
     private int framesCounter = 0;
     private RegisterViewer registerViewer;
     private BGMapViewer tileDataViewer;
@@ -29,6 +29,50 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         controls = new KeyboardController();
         addKeyListener(controls);
         initializeUI();
+    }
+
+    /**
+     * Reloads the gameboy with the given romPath
+     *
+     * @param romPath        the path to the rom file
+     * @param runImmediately if true the gameboy will start running immediately
+     */
+    public void reloadGameBoy(String romPath, boolean runImmediately) {
+        try {
+            if (gameBoy != null) {
+                gameBoy.pause();
+            }
+            if (tileDataViewer != null) {
+                tileDataViewer.dispose();
+            }
+            if (registerViewer != null) {
+                registerViewer.dispose();
+            }
+            if (tilesViewer != null) {
+                tilesViewer.dispose();
+            }
+            if (keyBoardControlViewer != null) {
+                keyBoardControlViewer.dispose();
+            }
+            gameBoy = new GameBoy(romPath, controls, this);
+            panel.clearImage();
+            if (!runImmediately) {
+                gameBoy.pause();
+                return;
+            }
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    gameBoy.run(isInFastMode.get());
+                    return null;
+                }
+            };
+
+            worker.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An error occurred while loading the gameboy try restarting the program,\n further details: " + e.getMessage(), "Error while loading the gameboy", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void setGameBoy(GameBoy gameBoy) {
@@ -212,7 +256,41 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             this.keyBoardControlViewer = k;
         });
 
+        JMenuItem reset = new JMenuItem("Reset");
+        reset.addActionListener(e -> {
+            if (gameBoy != null) {
+                gameBoy.pause();
+                reloadGameBoy(gameBoy.getCartridge().getRomFile().getAbsolutePath(), true);
+            }
+        });
 
+        JMenuItem loadRom = new JMenuItem("Load Rom");
+        loadRom.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        loadRom.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                reloadGameBoy(fileChooser
+                        .getSelectedFile()
+                        .getAbsolutePath(), true);
+            }
+        });
+
+        JMenuItem loadRomPause = new JMenuItem("Load Rom and Pause");
+        loadRomPause.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+        loadRomPause.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                reloadGameBoy(fileChooser
+                        .getSelectedFile()
+                        .getAbsolutePath(), false);
+            }
+        });
+
+        settingsMenu.add(loadRom);
+        settingsMenu.add(loadRomPause);
+        settingsMenu.add(reset);
         settingsMenu.add(keyBoardControl);
         settingsMenu.add(displayColor);
         settingsMenu.add(displaySize);
@@ -239,12 +317,12 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
     @Override
     public void enableDisplay() {
-        panel.setVisible(true);
+        panel.paintImage();
     }
 
     @Override
     public void disableDisplay() {
-        panel.setVisible(true);
+        panel.clearImage();
     }
 
     public KeyboardController getControls() {
