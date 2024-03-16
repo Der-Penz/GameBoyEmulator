@@ -14,7 +14,6 @@ public class BootRom implements AddressSpace {
     /**
      * Create a new boot rom
      * defaults to GameBoy boot rom
-     * TODO allow to load custom boot roms (e.g. for GameBoy Color)
      * @throws FileNotFoundException if the boot rom file is not found
      */
     public BootRom() throws FileNotFoundException {

@@ -14,11 +14,6 @@ import java.util.zip.ZipInputStream;
 public class Cartridge implements AddressSpace {
 
     /**
-     * The raw data of the cartridge. Should not be used directly, only for reading the headers
-     */
-    private final int[] rawData;
-
-    /**
      * The boot rom of the Game boy
      */
     private final BootRom bootRom;
@@ -36,7 +31,7 @@ public class Cartridge implements AddressSpace {
     public Cartridge(File romFile) throws IOException {
         this.bootRom = new BootRom();
         this.bootRomEnabled = true;
-        rawData = loadRom(romFile);
+        int[] rawData = loadRom(romFile);
 
         CartridgeType type = getCartridgeType(rawData);
 
