@@ -44,7 +44,7 @@ public class Cartridge implements AddressSpace {
         if (type.isMbc1()) {
             data = new Mbc1(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData).numberOfBanks());
         } else if (type.isMbc2()) {
-            data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData).numberOfBanks());
+            data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks());
         } else if (type == CartridgeType.ROM) {
             data = new Rom(rawData, 0x0000, 0x7FFF);
         } else {

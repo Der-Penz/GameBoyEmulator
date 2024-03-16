@@ -2,9 +2,6 @@ package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
-import org.penz.emulator.memory.cartridge.ROMSize;
-
-import java.util.Arrays;
 
 /**
  * MBC2 memory bank controller
@@ -15,29 +12,17 @@ public class Mbc2 implements AddressSpace {
 
     private final Ram ramBank;
 
-    private boolean ramEnabled = false;
+    private boolean ramEnabled;
 
     private int selectedRomBank = 1;
 
-    public Mbc2(int[] cartridge, int romBanks, int ramBanks) {
-
+    public Mbc2(int[] cartridge, int romBanks) {
         if (romBanks > 16) {
             throw new IllegalArgumentException("MBC2 only supports up to 16 ROM banks");
         }
-
-        this.romBanks = new Rom[romBanks];
-        for (int i = 0; i < romBanks; i++) {
-            int[] data = Arrays.copyOfRange(cartridge, i * ROMSize.ROM_BANK_SIZE, (i + 1) * ROMSize.ROM_BANK_SIZE);
-            if (i == 0) {
-                this.romBanks[i] = new Rom(data, 0, ROMSize.ROM_BANK_SIZE);
-            } else {
-                this.romBanks[i] = new Rom(data, ROMSize.ROM_BANK_SIZE, 2 * ROMSize.ROM_BANK_SIZE);
-            }
-        }
-
-        ramBank = new Ram(0xA000, 0xA1FF);
-
         this.ramEnabled = false;
+        this.romBanks = Rom.toRomBanks(romBanks, cartridge);
+        this.ramBank = new Ram(0xA000, 0xA1FF);
     }
 
     @Override
@@ -49,7 +34,7 @@ public class Mbc2 implements AddressSpace {
     public void writeByte(int address, int value) {
         if (address >= 0x0000 && address <= 0x3FFF) {
             if ((address & 0x0100) == 0) {
-                ramEnabled = (value & 0xF) == 0xA;
+                ramEnabled = value == 0xA;
             } else {
                 selectedRomBank = value & 0b1111;
             }
