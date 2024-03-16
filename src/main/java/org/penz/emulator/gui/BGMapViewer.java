@@ -1,6 +1,7 @@
 package org.penz.emulator.gui;
 
 import org.penz.emulator.GameBoy;
+import org.penz.emulator.GameBoySettings;
 import org.penz.emulator.cpu.BitUtil;
 import org.penz.emulator.graphics.Pixel;
 import org.penz.emulator.graphics.PixelFetcher;
@@ -85,7 +86,7 @@ public class BGMapViewer extends JFrame {
     }
 
     public void updateTileData() {
-        Palette palette = Palette.GRAYSCALE;
+        Palette palette = GameBoySettings.getInstance().getPalette();
         int indexPalette = gameBoy.getMemory().readByte(0xFF47);
 
         int[] buffer = new int[TILES_PER_ROW * TILES_PER_ROW * TILE_SIZE * TILE_SIZE];
@@ -100,8 +101,7 @@ public class BGMapViewer extends JFrame {
                 int[] colorIds = PixelFetcher.pixelDataToColorId(lsb, msb);
                 for (int k = 0; k < TILE_SIZE; k++) {
                     var pixel = Pixel.createBgPixel(colorIds[k]);
-                    pixel.toHexColor(indexPalette, palette);
-                    colorIds[k] = palette.getColorByIndex(colorIds[k]);
+                    colorIds[k] = pixel.toHexColor(indexPalette, palette);
                 }
 
                 int x = (i % TILES_PER_ROW) * TILE_SIZE;

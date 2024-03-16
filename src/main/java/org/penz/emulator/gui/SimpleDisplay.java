@@ -1,7 +1,9 @@
 package org.penz.emulator.gui;
 
 import org.penz.emulator.GameBoy;
+import org.penz.emulator.GameBoySettings;
 import org.penz.emulator.graphics.IDisplay;
+import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.input.KeyboardController;
 
 import javax.swing.*;
@@ -171,7 +173,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         JMenu settingsMenu = new JMenu("Settings");
 
         JMenu displaySize = new JMenu("Size");
-        ButtonGroup group = new ButtonGroup();
+        ButtonGroup sizeGroup = new ButtonGroup();
 
         for (int i = 0; i < 7; i++) {
             int scale = i + 1;
@@ -182,9 +184,22 @@ public class SimpleDisplay extends JFrame implements IDisplay {
                 pack();
                 setLocationRelativeTo(null);
             });
-            group.add(item);
+            sizeGroup.add(item);
             displaySize.add(item);
         }
+
+        JMenu displayColor = new JMenu("Color palette");
+        ButtonGroup colorGroup = new ButtonGroup();
+
+        for (Palette palette : Palette.values()) {
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(palette.name());
+            item.addActionListener(e -> {
+                GameBoySettings.getInstance().setPalette(palette);
+            });
+            colorGroup.add(item);
+            displayColor.add(item);
+        }
+
 
         JMenuItem keyBoardControl = new JMenuItem("KeyBoard Bindings");
         keyBoardControl.addActionListener(e -> {
@@ -199,6 +214,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
 
         settingsMenu.add(keyBoardControl);
+        settingsMenu.add(displayColor);
         settingsMenu.add(displaySize);
         return settingsMenu;
     }

@@ -2,9 +2,9 @@ package org.penz.emulator.graphics.enums;
 
 public enum Palette {
     GRAYSCALE(new int[]{0xFFFFFF, 0xAAAAAA, 0x555555, 0x000000}),
-    PALETTE_2(new int[]{0xFF, 0xC0, 0x60, 0x00}),
-    PALETTE_3(new int[]{0xFF, 0xC0, 0x60, 0x00});
-
+    GREEN(new int[]{0xE0F8D0, 0x88C070, 0x346856, 0x081820}),
+    //make a blusih palette
+    BLUE(new int[]{0x00FFFF, 0x00AAAA, 0x005555, 0x000000});
 
     private final int[] hexValues;
 

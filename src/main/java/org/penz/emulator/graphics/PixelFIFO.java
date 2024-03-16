@@ -1,7 +1,7 @@
 package org.penz.emulator.graphics;
 
+import org.penz.emulator.GameBoySettings;
 import org.penz.emulator.cpu.BitUtil;
-import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.graphics.enums.PixelType;
 import org.penz.emulator.memory.AddressSpace;
 
@@ -113,9 +113,9 @@ public class PixelFIFO implements AddressSpace {
         x++;
 
         if (pixel.isObjPixel()) {
-            return pixel.toHexColor(pixel.pixelType() == PixelType.OBJ0 ? objPalette0 : objPalette1, Palette.GRAYSCALE);
+            return pixel.toHexColor(pixel.pixelType() == PixelType.OBJ0 ? objPalette0 : objPalette1, GameBoySettings.getInstance().getPalette());
         } else {
-            return pixel.toHexColor(bgPalette, Palette.GRAYSCALE);
+            return pixel.toHexColor(bgPalette, GameBoySettings.getInstance().getPalette());
         }
     }
 
