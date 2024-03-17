@@ -22,6 +22,14 @@ public class Ram implements AddressSpace {
         this.data = data;
     }
 
+    public static Ram[] toRamBanks(int count, int from, int to) {
+        Ram[] ramBanks = new Ram[count];
+        for (int i = 0; i < count; i++) {
+            ramBanks[i] = new Ram(from, to);
+        }
+        return ramBanks;
+    }
+
     @Override
     public boolean accepts(int address) {
         return address >= offset && address <= offset + data.length - 1;

@@ -2,7 +2,6 @@ package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
-import org.penz.emulator.memory.cartridge.RAMSize;
 
 public class Mbc1 implements AddressSpace {
 
@@ -10,7 +9,7 @@ public class Mbc1 implements AddressSpace {
 
     private final Ram[] ramBanks;
 
-    private boolean ramEnabled = false;
+    private boolean ramEnabled;
 
     private int selectedRamBank = 0;
     private int selectedRomBank = 1;
@@ -21,11 +20,7 @@ public class Mbc1 implements AddressSpace {
 
         this.romBanks = Rom.toRomBanks(romBanks, cartridge);
 
-        this.ramBanks = new Ram[ramBanks];
-        for (int i = 0; i < ramBanks; i++) {
-            this.ramBanks[i] = new Ram(i * RAMSize.RAM_BANK_SIZE, ((i + 1) * RAMSize.RAM_BANK_SIZE));
-        }
-
+        this.ramBanks = Ram.toRamBanks(ramBanks, 0xA000, 0xBFFF);
         this.ramEnabled = false;
     }
 
@@ -78,10 +73,12 @@ public class Mbc1 implements AddressSpace {
 
         if (address >= 0xA000 && address <= 0xBFFF) {
             if (ramEnabled) {
-                return getRamBank().readByte(address);
-            } else {
-                return 0xFF;
+                Ram bank = getRamBank();
+                if (bank != null) {
+                    return bank.readByte(address);
+                }
             }
+            return 0xFF;
         }
         return 0;
     }
