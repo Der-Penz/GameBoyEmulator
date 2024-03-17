@@ -8,9 +8,7 @@ import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.graphics.enums.TileDataArea;
 import org.penz.emulator.memory.AddressSpace;
 
-import javax.swing.*;
-
-public class TilesViewer extends JFrame {
+public class TilesViewer extends DebugFrame {
 
     private static final int NUMBER_OF_TILES = 128 * 3;
     private static final int TILES_PER_ROW = 16;
@@ -20,21 +18,18 @@ public class TilesViewer extends JFrame {
     private ImageDisplay imagePanel;
 
     public TilesViewer(GameBoy gameBoy) {
+        super("Tiles Viewer");
         this.gameBoy = gameBoy;
         initializeUI();
     }
 
-    private void initializeUI() {
-        setTitle("Tiles Viewer");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    void initializeUI() {
         setResizable(false);
 
         imagePanel = new ImageDisplay(TILES_PER_ROW * TILE_SIZE, TILES_PER_COLUMN * TILE_SIZE, 3);
         add(imagePanel);
 
         pack();
-        setLocationRelativeTo(null);
-        requestFocus();
         setVisible(true);
     }
 
@@ -74,6 +69,11 @@ public class TilesViewer extends JFrame {
 
         address = baseAddress + (tileId * tileSize);
         return AddressSpace.readRange(gameBoy.getMemory(), address, tileSize);
+    }
+
+    @Override
+    public void updateFrame() {
+        updateTileData();
     }
 
 }

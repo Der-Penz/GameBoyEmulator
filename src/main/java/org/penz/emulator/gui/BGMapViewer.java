@@ -13,7 +13,7 @@ import org.penz.emulator.memory.AddressSpace;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-public class BGMapViewer extends JFrame {
+public class BGMapViewer extends DebugFrame {
 
     private static final int TILES_PER_ROW = 32;
 
@@ -24,15 +24,14 @@ public class BGMapViewer extends JFrame {
     private ViewportImageDisplay imagePanel;
 
     public BGMapViewer(GameBoy gameBoy) {
+        super("Background map Viewer");
         this.tileMapArea = TileMapArea.AREA_1;
         this.tileDataArea = TileDataArea.AREA_2;
         this.gameBoy = gameBoy;
         initializeUI();
     }
 
-    private void initializeUI() {
-        setTitle("Background map Viewer");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    void initializeUI() {
         setResizable(false);
 
         JMenuBar menuBar = new JMenuBar();
@@ -80,8 +79,6 @@ public class BGMapViewer extends JFrame {
         add(imagePanel);
 
         pack();
-        setLocationRelativeTo(null);
-        requestFocus();
         setVisible(true);
     }
 
@@ -130,6 +127,11 @@ public class BGMapViewer extends JFrame {
             address = tileDataArea.getBaseAddress() + (tileId * tileSize);
         }
         return AddressSpace.readRange(gameBoy.getMemory(), address, tileSize);
+    }
+
+    @Override
+    public void updateFrame() {
+        updateTileData();
     }
 
 }

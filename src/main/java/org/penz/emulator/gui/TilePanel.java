@@ -18,7 +18,7 @@ class TilePanel extends JPanel {
         setPreferredSize(new Dimension(imageWidth * scale, imageWidth * scale));
     }
 
-    public void setPixel(Integer[] colors) {
+    public void setPixels(Integer[] colors) {
         pixelBuffer = colors;
         repaint();
     }

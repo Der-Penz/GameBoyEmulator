@@ -3,11 +3,10 @@ package org.penz.emulator.gui;
 import org.penz.emulator.cpu.Registers;
 import org.penz.emulator.memory.AddressSpace;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class RegisterViewer extends JFrame {
+public class RegisterViewer extends DebugFrame {
 
     private final Registers registers;
 
@@ -18,15 +17,15 @@ public class RegisterViewer extends JFrame {
     private final FlagsPanel flagsPanel;
 
     public RegisterViewer(Registers registers, AddressSpace memory) {
+        super("Register Viewer");
         this.registers = registers;
         this.memory = memory;
         flagsPanel = new FlagsPanel(registers);
         initializeUI();
     }
 
-    private void initializeUI() {
-        setTitle("Register Viewer");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+    void initializeUI() {
         setLayout(new GridLayout(14, 2, 1, 1));
 
         registerPanels.add(new RegisterPanel("PC", registers::getPC));
@@ -69,6 +68,11 @@ public class RegisterViewer extends JFrame {
     public void updateRegisterData() {
         registerPanels.forEach(RegisterPanel::updateValue);
         flagsPanel.updateValue();
+    }
+
+    @Override
+    public void updateFrame() {
+        updateRegisterData();
     }
 
 }

@@ -179,4 +179,12 @@ public class Object {
     public PixelType getPixelType() {
         return BitUtil.getBit(flags, 4) ? PixelType.OBJ1 : PixelType.OBJ0;
     }
+
+    public boolean isVisible(ObjSize size) {
+        if (size == ObjSize.SIZE_8x16) {
+            return !((x == 0) || (x >= 168) || ((y >= 160) || (y == 0)));
+        } else {
+            return !((x == 0) || (x >= 168) || ((y >= 160) || (y <= 8)));
+        }
+    }
 }

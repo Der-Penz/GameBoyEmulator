@@ -9,24 +9,26 @@ import org.penz.emulator.input.KeyboardController;
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SimpleDisplay extends JFrame implements IDisplay {
 
     private final KeyboardController controls;
+    private final List<DebugFrame> debugFrames;
     AtomicBoolean isInFastMode = new AtomicBoolean(false);
     private ImageDisplay panel;
     private GameBoy gameBoy;
     private int framesCounter = 0;
-    private RegisterViewer registerViewer;
-    private BGMapViewer tileDataViewer;
-    private TilesViewer tilesViewer;
     private KeyBoardControlViewer keyBoardControlViewer;
 
     public SimpleDisplay() {
         gameBoy = null;
         controls = new KeyboardController();
+        debugFrames = new ArrayList<>();
+
         addKeyListener(controls);
         initializeUI();
     }
@@ -42,15 +44,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             if (gameBoy != null) {
                 gameBoy.pause();
             }
-            if (tileDataViewer != null) {
-                tileDataViewer.dispose();
-            }
-            if (registerViewer != null) {
-                registerViewer.dispose();
-            }
-            if (tilesViewer != null) {
-                tilesViewer.dispose();
-            }
+            debugFrames.forEach(DebugFrame::dispose);
+            debugFrames.clear();
+
             if (keyBoardControlViewer != null) {
                 keyBoardControlViewer.dispose();
             }
@@ -92,7 +88,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         menuBar.add(getDebugMenu());
         setJMenuBar(menuBar);
 
-        int DEFAULT_SCALE = 1;
+        int DEFAULT_SCALE = 2;
         panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, DEFAULT_SCALE);
         add(panel);
 
@@ -110,9 +106,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         tick.addActionListener(e -> {
             if (gameBoy != null && !gameBoy.isRunning()) {
                 gameBoy.tick();
-                if (registerViewer != null) {
-                    registerViewer.updateRegisterData();
-                }
+                debugFrames.forEach(DebugFrame::updateFrame);
             }
         });
 
@@ -173,44 +167,54 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         JMenu debugMenu = new JMenu("Debug");
         debugMenu.setMnemonic(KeyEvent.VK_D);
 
-        JMenuItem tileDataViewer = new JMenuItem("Tile Data Viewer");
-        tileDataViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-        tileDataViewer.addActionListener(e -> {
-            if (this.tileDataViewer != null) {
-                this.tileDataViewer.dispose();
-            }
-            BGMapViewer t = new BGMapViewer(gameBoy);
-            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
-            t.updateTileData();
-            this.tileDataViewer = t;
+        JMenuItem bgMapViewer = new JMenuItem("BG Map Viewer");
+        bgMapViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
+        bgMapViewer.addActionListener(e -> {
+            registerDebugFrame(new BGMapViewer(gameBoy));
         });
+
         JMenuItem registerViewer = new JMenuItem("Register Viewer");
         registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         registerViewer.addActionListener(e -> {
-            if (this.registerViewer != null) {
-                this.registerViewer.dispose();
-            }
-            RegisterViewer r = new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory());
-            r.setLocation(getX() + getWidth(), getY());
-            this.registerViewer = r;
-        });
-        JMenuItem tilesViewer = new JMenuItem("Tiles Viewer");
-        tilesViewer.addActionListener(e -> {
-            if (this.tilesViewer != null) {
-                this.tilesViewer.dispose();
-            }
-            gameBoy.pause();
-            TilesViewer t = new TilesViewer(gameBoy);
-            t.setLocation(getX() + getWidth(), getY() - (t.getHeight() / 2));
-            t.updateTileData();
-            this.tilesViewer = t;
+            registerDebugFrame(new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory()));
         });
 
-        debugMenu.add(tileDataViewer);
+
+        JMenuItem tilesViewer = new JMenuItem("Tiles Viewer");
+        tilesViewer.addActionListener(e -> {
+            registerDebugFrame(new TilesViewer(gameBoy));
+        });
+
+        JMenuItem objectsViewer = new JMenuItem("Objects Viewer");
+        objectsViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        objectsViewer.addActionListener(e -> {
+            registerDebugFrame(new ObjectsViewer(gameBoy.getMemory()));
+        });
+
+        JMenuItem refresh = new JMenuItem("Refresh Viewer");
+        refresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
+        refresh.addActionListener(e -> {
+            debugFrames.forEach(DebugFrame::updateFrame);
+        });
+
+        debugMenu.add(refresh);
+        debugMenu.add(bgMapViewer);
+        debugMenu.add(objectsViewer);
         debugMenu.add(registerViewer);
         debugMenu.add(tilesViewer);
 
         return debugMenu;
+    }
+
+    private void registerDebugFrame(DebugFrame frame) {
+        debugFrames.stream().filter(df -> df.getClass().equals(frame.getClass())).findFirst().ifPresent(df -> {
+            df.dispose();
+            debugFrames.remove(df);
+        });
+        debugFrames.add(frame);
+        frame.transferFocus();
+        requestFocus();
+        frame.updateFrame();
     }
 
     private JMenu getSettingsMenu() {
@@ -304,15 +308,9 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
     @Override
     public void onFrameReady() {
-        framesCounter++;
-        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + framesCounter);
+        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + ++framesCounter);
         panel.paintImage();
-        if (registerViewer != null) {
-            registerViewer.updateRegisterData();
-        }
-        if (tileDataViewer != null) {
-            tileDataViewer.updateTileData();
-        }
+        debugFrames.forEach(DebugFrame::updateFrame);
     }
 
     @Override
@@ -323,9 +321,5 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     @Override
     public void disableDisplay() {
         panel.clearImage();
-    }
-
-    public KeyboardController getControls() {
-        return controls;
     }
 }
