@@ -21,7 +21,7 @@ public class LcdControl {
 
     private boolean objEnabled;
 
-    private boolean backgroundWindowEnabled;
+    private boolean backgroundWindowPriority;
 
     public LcdControl() {
         this.lcdEnabled = false;
@@ -31,7 +31,7 @@ public class LcdControl {
         this.backgroundTileMapArea = TileMapArea.AREA_1;
         this.objSize = ObjSize.SIZE_8x8;
         this.objEnabled = false;
-        this.backgroundWindowEnabled = false;
+        this.backgroundWindowPriority = false;
     }
 
 
@@ -44,7 +44,7 @@ public class LcdControl {
         lcdControlReg |= (((backgroundTileMapArea.ordinal() << 3)));
         lcdControlReg |= (((objSize.ordinal() << 2)));
         lcdControlReg |= (((objEnabled ? 1 : 0) << 1));
-        lcdControlReg |= (((backgroundWindowEnabled ? 1 : 0)));
+        lcdControlReg |= (((backgroundWindowPriority ? 1 : 0)));
 
         return lcdControlReg;
     }
@@ -57,7 +57,7 @@ public class LcdControl {
         backgroundTileMapArea = TileMapArea.fromValue(BitUtil.getBit(value, 3) ? 1 : 0);
         objSize = ObjSize.fromValue(BitUtil.getBit(value, 2) ? 1 : 0);
         objEnabled = BitUtil.getBit(value, 1);
-        backgroundWindowEnabled = BitUtil.getBit(value, 0);
+        backgroundWindowPriority = BitUtil.getBit(value, 0);
     }
 
     public boolean isLcdEnabled() {
@@ -116,11 +116,11 @@ public class LcdControl {
         this.objEnabled = objEnabled;
     }
 
-    public boolean isBackgroundWindowEnabled() {
-        return backgroundWindowEnabled;
+    public boolean isBackgroundWindowPriority() {
+        return backgroundWindowPriority;
     }
 
-    public void setBackgroundWindowEnabled(boolean backgroundWindowEnabled) {
-        this.backgroundWindowEnabled = backgroundWindowEnabled;
+    public void setBackgroundWindowPriority(boolean backgroundWindowPriority) {
+        this.backgroundWindowPriority = backgroundWindowPriority;
     }
 }

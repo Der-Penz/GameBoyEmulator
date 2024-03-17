@@ -20,6 +20,7 @@ public class PixelFetcher {
     private PixelFetcherState state;
     private int currentTileId;
     private int x;
+    private int y;
     private int curScx;
     private int curScy;
     private boolean windowFetching;
@@ -53,10 +54,12 @@ public class PixelFetcher {
     /**
      * Reset the pixel fetcher to be ready for a new scanline
      */
-    public void reset(int scx, int scy, boolean window) {
+    public void reset(int scanline, int scx, int scy, boolean window) {
         if (!window) {
             x = 0;
         }
+
+        y = scanline;
         curScy = scy;
         curScx = scx;
         state = PixelFetcherState.READ_TILE_ID;
@@ -91,7 +94,7 @@ public class PixelFetcher {
         TileMapArea tileMapArea = windowFetching ? lcdControl.getWindowTileMapArea() : lcdControl.getBackgroundTileMapArea();
 
         int fetcherX = ((curScx + x) / 8) & 0x1F;
-        int fetcherY = (lcdRegister.getLY() + curScy) & 0xFF;
+        int fetcherY = (y + curScy) & 0xFF;
         int yPos = (fetcherY / 8) * 32;
         int address = tileMapArea.getStartAddress() + yPos + fetcherX;
 
@@ -109,7 +112,7 @@ public class PixelFetcher {
         int tileData;
 
         int sizeOfTileRow = 16;
-        int tileLine = ((lcdRegister.getLY() + curScy) % 8) * 2;
+        int tileLine = ((y + curScy) % 8) * 2;
         if (tileDataArea == TileDataArea.AREA_1) {
             int tileDataAddress = tileDataArea.getBaseAddress() + BitUtil.toSignedByte(currentTileId) * sizeOfTileRow;
             tileDataAddress += tileLine;
