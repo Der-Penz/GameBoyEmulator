@@ -103,7 +103,7 @@ public class Object {
         TileDataArea tileDataArea = TileDataArea.AREA_2;
         int sizeOfTileRow = 16;
 
-        int tileLine = (ly % 8) * 2;
+        int tileLine = (ly - y + Y_OFFSET) % 8 * 2;
 
         if (yFlip()) {
             tileLine = 14 - tileLine;
