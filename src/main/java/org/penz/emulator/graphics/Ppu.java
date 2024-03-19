@@ -104,6 +104,7 @@ public class Ppu implements AddressSpace {
                 pixelFIFO.setObjectsOnScanline(null);
                 break;
             case V_BLANK:
+                pixelFIFO.resetWindowY();
                 interruptManager.requestInterrupt(InterruptType.VBLANK);
                 lcdRegister.getSTAT().tryRequestInterrupt(LCDInterruptMode.MODE1);
                 break;

@@ -23,6 +23,7 @@ public class PixelFIFO implements AddressSpace {
     private int scx;
     private int wy;
     private int wx;
+    private int windowY;
     private int counter;
     private int xShift;
     private int bgPalette;
@@ -77,8 +78,8 @@ public class PixelFIFO implements AddressSpace {
 
         if (inWindow() && !pixelFetcher.isWindowFetching()) {
             pixelQueue.clear();
-            xShift = 0;
-            pixelFetcher.reset(0, 0, 0, true);
+            pixelFetcher.reset(windowY, 0, 0, true);
+            windowY++;
         }
 
         if (counter == 2) {
@@ -230,6 +231,10 @@ public class PixelFIFO implements AddressSpace {
      */
     public boolean hasObjects() {
         return objectsOnScanline != null;
+    }
+
+    public void resetWindowY() {
+        windowY = 0;
     }
 }
 
