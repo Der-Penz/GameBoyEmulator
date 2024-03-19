@@ -117,7 +117,7 @@ public class ObjectsViewer extends DebugFrame {
 
             List<Integer> pixels = new ArrayList<>();
             for (int j = 0; j < 8; j++) {
-                pixels.addAll(object.fetchPixels(j, 0, addressSpace, size)
+                pixels.addAll(object.fetchPixels(j, addressSpace, size)
                         .stream()
                         .map(pixel -> new Pixel(pixel, object.getPixelType()).toHexColor(objectPalette, GameBoySettings.getInstance().getPalette()))
                         .toList());

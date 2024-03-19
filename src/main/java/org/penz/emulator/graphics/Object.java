@@ -17,7 +17,7 @@ import java.util.List;
 public class Object {
 
     public static final int OBJECT_TICK_PENALTY = 6;
-    private static final int Y_OFFSET_LEFT_CORNER = 16;
+    private static final int Y_OFFSET = 16;
 
     private final int x;
     private final int y;
@@ -65,34 +65,33 @@ public class Object {
      * @return true if the object is in the given scanline
      */
     public boolean inScanline(int scanline, ObjSize size) {
-        return y - Y_OFFSET_LEFT_CORNER <= scanline && y - Y_OFFSET_LEFT_CORNER + size.getHeight() > scanline;
+        int height = size == ObjSize.SIZE_8x16 ? 16 : 8;
+        return y - Y_OFFSET <= scanline && y - Y_OFFSET + height > scanline;
     }
 
     /**
      * checks if the object is in the given x coordinate
      *
      * @param x   the x coordinate to check
-     * @param scx the current scroll x
      * @return true if the object is in the given x coordinate
      */
-    public boolean xIntersects(int x, int scx) {
-        return this.x - 8 == x - scx;
+    public boolean xIntersects(int x) {
+        return this.x - 8 == x;
     }
 
     /**
      * fetches the pixel data for the object
      *
      * @param ly   the current scanline
-     * @param scy  the current scroll y
      * @param vram the video ram
      * @return the 8 pixel color ids for the object
      */
-    public List<Integer> fetchPixels(int ly, int scy, AddressSpace vram, ObjSize size) {
+    public List<Integer> fetchPixels(int ly, AddressSpace vram, ObjSize size) {
         renderedOnScanline = true;
 
         int tileId = this.tileId;
         if (size == ObjSize.SIZE_8x16) {
-            boolean isBottomTile = (ly + scy - y + Y_OFFSET_LEFT_CORNER) >= 8;
+            boolean isBottomTile = (ly - y + Y_OFFSET) >= 8;
             if (isBottomTile) {
                 tileId |= 0x01;
             } else {
@@ -104,7 +103,7 @@ public class Object {
         TileDataArea tileDataArea = TileDataArea.AREA_2;
         int sizeOfTileRow = 16;
 
-        int tileLine = ((ly + scy) % 8) * 2;
+        int tileLine = (ly % 8) * 2;
 
         if (yFlip()) {
             tileLine = 14 - tileLine;

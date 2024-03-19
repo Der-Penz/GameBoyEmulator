@@ -4,6 +4,5 @@ public enum PixelType {
     BG,
     OBJ0,
     OBJ1,
-    WINDOW,
 
 }

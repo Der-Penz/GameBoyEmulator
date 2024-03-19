@@ -71,7 +71,7 @@ public class PixelFIFO implements AddressSpace {
 
         Object object = checkForObject();
         if (object != null && pixelQueue.size() >= 8) {
-            List<Integer> pixels = object.fetchPixels(lcdRegister.getLY(), scy, pixelFetcher.getVram(), lcdControl.getObjSize());
+            List<Integer> pixels = object.fetchPixels(lcdRegister.getLY(), pixelFetcher.getVram(), lcdControl.getObjSize());
             combinedObjPixelData(pixels, object);
             objectPenaltyTicks += Object.OBJECT_TICK_PENALTY;
         }
@@ -130,10 +130,10 @@ public class PixelFIFO implements AddressSpace {
         List<Pixel> pixelArray = new ArrayList<>(pixelQueue);
 
         for (int i = 0; i < 8; i++) {
-            int pixel = objPixelData.get(i);
+            int colorID = objPixelData.get(i);
 
             //transparent pixel
-            if (pixel == 0x0) {
+            if (colorID == 0x0) {
                 continue;
             }
 
@@ -145,10 +145,10 @@ public class PixelFIFO implements AddressSpace {
             if (object.bgPriority()) {
                 //if the background has priority over the object only draw over the background if id is 0x0
                 if (pixelArray.get(i).pixelId() == 0x0) {
-                    pixelArray.set(i, new Pixel(pixel, object.getPixelType()));
+                    pixelArray.set(i, new Pixel(colorID, object.getPixelType()));
                 }
             } else {
-                pixelArray.set(i, new Pixel(pixel, object.getPixelType()));
+                pixelArray.set(i, new Pixel(colorID, object.getPixelType()));
             }
 
         }
@@ -212,7 +212,7 @@ public class PixelFIFO implements AddressSpace {
             return null;
         }
 
-        return objectsOnScanline.stream().filter(object -> object.xIntersects(x, scx) && !object.isRendered()).findFirst().orElse(null);
+        return objectsOnScanline.stream().filter(object -> object.xIntersects(x) && !object.isRendered()).findFirst().orElse(null);
     }
 
     /**
