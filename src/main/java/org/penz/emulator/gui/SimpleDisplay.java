@@ -169,33 +169,23 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
         JMenuItem bgMapViewer = new JMenuItem("BG Map Viewer");
         bgMapViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-        bgMapViewer.addActionListener(e -> {
-            registerDebugFrame(new BGMapViewer(gameBoy));
-        });
+        bgMapViewer.addActionListener(e -> registerDebugFrame(new BGMapViewer(gameBoy)));
 
         JMenuItem registerViewer = new JMenuItem("Register Viewer");
         registerViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-        registerViewer.addActionListener(e -> {
-            registerDebugFrame(new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory()));
-        });
+        registerViewer.addActionListener(e -> registerDebugFrame(new RegisterViewer(gameBoy.getCpu().getRegisters(), gameBoy.getMemory())));
 
 
         JMenuItem tilesViewer = new JMenuItem("Tiles Viewer");
-        tilesViewer.addActionListener(e -> {
-            registerDebugFrame(new TilesViewer(gameBoy));
-        });
+        tilesViewer.addActionListener(e -> registerDebugFrame(new TilesViewer(gameBoy)));
 
         JMenuItem objectsViewer = new JMenuItem("Objects Viewer");
         objectsViewer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        objectsViewer.addActionListener(e -> {
-            registerDebugFrame(new ObjectsViewer(gameBoy.getMemory()));
-        });
+        objectsViewer.addActionListener(e -> registerDebugFrame(new ObjectsViewer(gameBoy.getMemory())));
 
         JMenuItem refresh = new JMenuItem("Refresh Viewer");
         refresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
-        refresh.addActionListener(e -> {
-            debugFrames.forEach(DebugFrame::updateFrame);
-        });
+        refresh.addActionListener(e -> debugFrames.forEach(DebugFrame::updateFrame));
 
         debugMenu.add(refresh);
         debugMenu.add(bgMapViewer);
@@ -241,9 +231,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
 
         for (Palette palette : Palette.values()) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(palette.name());
-            item.addActionListener(e -> {
-                GameBoySettings.getInstance().setPalette(palette);
-            });
+            item.addActionListener(e -> GameBoySettings.getInstance().setPalette(palette));
             colorGroup.add(item);
             displayColor.add(item);
         }
