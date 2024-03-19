@@ -180,6 +180,12 @@ public class Object {
         return BitUtil.getBit(flags, 4) ? PixelType.OBJ1 : PixelType.OBJ0;
     }
 
+    /**
+     * is the object visible in the viewport
+     *
+     * @param size the active object size
+     * @return true if the object is visible
+     */
     public boolean isVisible(ObjSize size) {
         if (size == ObjSize.SIZE_8x16) {
             return !((x == 0) || (x >= 168) || ((y >= 160) || (y == 0)));
@@ -187,4 +193,17 @@ public class Object {
             return !((x == 0) || (x >= 168) || ((y >= 160) || (y <= 8)));
         }
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getTileId() {
+        return tileId;
+    }
+
 }
