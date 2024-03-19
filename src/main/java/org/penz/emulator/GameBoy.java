@@ -16,6 +16,9 @@ import org.penz.emulator.memory.cartridge.CGBFlag;
 import org.penz.emulator.memory.cartridge.Cartridge;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GameBoy {
 
@@ -31,7 +34,7 @@ public class GameBoy {
 
     private final Timer timer;
     private final IDisplay display;
-    private Cartridge cartridge;
+    private final Cartridge cartridge;
     private boolean paused = false;
 
     public GameBoy(String romPath, IButtonController controls, IDisplay display) throws IOException {
@@ -74,18 +77,16 @@ public class GameBoy {
      */
     public void run(boolean fastMode) {
         paused = false;
-        while (!paused) {
-            frame();
-            if (!fastMode) {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-                try {
-                    int frameExecutionDuration = 3;
-                    Thread.sleep((1000 / GameBoy.FPS) - frameExecutionDuration);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        executorService.scheduleAtFixedRate(() -> {
+            if (!paused) {
+                frame();
+            } else {
+                executorService.shutdown();
             }
-        }
+        }, 0, fastMode ? 1 : 1000 / GameBoy.FPS, TimeUnit.MILLISECONDS);
+
     }
 
     /**

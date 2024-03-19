@@ -306,9 +306,18 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         panel.putPixel(x, y, color);
     }
 
+    long lastTimeStamp = System.currentTimeMillis();
+
     @Override
     public void onFrameReady() {
-        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + ++framesCounter);
+        framesCounter++;
+        if (System.currentTimeMillis() - lastTimeStamp > 1000) {
+            lastTimeStamp = System.currentTimeMillis();
+            setTitle(gameBoy.getCartridge().getTitle() + ", FPS: " + framesCounter);
+            framesCounter = 0;
+        }
+
+//        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + ++framesCounter);
         panel.paintImage();
         debugFrames.forEach(DebugFrame::updateFrame);
     }
