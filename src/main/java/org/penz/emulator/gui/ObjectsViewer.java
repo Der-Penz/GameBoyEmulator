@@ -136,10 +136,8 @@ public class ObjectsViewer extends DebugFrame {
             toEmptyPanel(tilePanels.get(i));
         }
 
-        try {
+        if (!(selectedObject >= objects.size())) {
             detailsPanel.updateDetails(selectedObject, objects.get(selectedObject));
-        } catch (Exception e) {
-            //selecting empty object does nothing
         }
     }
 

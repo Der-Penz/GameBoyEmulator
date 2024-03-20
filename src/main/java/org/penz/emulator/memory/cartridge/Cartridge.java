@@ -5,6 +5,7 @@ import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.cartridge.type.Mbc1;
 import org.penz.emulator.memory.cartridge.type.Mbc2;
+import org.penz.emulator.memory.cartridge.type.Mbc3;
 import org.penz.emulator.memory.cartridge.type.Rom;
 
 import java.io.*;
@@ -14,20 +15,17 @@ import java.util.zip.ZipInputStream;
 public class Cartridge implements AddressSpace {
 
     /**
-     * The rom file of the Game
-     */
-    private File romFile;
-
-    /**
      * The boot rom of the Game boy
      */
     private final BootRom bootRom;
-
     /**
      * The data of the cartridge, now able to be memory bank switched
      */
     private final AddressSpace data;
-
+    /**
+     * The rom file of the Game
+     */
+    private final File romFile;
     /**
      * Whether the boot rom is mapped to the beginning of the address space
      */
@@ -45,11 +43,36 @@ public class Cartridge implements AddressSpace {
             data = new Mbc1(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData).numberOfBanks());
         } else if (type.isMbc2()) {
             data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks());
+        } else if (type.isMbc3()) {
+            data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData));
         } else if (type == CartridgeType.ROM) {
             data = new Rom(rawData, 0x0000, 0x7FFF);
         } else {
             throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
         }
+    }
+
+    /**
+     * Load a cartridge by a given file path
+     *
+     * @param path the path to the rom file
+     * @return the loaded cartridge
+     * @throws FileNotFoundException         if the file is not found
+     * @throws IOException                   if an error occurs while loading the rom file
+     * @throws UnsupportedOperationException if the cartridge type is not supported
+     */
+    public static Cartridge loadCartridge(String path) throws IOException {
+        File romFile = new File(path);
+
+        if (!romFile.exists()) {
+            throw new FileNotFoundException("File not found: " + path);
+        }
+
+        if (!FilenameUtils.getExtension(romFile.getName()).matches("gb|txt|bin|zip")) {
+            throw new IllegalArgumentException("Unsupported file type: " + FilenameUtils.getExtension(romFile.getName()));
+        }
+
+        return new Cartridge(romFile);
     }
 
     /**
@@ -173,29 +196,6 @@ public class Cartridge implements AddressSpace {
 
     public File getRomFile() {
         return romFile;
-    }
-
-    /**
-     * Load a cartridge by a given file path
-     *
-     * @param path the path to the rom file
-     * @return the loaded cartridge
-     * @throws FileNotFoundException         if the file is not found
-     * @throws IOException                   if an error occurs while loading the rom file
-     * @throws UnsupportedOperationException if the cartridge type is not supported
-     */
-    public static Cartridge loadCartridge(String path) throws IOException {
-        File romFile = new File(path);
-
-        if (!romFile.exists()) {
-            throw new FileNotFoundException("File not found: " + path);
-        }
-
-        if (!FilenameUtils.getExtension(romFile.getName()).matches("gb|txt|bin|zip")) {
-            throw new IllegalArgumentException("Unsupported file type: " + FilenameUtils.getExtension(romFile.getName()));
-        }
-
-        return new Cartridge(romFile);
     }
 
     public int[] getDataFromZip(File zipFile) throws IOException {

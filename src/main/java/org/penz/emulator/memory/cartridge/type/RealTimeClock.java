@@ -1,167 +1,197 @@
 package org.penz.emulator.memory.cartridge.type;
 
-import org.penz.emulator.cpu.BitUtil;
+import java.io.Serializable;
 
-public class RealTimeClock {
+public class RealTimeClock implements Serializable {
 
-
-    private long startTimeStamp;
-
-    private long latchStartTimeStamp;
-
+    private long offsetSec;
+    private long clockStart;
+    private boolean halt;
+    private long latchStart;
+    private int haltSeconds;
+    private int haltMinutes;
+    private int haltHours;
+    private int haltDays;
+    private int selectedRegister;
     private boolean latched;
 
-    private int selectedRegister;
-
-    private boolean halt;
-
-    private int latchReg = 0xFF;
-
-    public RealTimeClock(long clockStart) {
-        //TODO Use Dependency Injection to inject the clock to be able to use a custom clock for testing
-        this.startTimeStamp = clockStart;
-        this.latched = false;
-        this.halt = false;
-    }
-
     public RealTimeClock() {
-        this(System.currentTimeMillis());
+        this.clockStart = System.currentTimeMillis();
     }
 
     public void latch() {
-        this.latched = true;
-        this.latchStartTimeStamp = System.currentTimeMillis();
+        latched = true;
+        latchStart = System.currentTimeMillis();
     }
 
     public void unlatch() {
-        this.latched = false;
-        this.latchStartTimeStamp = 0;
+        latched = false;
+        latchStart = 0;
     }
 
-    public void toggleLatch(int newLatchReg) {
-        if (newLatchReg == 0x00 && latchReg == 0x00) {
-            if (latched) {
-                unlatch();
-            } else {
-                latch();
-            }
+    public boolean isLatched() {
+        return latched;
+    }
+
+    public int getSeconds() {
+        return (int) (clockTimeInSec() % 60);
+    }
+
+    public void setSeconds(int seconds) {
+        if (!halt) {
+            return;
         }
-        latchReg = newLatchReg;
+        haltSeconds = seconds;
     }
 
-    /**
-     * Converts the time into seconds
-     *
-     * @return the time in seconds
-     */
-    private long timeInSeconds() {
+    public int getMinutes() {
+        return (int) ((clockTimeInSec() % (60 * 60)) / 60);
+    }
+
+    public void setMinutes(int minutes) {
+        if (!halt) {
+            return;
+        }
+        haltMinutes = minutes;
+    }
+
+    public int getHours() {
+        return (int) ((clockTimeInSec() % (60 * 60 * 24)) / (60 * 60));
+    }
+
+    public void setHours(int hours) {
+        if (!halt) {
+            return;
+        }
+        haltHours = hours;
+    }
+
+    public int getDayCounter() {
+        return (int) (clockTimeInSec() % (60 * 60 * 24 * 512) / (60 * 60 * 24));
+    }
+
+    public void setDayCounter(int dayCounter) {
+        if (!halt) {
+            return;
+        }
+        haltDays = dayCounter;
+    }
+
+    public boolean isHalt() {
+        return halt;
+    }
+
+    public void setHalt(boolean halt) {
+        if (halt && !this.halt) {
+            latch();
+            haltSeconds = getSeconds();
+            haltMinutes = getMinutes();
+            haltHours = getHours();
+            haltDays = getDayCounter();
+            unlatch();
+        } else if (!halt && this.halt) {
+            offsetSec = haltSeconds + haltMinutes * 60L + (long) haltHours * 60 * 60 + (long) haltDays * 60 * 60 * 24;
+            clockStart = System.currentTimeMillis();
+        }
+        this.halt = halt;
+    }
+
+    public boolean isCounterOverflow() {
+        return clockTimeInSec() >= 60 * 60 * 24 * 512;
+    }
+
+    public void selectRegister(int register) {
+        selectedRegister = register;
+    }
+
+    public void clearCounterOverflow() {
+        while (isCounterOverflow()) {
+            offsetSec -= 60 * 60 * 24 * 512;
+        }
+    }
+
+    private long clockTimeInSec() {
         long now;
-        if (latched) {
-            now = latchStartTimeStamp;
-        } else {
+        if (latchStart == 0) {
             now = System.currentTimeMillis();
-        }
-        return (now + startTimeStamp) / 1000;
-    }
-
-    private int getSeconds() {
-        return (int) (timeInSeconds() % 60);
-    }
-
-    private int getMinutes() {
-        return (int) ((timeInSeconds() % (60 * 60)) / 60);
-    }
-
-    private int getHours() {
-        return (int) ((timeInSeconds() % (60 * 60 * 24)) / (60 * 60));
-    }
-
-    private int getDayCounter() {
-        return (int) (timeInSeconds() % (60 * 60 * 24 * 512) / (60 * 60 * 24));
-    }
-
-    /**
-     * Get the RTC DH Regsiter containing the halt flag and the day counter overflow flag and the upper 1 bit of the day counter
-     *
-     * @return the RTC DH register
-     */
-    private int getDayHighRegister() {
-        int upperDayBit = (((int) (timeInSeconds() % (60 * 60 * 24 * 512) / (60 * 60 * 24))) & 0x100) >> 8;
-        upperDayBit = BitUtil.setBit(upperDayBit, 6, halt);
-        boolean isDayCounterOverflow = timeInSeconds() >= 60 * 60 * 24 * 512;
-        return BitUtil.setBit(upperDayBit, 7, isDayCounterOverflow);
-    }
-
-    /**
-     * Select the corresponding RTC register
-     *
-     * @param value the wanted register
-     */
-    public void selectRegister(int value) {
-        if (value >= 0x08 && value <= 0x0C) {
-            selectedRegister = value;
-        }
-    }
-
-    /**
-     * Get the currently selected register value
-     *
-     * @return the value of the selected register
-     */
-    public int getSelectedRegister() {
-        return switch (selectedRegister) {
-            case 0x08 -> getSeconds();
-            case 0x09 -> getMinutes();
-            case 0x0A -> getHours();
-            case 0x0B -> getDayCounter();
-            case 0x0C -> getDayHighRegister();
-            default -> throw new IllegalArgumentException("Invalid register selected");
-        };
-    }
-
-    /**
-     * Set the value of the currently selected register
-     */
-    public void setSelectedRegister(int value) {
-        //TODO set the time and halt etc register
-    }
-
-    public byte[] serialize() {
-        byte[] clockData = new byte[8];
-
-        long now;
-        if (latched) {
-            now = latchStartTimeStamp;
         } else {
-            now = System.currentTimeMillis();
+            now = latchStart;
         }
-        long millis = (now + startTimeStamp);
+        return (now - clockStart) / 1000 + offsetSec;
+    }
 
-        clockData[0] = (byte) (millis & 0xFF);
-        clockData[1] = (byte) ((millis >> 8) & 0xFF);
-        clockData[2] = (byte) ((millis >> 16) & 0xFF);
-        clockData[3] = (byte) ((millis >> 24) & 0xFF);
-        clockData[4] = (byte) (latched ? 0x01 : 0x00);
-        clockData[5] = (byte) (halt ? 0x01 : 0x00);
-        clockData[6] = (byte) (latchReg & 0xFF);
-        clockData[7] = (byte) (selectedRegister & 0xFF);
+    public int getTimer() {
+        switch (selectedRegister) {
+            case 0x08:
+                return getSeconds();
 
+            case 0x09:
+                return getMinutes();
+
+            case 0x0a:
+                return getHours();
+
+            case 0x0b:
+                return getDayCounter() & 0xff;
+
+            case 0x0c:
+                int result = ((getDayCounter() & 0x100) >> 8);
+                result |= isHalt() ? (1 << 6) : 0;
+                result |= isCounterOverflow() ? (1 << 7) : 0;
+                return result;
+        }
+        return 0xff;
+    }
+
+    public void setTimer(int value) {
+        int dayCounter = getDayCounter();
+        switch (selectedRegister) {
+            case 0x08:
+                setSeconds(value);
+                break;
+            case 0x09:
+                setMinutes(value);
+                break;
+
+            case 0x0a:
+                setHours(value);
+                break;
+            case 0x0b:
+                setDayCounter((dayCounter & 0x100) | (value & 0xff));
+                break;
+
+            case 0x0c:
+                setDayCounter((dayCounter & 0xff) | ((value & 1) << 8));
+                setHalt((value & (1 << 6)) != 0);
+                if ((value & (1 << 7)) == 0) {
+                    clearCounterOverflow();
+                }
+                break;
+        }
+    }
+
+    public void deserialize(long[] clockData) {
+        long seconds = clockData[0];
+        long minutes = clockData[1];
+        long hours = clockData[2];
+        long days = clockData[3];
+        long daysHigh = clockData[4];
+        long timestamp = clockData[10];
+
+        this.clockStart = timestamp * 1000;
+        this.offsetSec = seconds + minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60 + daysHigh * 256 * 24 * 60 * 60;
+    }
+
+    public long[] serialize() {
+        long[] clockData = new long[11];
+        latch();
+        clockData[0] = clockData[5] = getSeconds();
+        clockData[1] = clockData[6] = getMinutes();
+        clockData[2] = clockData[7] = getHours();
+        clockData[3] = clockData[8] = getDayCounter() % 256;
+        clockData[4] = clockData[9] = getDayCounter() / 256;
+        clockData[10] = latchStart / 1000;
+        unlatch();
         return clockData;
     }
-
-    public void deserialize(byte[] clockData) {
-        long millis = clockData[0] & 0xFF;
-        millis |= ((long) clockData[1]) << 8;
-        millis |= ((long) clockData[2]) << 16;
-        millis |= ((long) clockData[3]) << 24;
-
-        this.latched = clockData[4] == 0x01;
-        this.halt = clockData[5] == 0x01;
-        this.latchReg = clockData[6];
-        this.selectedRegister = clockData[7];
-
-        this.startTimeStamp = millis;
-        this.latchStartTimeStamp = System.currentTimeMillis();
-    }
-
 }

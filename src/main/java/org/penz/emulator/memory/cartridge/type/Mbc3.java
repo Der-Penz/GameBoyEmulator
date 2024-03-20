@@ -3,9 +3,9 @@ package org.penz.emulator.memory.cartridge.type;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
-import org.penz.emulator.memory.cartridge.ROMSize;
 
-import java.util.Arrays;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class Mbc3 implements AddressSpace {
 
@@ -16,47 +16,33 @@ public class Mbc3 implements AddressSpace {
     private boolean ramEnabled = false;
 
     private boolean realTimeClockSelected = false;
-
     private int selectedRamBank = 0;
     private int selectedRomBank = 1;
 
     private Battery battery;
+    private RealTimeClock clock;
+    private int latchClockReg = 0xff;
 
-    private RealTimeClock realTimeClock;
+    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize, File path) {
 
-    public Mbc3(int[] cartridge, int romBanks, int ramBanks, Battery battery) {
+        this.battery = new Battery(path, ramSize);
+        this.romBanks = Rom.toRomBanks(romBanks, cartridge);
 
-        this.battery = battery;
-        this.romBanks = new Rom[romBanks];
-        for (int i = 0; i < romBanks; i++) {
-            int[] data = Arrays.copyOfRange(cartridge, i * ROMSize.ROM_BANK_SIZE, (i + 1) * ROMSize.ROM_BANK_SIZE);
-            if (i == 0) {
-                this.romBanks[i] = new Rom(data, 0, ROMSize.ROM_BANK_SIZE);
-            } else {
-                this.romBanks[i] = new Rom(data, ROMSize.ROM_BANK_SIZE, 2 * ROMSize.ROM_BANK_SIZE);
-            }
-        }
 
-        if (battery != null) {
-            var loadedBanks = battery.loadRam();
-            if (loadedBanks != null) {
-                this.ramBanks = loadedBanks;
-            }
+        var loadedBanks = battery.loadRam();
+        if (loadedBanks != null) {
+            this.ramBanks = loadedBanks;
         }
 
         if (this.ramBanks == null) {
-            this.ramBanks = new Ram[ramBanks];
-            for (int i = 0; i < ramBanks; i++) {
-                this.ramBanks[i] = new Ram(i * RAMSize.RAM_BANK_SIZE, ((i + 1) * RAMSize.RAM_BANK_SIZE) - 1);
-            }
+            this.ramBanks = Ram.toRamBanks(ramSize.numberOfBanks(), 0xA000, 0xBFFF);
         }
 
         this.ramEnabled = false;
     }
 
-    public Mbc3(int[] cartridge, int romBanks, int ramBanks) {
-        this(cartridge, romBanks, ramBanks, null);
-
+    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize) {
+        this(cartridge, romBanks, ramSize, null);
     }
 
     @Override
@@ -68,6 +54,14 @@ public class Mbc3 implements AddressSpace {
     public void writeByte(int address, int value) {
         if (address >= 0x0000 && address <= 0x1fff) {
             ramEnabled = (value & 0xF) == 0xA;
+            if (!ramEnabled) {
+                try {
+                    System.out.println("Saving RAM");
+                    battery.saveRam(ramBanks);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             return;
         }
 
@@ -80,12 +74,19 @@ public class Mbc3 implements AddressSpace {
             if (value >= 0x00 && value <= 0x03) {
                 selectedRamBank = value;
             } else if (value >= 0x08 && value <= 0x0C) {
-                realTimeClock.selectRegister(value);
+                clock.selectRegister(value);
             }
         }
 
         if (address >= 0x6000 && address <= 0x7fff) {
-            realTimeClock.toggleLatch(value);
+            if (value == 0x01 && latchClockReg == 0x00) {
+                if (clock.isLatched()) {
+                    clock.unlatch();
+                } else {
+                    clock.latch();
+                }
+            }
+            latchClockReg = value;
         }
 
         if (address >= 0xA000 && address <= 0xBFFF) {
@@ -94,7 +95,7 @@ public class Mbc3 implements AddressSpace {
             }
 
             if (realTimeClockSelected) {
-                realTimeClock.setSelectedRegister(value);
+                clock.setTimer(value);
             } else {
                 getRamBank().writeByte(address, value);
             }
@@ -117,9 +118,13 @@ public class Mbc3 implements AddressSpace {
             }
 
             if (realTimeClockSelected) {
-                return realTimeClock.getSelectedRegister();
+                return clock.getTimer();
             } else {
-                return getRamBank().readByte(address);
+                Ram ramBank = getRamBank();
+                if (ramBank != null) {
+                    return ramBank.readByte(address);
+                }
+                return 0xFF;
             }
         }
 
