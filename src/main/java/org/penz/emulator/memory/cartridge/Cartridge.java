@@ -1,6 +1,7 @@
 package org.penz.emulator.memory.cartridge;
 
 import org.apache.commons.io.FilenameUtils;
+import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.cartridge.type.Mbc1;
@@ -44,7 +45,7 @@ public class Cartridge implements AddressSpace {
         } else if (type.isMbc2()) {
             data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks());
         } else if (type.isMbc3()) {
-            data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData));
+            data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData), romFile);
         } else if (type == CartridgeType.ROM) {
             data = new Rom(rawData, 0x0000, 0x7FFF);
         } else {
@@ -222,6 +223,14 @@ public class Cartridge implements AddressSpace {
         }
 
         throw new IOException("No .gb, .txt or .bin file found in the zip archive: " + zipFile.getName());
+    }
+
+    public MemoryBankController getController() {
+        try {
+            return (MemoryBankController) data;
+        } catch(ClassCastException e) {
+            throw new UnsupportedOperationException("The current cartridge type does not have any MBC");
+        }
     }
 }
 

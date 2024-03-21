@@ -1,13 +1,15 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.locks.Lock;
 
-public class Mbc3 implements AddressSpace {
+public class Mbc3 extends MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -23,13 +25,12 @@ public class Mbc3 implements AddressSpace {
     private RealTimeClock clock;
     private int latchClockReg = 0xff;
 
-    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize, File path) {
+    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize, File romPath) {
 
-        this.battery = new Battery(path, ramSize);
+        this.battery = new Battery(romPath.getParentFile(), ramSize);
         this.romBanks = Rom.toRomBanks(romBanks, cartridge);
 
-
-        var loadedBanks = battery.loadRam();
+        var loadedBanks = battery.loadRam(0xA000);
         if (loadedBanks != null) {
             this.ramBanks = loadedBanks;
         }
@@ -39,10 +40,6 @@ public class Mbc3 implements AddressSpace {
         }
 
         this.ramEnabled = false;
-    }
-
-    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize) {
-        this(cartridge, romBanks, ramSize, null);
     }
 
     @Override
@@ -139,4 +136,11 @@ public class Mbc3 implements AddressSpace {
         return romBanks[selectedRomBank == 0 ? 1 : selectedRomBank];
     }
 
+    public void save() {
+        try {
+            battery.saveRam(ramBanks);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

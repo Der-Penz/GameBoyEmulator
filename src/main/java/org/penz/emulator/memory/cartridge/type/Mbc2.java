@@ -1,12 +1,13 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
 /**
  * MBC2 memory bank controller
  */
-public class Mbc2 implements AddressSpace {
+public class Mbc2 extends MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -76,4 +77,8 @@ public class Mbc2 implements AddressSpace {
         return romBanks[selectedRomBank == 0 ? 1 : selectedRomBank];
     }
 
+    @Override
+    public void save() {
+
+    }
 }

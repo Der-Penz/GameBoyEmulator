@@ -1,9 +1,10 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
-public class Mbc1 implements AddressSpace {
+public class Mbc1 extends MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -91,4 +92,8 @@ public class Mbc1 implements AddressSpace {
         return romBanks[selectedRomBank];
     }
 
+    @Override
+    public void save() {
+
+    }
 }

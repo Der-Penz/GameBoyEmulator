@@ -2,13 +2,16 @@ package org.penz.emulator.gui;
 
 import org.penz.emulator.GameBoy;
 import org.penz.emulator.GameBoySettings;
+import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.graphics.IDisplay;
 import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.input.KeyboardController;
+import org.penz.emulator.memory.cartridge.type.Mbc3;
 
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,6 +94,24 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         int DEFAULT_SCALE = 2;
         panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, DEFAULT_SCALE);
         add(panel);
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (gameBoy != null) {
+                    gameBoy.pause();
+                    if (gameBoy.getCartridge().getCartridgeType().isMbc3()) {
+                        try {
+                            MemoryBankController mbc = gameBoy.getCartridge().getController();
+                            System.out.println("Saving RAM");
+                            mbc.save();
+                        } catch (ClassCastException e) {
+                            System.out.println("Cartridge has no MBC");
+                        }
+                    }
+                }
+            }
+        });
 
         pack();
         setLocationRelativeTo(null);
@@ -256,6 +277,18 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             }
         });
 
+        JMenuItem save = new JMenuItem("Save Ram");
+        save.addActionListener(e -> {
+            if (gameBoy != null && gameBoy.getCartridge().getCartridgeType().isMbc3()) {
+                try {
+                    MemoryBankController mbc = gameBoy.getCartridge().getController();
+                    mbc.save();
+                } catch (ClassCastException ex) {
+                   JOptionPane.showMessageDialog(this, "This Cartridge cannot be saved", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         JMenuItem loadRom = new JMenuItem("Load Rom");
         loadRom.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
         loadRom.addActionListener(e -> {
@@ -283,6 +316,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         settingsMenu.add(loadRom);
         settingsMenu.add(loadRomPause);
         settingsMenu.add(reset);
+        settingsMenu.add(save);
         settingsMenu.add(keyBoardControl);
         settingsMenu.add(displayColor);
         settingsMenu.add(displaySize);
@@ -305,7 +339,6 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             framesCounter = 0;
         }
 
-//        setTitle(gameBoy.getCartridge().getTitle() + ", Frame: " + ++framesCounter);
         panel.paintImage();
         debugFrames.forEach(DebugFrame::updateFrame);
     }

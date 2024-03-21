@@ -48,4 +48,8 @@ public class Ram implements AddressSpace {
     public int getOffset() {
         return offset;
     }
+
+    public int getSize() {
+        return data.length;
+    }
 }
