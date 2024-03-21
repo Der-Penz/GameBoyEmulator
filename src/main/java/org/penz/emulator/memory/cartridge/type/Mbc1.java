@@ -4,7 +4,7 @@ import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
-public class Mbc1 extends MemoryBankController {
+public class Mbc1 implements MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -93,7 +93,7 @@ public class Mbc1 extends MemoryBankController {
     }
 
     @Override
-    public void save() {
-
+    public Ram[] flushRam() {
+        return ramBanks;
     }
 }

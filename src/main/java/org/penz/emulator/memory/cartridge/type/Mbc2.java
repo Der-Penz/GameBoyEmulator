@@ -1,13 +1,12 @@
 package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.MemoryBankController;
-import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 
 /**
  * MBC2 memory bank controller
  */
-public class Mbc2 extends MemoryBankController {
+public class Mbc2 implements MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -78,7 +77,7 @@ public class Mbc2 extends MemoryBankController {
     }
 
     @Override
-    public void save() {
-
+    public Ram[] flushRam() {
+        return new Ram[]{ramBank};
     }
 }

@@ -1,15 +1,13 @@
 package org.penz.emulator.memory.cartridge.type;
 
 import org.penz.emulator.MemoryBankController;
-import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.concurrent.locks.Lock;
 
-public class Mbc3 extends MemoryBankController {
+public class Mbc3 implements MemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -136,11 +134,8 @@ public class Mbc3 extends MemoryBankController {
         return romBanks[selectedRomBank == 0 ? 1 : selectedRomBank];
     }
 
-    public void save() {
-        try {
-            battery.saveRam(ramBanks);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public Ram[] flushRam() {
+        return ramBanks;
     }
 }

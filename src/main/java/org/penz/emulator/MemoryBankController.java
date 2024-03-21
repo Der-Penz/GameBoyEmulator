@@ -1,10 +1,9 @@
 package org.penz.emulator;
 
 import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.memory.Ram;
 
-import java.io.FileNotFoundException;
+public interface MemoryBankController extends AddressSpace {
 
-public abstract class MemoryBankController implements AddressSpace {
-
-    public abstract void save();
+    public Ram[] flushRam();
 }

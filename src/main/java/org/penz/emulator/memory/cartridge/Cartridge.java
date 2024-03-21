@@ -4,10 +4,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.penz.emulator.MemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
-import org.penz.emulator.memory.cartridge.type.Mbc1;
-import org.penz.emulator.memory.cartridge.type.Mbc2;
-import org.penz.emulator.memory.cartridge.type.Mbc3;
-import org.penz.emulator.memory.cartridge.type.Rom;
+import org.penz.emulator.memory.Ram;
+import org.penz.emulator.memory.cartridge.type.*;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
@@ -31,6 +29,7 @@ public class Cartridge implements AddressSpace {
      * Whether the boot rom is mapped to the beginning of the address space
      */
     private boolean bootRomEnabled;
+    private Battery battery;
 
     public Cartridge(File romFile) throws IOException {
         this.romFile = romFile;
@@ -223,6 +222,13 @@ public class Cartridge implements AddressSpace {
         }
 
         throw new IOException("No .gb, .txt or .bin file found in the zip archive: " + zipFile.getName());
+    }
+
+    public void saveRam() throws FileNotFoundException {
+        if (getCartridgeType().isBattery()) {
+            Ram[] toSave = ((MemoryBankController) data).flushRam();
+            battery.saveRam(toSave);
+        }
     }
 
     public MemoryBankController getController() {
