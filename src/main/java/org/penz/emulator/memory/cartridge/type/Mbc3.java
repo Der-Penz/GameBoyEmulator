@@ -1,13 +1,10 @@
 package org.penz.emulator.memory.cartridge.type;
 
-import org.penz.emulator.MemoryBankController;
+import org.penz.emulator.IMemoryBankController;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-public class Mbc3 implements MemoryBankController {
+public class Mbc3 implements IMemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -18,20 +15,11 @@ public class Mbc3 implements MemoryBankController {
     private boolean realTimeClockSelected = false;
     private int selectedRamBank = 0;
     private int selectedRomBank = 1;
-
-    private Battery battery;
     private RealTimeClock clock;
     private int latchClockReg = 0xff;
 
-    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize, File romPath) {
-
-        this.battery = new Battery(romPath.getParentFile(), ramSize);
+    public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize) {
         this.romBanks = Rom.toRomBanks(romBanks, cartridge);
-
-        var loadedBanks = battery.loadRam(0xA000);
-        if (loadedBanks != null) {
-            this.ramBanks = loadedBanks;
-        }
 
         if (this.ramBanks == null) {
             this.ramBanks = Ram.toRamBanks(ramSize.numberOfBanks(), 0xA000, 0xBFFF);
@@ -49,14 +37,6 @@ public class Mbc3 implements MemoryBankController {
     public void writeByte(int address, int value) {
         if (address >= 0x0000 && address <= 0x1fff) {
             ramEnabled = (value & 0xF) == 0xA;
-            if (!ramEnabled) {
-                try {
-                    System.out.println("Saving RAM");
-                    battery.saveRam(ramBanks);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             return;
         }
 
@@ -137,5 +117,10 @@ public class Mbc3 implements MemoryBankController {
     @Override
     public Ram[] flushRam() {
         return ramBanks;
+    }
+
+    @Override
+    public void loadRam(Ram[] ram) {
+        System.arraycopy(ram, 0, ramBanks, 0, ramBanks.length);
     }
 }

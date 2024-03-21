@@ -52,4 +52,8 @@ public class Ram implements AddressSpace {
     public int getSize() {
         return data.length;
     }
+
+    public int[] getData() {
+        return data;
+    }
 }

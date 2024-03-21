@@ -1,10 +1,9 @@
 package org.penz.emulator.memory.cartridge.type;
 
-import org.penz.emulator.MemoryBankController;
-import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.IMemoryBankController;
 import org.penz.emulator.memory.Ram;
 
-public class Mbc1 implements MemoryBankController {
+public class Mbc1 implements IMemoryBankController {
 
     private final Rom[] romBanks;
 
@@ -95,5 +94,10 @@ public class Mbc1 implements MemoryBankController {
     @Override
     public Ram[] flushRam() {
         return ramBanks;
+    }
+
+    @Override
+    public void loadRam(Ram[] ram) {
+        System.arraycopy(ram, 0, ramBanks, 0, ram.length);
     }
 }

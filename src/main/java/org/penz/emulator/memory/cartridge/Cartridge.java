@@ -1,10 +1,9 @@
 package org.penz.emulator.memory.cartridge;
 
 import org.apache.commons.io.FilenameUtils;
-import org.penz.emulator.MemoryBankController;
+import org.penz.emulator.IMemoryBankController;
 import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
-import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.type.*;
 
 import java.io.*;
@@ -25,11 +24,11 @@ public class Cartridge implements AddressSpace {
      * The rom file of the Game
      */
     private final File romFile;
+    private Battery battery;
     /**
      * Whether the boot rom is mapped to the beginning of the address space
      */
     private boolean bootRomEnabled;
-    private Battery battery;
 
     public Cartridge(File romFile) throws IOException {
         this.romFile = romFile;
@@ -39,16 +38,28 @@ public class Cartridge implements AddressSpace {
 
         CartridgeType type = getCartridgeType(rawData);
 
+
         if (type.isMbc1()) {
             data = new Mbc1(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData).numberOfBanks());
         } else if (type.isMbc2()) {
             data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks());
         } else if (type.isMbc3()) {
-            data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData), romFile);
+            data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData));
         } else if (type == CartridgeType.ROM) {
             data = new Rom(rawData, 0x0000, 0x7FFF);
         } else {
             throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
+        }
+
+        if (type.isBattery()) {
+            File saveFile = new File(romFile.getParent(), FilenameUtils.removeExtension(romFile.getName()) + ".sav");
+            if (data instanceof IMemoryBankController) {
+                battery = new Battery(saveFile, (IMemoryBankController) data);
+                if (battery.saveAvailable()) {
+                    var loadedRam = battery.loadRam(0x4000, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
+                    ((IMemoryBankController) data).loadRam(loadedRam);
+                }
+            }
         }
     }
 
@@ -224,19 +235,18 @@ public class Cartridge implements AddressSpace {
         throw new IOException("No .gb, .txt or .bin file found in the zip archive: " + zipFile.getName());
     }
 
-    public void saveRam() throws FileNotFoundException {
-        if (getCartridgeType().isBattery()) {
-            Ram[] toSave = ((MemoryBankController) data).flushRam();
-            battery.saveRam(toSave);
+    /**
+     * Saves the RAM of the cartridge to the save file if the cartridge has battery backed RAM
+     *
+     * @return true if the RAM was saved successfully, false if the cartridge has no battery backed RAM
+     * @throws IOException if an error occurs while saving the RAM
+     */
+    public boolean saveRam() throws IOException {
+        if (battery != null) {
+            battery.flush();
+            return true;
         }
-    }
-
-    public MemoryBankController getController() {
-        try {
-            return (MemoryBankController) data;
-        } catch(ClassCastException e) {
-            throw new UnsupportedOperationException("The current cartridge type does not have any MBC");
-        }
+        return false;
     }
 }
 

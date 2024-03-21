@@ -1,16 +1,16 @@
 package org.penz.emulator.memory.cartridge.type;
 
-import org.penz.emulator.MemoryBankController;
+import org.penz.emulator.IMemoryBankController;
 import org.penz.emulator.memory.Ram;
 
 /**
  * MBC2 memory bank controller
  */
-public class Mbc2 implements MemoryBankController {
+public class Mbc2 implements IMemoryBankController {
 
     private final Rom[] romBanks;
 
-    private final Ram ramBank;
+    private Ram ramBank;
 
     private boolean ramEnabled;
 
@@ -35,6 +35,7 @@ public class Mbc2 implements MemoryBankController {
         if (address >= 0x0000 && address <= 0x3FFF) {
             if ((address & 0x0100) == 0) {
                 ramEnabled = value == 0xA;
+                System.out.println("RAM enabled: " + ramEnabled);
             } else {
                 selectedRomBank = value & 0b1111;
             }
@@ -79,5 +80,10 @@ public class Mbc2 implements MemoryBankController {
     @Override
     public Ram[] flushRam() {
         return new Ram[]{ramBank};
+    }
+
+    @Override
+    public void loadRam(Ram[] ram) {
+        ramBank = ram[0];
     }
 }

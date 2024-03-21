@@ -1,91 +1,71 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.Constants;
+import org.penz.emulator.IMemoryBankController;
 import org.penz.emulator.memory.Ram;
 import org.penz.emulator.memory.cartridge.RAMSize;
 
 import java.io.*;
+import java.util.Arrays;
 
 //TODO Battery save clock
 public class Battery {
+    private final File saveFile;
+    private final IMemoryBankController mbc;
 
-    private final RAMSize ramSize;
-    private final File filePath;
-
-    public Battery(File filePath, RAMSize ramSize) {
-        this.filePath = filePath;
-        this.ramSize = ramSize;
-    }
-
-    public static void main(String[] args) throws IOException {
-        File file = new File("C:\\Users\\mike2\\OneDrive\\Desktop\\save.sav");
-        //get the directory the file is in
-        File dir = new File(file.getParent());
-        Battery battery = new Battery(file.getParentFile(), RAMSize.KB_8);
-        battery.saveRam(new Ram[]{new Ram(0, new int[]{2, 4, 3, 4, 5, 6, 7, 8})});
-        Ram[] ramBanks = battery.loadRam(0);
-        for (Ram ram : ramBanks) {
-            System.out.println(ram);
-        }
+    public Battery(File saveFile, IMemoryBankController mbc) {
+        this.saveFile = saveFile;
+        this.mbc = mbc;
     }
 
     /**
-     * Save data from given ram
+     * Save given ram banks to the save file
      */
-    public void saveRam(Ram[] ramBanks) throws FileNotFoundException {
-        File save;
-        if (filePath.isDirectory()) {
-            File[] files = filePath.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.getName().endsWith(".sav")) {
-                        save = file;
-                        break;
-                    }
-                }
+    private void saveRam(Ram[] ramToSave) throws IOException {
+        if (!saveAvailable()) {
+            if (!saveFile.createNewFile()) {
+                throw new IOException("Could not create save file");
             }
-            save = new File(filePath, "save.sav");
-        } else {
-            throw new FileNotFoundException("The file path is not a directory");
         }
 
-
-        try (OutputStream os = new FileOutputStream(save)) {
-            for (Ram ram : ramBanks) {
-                int i = ram.getOffset();
-                byte[] data = new byte[ram.getSize()];
-
-                while (ram.accepts(i)) {
-                    data[i - ram.getOffset()] = (byte) (ram.readByte(i) & 0xFF);
-                    i++;
-                }
-                os.write(data);
+        try (OutputStream os = new FileOutputStream(saveFile)) {
+            for (Ram ram : ramToSave) {
+                int[] data = ram.getData();
+                Arrays.stream(data).forEach(i -> {
+                    try {
+                        os.write((byte) i & 0xFF);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             }
+            System.out.println("Saved to " + saveFile.getAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Load data into ram
-     *
+     * Load data from a save file and return the loaded ram banks
      * @return the loaded ram banks or null if the save file does not exist
      */
-    public Ram[] loadRam(int offset) {
-        File save = new File(filePath, "save.sav");
-        if (!save.exists()) {
-            return null;
+    public Ram[] loadRam(int offset, int numberOfBanks) {
+        if (!saveAvailable()) {
+            throw new RuntimeException("Save file does not exist");
         }
 
-        Ram[] ramBanks = new Ram[ramSize.numberOfBanks()];
-        try (InputStream is = new FileInputStream(save)) {
+        Ram[] ramBanks = new Ram[numberOfBanks];
+
+        try (InputStream is = new FileInputStream(saveFile)) {
             for (int i = 0; i < ramBanks.length; i++) {
                 byte[] buffer = new byte[RAMSize.RAM_BANK_SIZE];
-                if(is.read(buffer, i * RAMSize.RAM_BANK_SIZE, RAMSize.RAM_BANK_SIZE) == -1){
+                if (is.read(buffer, i * RAMSize.RAM_BANK_SIZE, RAMSize.RAM_BANK_SIZE) == -1) {
                     throw new EOFException("End of file reached before all data was read");
                 }
                 Ram ram = bufferToRam(offset, buffer);
                 ramBanks[i] = ram;
             }
+            System.out.println("Loaded from " + saveFile.getAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -93,11 +73,21 @@ public class Battery {
         return ramBanks;
     }
 
+    public void flush() throws IOException {
+        if (mbc != null) {
+            saveRam(mbc.flushRam());
+        }
+    }
+
     private Ram bufferToRam(int from, byte[] buffer) {
         int[] data = new int[buffer.length];
         for (int i = 0; i < buffer.length; i++) {
-            data[i] = buffer[i];
+            data[i] = buffer[i] & Constants.BYTE_MAX_VALUE;
         }
         return new Ram(from, data);
+    }
+
+    public boolean saveAvailable() {
+        return saveFile.exists() && saveFile.isFile();
     }
 }

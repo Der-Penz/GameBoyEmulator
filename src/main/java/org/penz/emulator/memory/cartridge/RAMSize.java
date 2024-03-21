@@ -34,6 +34,5 @@ public enum RAMSize {
         return size / RAM_BANK_SIZE;
     }
 
-
     public static final int RAM_BANK_SIZE = 8 * 1024;
 }
