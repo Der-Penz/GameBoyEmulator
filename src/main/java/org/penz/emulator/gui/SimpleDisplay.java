@@ -5,6 +5,7 @@ import org.penz.emulator.GameBoySettings;
 import org.penz.emulator.graphics.IDisplay;
 import org.penz.emulator.graphics.enums.Palette;
 import org.penz.emulator.input.KeyboardController;
+import org.penz.emulator.memory.cartridge.Cartridge;
 
 import javax.swing.*;
 import java.awt.event.InputEvent;
@@ -44,6 +45,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         try {
             if (gameBoy != null) {
                 gameBoy.pause();
+
             }
             debugFrames.forEach(DebugFrame::dispose);
             debugFrames.clear();
@@ -51,7 +53,12 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             if (keyBoardControlViewer != null) {
                 keyBoardControlViewer.dispose();
             }
+
             gameBoy = new GameBoy(romPath, controls, this);
+
+            Cartridge cartridge = gameBoy.getCartridge();
+            GameBoySettings.getInstance().setRecentRoms(cartridge.getRomFile().getAbsolutePath(), cartridge.getTitle());
+
             panel.clearImage();
             if (!runImmediately) {
                 gameBoy.pause();
@@ -293,6 +300,21 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             }
         });
 
+        JMenu recentRom = new JMenu("Recent Roms");
+        try {
+            String[][] recentRoms = GameBoySettings.getInstance().getRecentRoms();
+            for (String[] recent : recentRoms) {
+                JMenuItem item = new JMenuItem(recent[1]);
+                item.addActionListener(e -> {
+                    reloadGameBoy(recent[0], true);
+                });
+                recentRom.add(item);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error in recent roms, will not show any recent roms.");
+        }
+
         JMenuItem exit = new JMenuItem("Exit and Save");
         exit.addActionListener(e -> {
             saveRam();
@@ -312,6 +334,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         settingsMenu.add(keyBoardControl);
         settingsMenu.add(displayColor);
         settingsMenu.add(displaySize);
+        settingsMenu.add(recentRom);
         settingsMenu.add(exit);
         settingsMenu.add(exitNoSave);
         return settingsMenu;
