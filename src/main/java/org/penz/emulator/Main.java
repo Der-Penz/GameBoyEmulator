@@ -9,6 +9,8 @@ public class Main {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         var romPath = args.length > 0 ? args[0] : "src/main/resources/roms/tetris.gb";
 
+        GameBoySettings.getInstance().loadSettings();
+
         SimpleDisplay display = new SimpleDisplay();
         display.reloadGameBoy(romPath, true);
     }

@@ -11,7 +11,6 @@ import java.awt.event.KeyListener;
 public class KeyBoardControlViewer extends JFrame {
 
     private final KeyboardController controls;
-    boolean remapActive = false;
 
     public KeyBoardControlViewer(KeyboardController controls) {
         this.controls = controls;

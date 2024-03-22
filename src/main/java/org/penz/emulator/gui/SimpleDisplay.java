@@ -89,8 +89,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         menuBar.add(getDebugMenu());
         setJMenuBar(menuBar);
 
-        int DEFAULT_SCALE = 2;
-        panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, DEFAULT_SCALE);
+        panel = new ImageDisplay(GameBoy.SCREEN_WIDTH, GameBoy.SCREEN_HEIGHT, GameBoySettings.getInstance().getSize());
         add(panel);
 
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -227,6 +226,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + scale, InputEvent.SHIFT_DOWN_MASK));
             item.addActionListener(e -> {
                 panel.setScale(scale);
+                GameBoySettings.getInstance().setSize(scale);
                 pack();
                 setLocationRelativeTo(null);
             });
@@ -318,6 +318,7 @@ public class SimpleDisplay extends JFrame implements IDisplay {
     }
 
     private void saveRam() {
+        GameBoySettings.getInstance().saveSettings();
         if (gameBoy != null) {
             gameBoy.pause();
             try {
