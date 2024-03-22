@@ -1,6 +1,7 @@
 package org.penz.emulator;
 
 import org.penz.emulator.graphics.enums.Palette;
+import org.penz.emulator.input.Button;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -56,6 +57,14 @@ public class GameBoySettings {
 
     public int getSize() {
         return getIntProperty("size", 1);
+    }
+
+    public void setButton(Button button, int keyCode) {
+        storeIntProperty("button:" + button.name(), keyCode);
+    }
+
+    public int getButton(Button button) {
+        return getIntProperty("button:" + button.name(), -1);
     }
 
     private void storeIntProperty(String key, int value) {

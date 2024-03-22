@@ -1,5 +1,7 @@
 package org.penz.emulator.input;
 
+import org.penz.emulator.GameBoySettings;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -12,14 +14,14 @@ public class KeyboardController implements IButtonController, KeyListener {
         this.buttonListener = null;
 
         this.buttonConfigs = new ButtonConfig[]{
-                new ButtonConfig(Button.UP, KeyEvent.VK_UP),
-                new ButtonConfig(Button.DOWN, KeyEvent.VK_DOWN),
-                new ButtonConfig(Button.LEFT, KeyEvent.VK_LEFT),
-                new ButtonConfig(Button.RIGHT, KeyEvent.VK_RIGHT),
-                new ButtonConfig(Button.A, KeyEvent.VK_Z),
-                new ButtonConfig(Button.B, KeyEvent.VK_X),
-                new ButtonConfig(Button.START, KeyEvent.VK_ENTER),
-                new ButtonConfig(Button.SELECT, KeyEvent.VK_BACK_SPACE)
+                new ButtonConfig(Button.UP, GameBoySettings.getInstance().getButton(Button.UP)),
+                new ButtonConfig(Button.DOWN, GameBoySettings.getInstance().getButton(Button.DOWN)),
+                new ButtonConfig(Button.LEFT, GameBoySettings.getInstance().getButton(Button.LEFT)),
+                new ButtonConfig(Button.RIGHT, GameBoySettings.getInstance().getButton(Button.RIGHT)),
+                new ButtonConfig(Button.A, GameBoySettings.getInstance().getButton(Button.A)),
+                new ButtonConfig(Button.B, GameBoySettings.getInstance().getButton(Button.B)),
+                new ButtonConfig(Button.START, GameBoySettings.getInstance().getButton(Button.START)),
+                new ButtonConfig(Button.SELECT, GameBoySettings.getInstance().getButton(Button.SELECT))
         };
     }
 
@@ -53,6 +55,7 @@ public class KeyboardController implements IButtonController, KeyListener {
         for (ButtonConfig buttonConfig : buttonConfigs) {
             if (buttonConfig.getButton() == button) {
                 buttonConfig.setMappedKeyCode(keyCode);
+                GameBoySettings.getInstance().setButton(button, keyCode);
             }
         }
 
