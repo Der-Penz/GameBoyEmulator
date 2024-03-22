@@ -35,7 +35,6 @@ public class Mbc2 implements IMemoryBankController {
         if (address >= 0x0000 && address <= 0x3FFF) {
             if ((address & 0x0100) == 0) {
                 ramEnabled = value == 0xA;
-                System.out.println("RAM enabled: " + ramEnabled);
             } else {
                 selectedRomBank = value & 0b1111;
             }

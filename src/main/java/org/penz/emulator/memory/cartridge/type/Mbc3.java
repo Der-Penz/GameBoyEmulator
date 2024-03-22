@@ -30,7 +30,7 @@ public class Mbc3 implements IMemoryBankController {
 
     @Override
     public boolean accepts(int address) {
-        return address >= 0x0000 && address <= 0x7FFF;
+        return (address >= 0x0000 && address <= 0x7FFF) || (address >= 0xA000 && address <= 0xBFFF);
     }
 
     @Override

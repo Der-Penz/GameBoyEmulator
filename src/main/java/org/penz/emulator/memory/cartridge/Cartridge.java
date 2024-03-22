@@ -6,6 +6,7 @@ import org.penz.emulator.memory.AddressSpace;
 import org.penz.emulator.memory.BootRom;
 import org.penz.emulator.memory.cartridge.type.*;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -56,8 +57,13 @@ public class Cartridge implements AddressSpace {
             if (data instanceof IMemoryBankController) {
                 battery = new Battery(saveFile, (IMemoryBankController) data);
                 if (battery.saveAvailable()) {
+                    try {
                     var loadedRam = battery.loadRam(IMemoryBankController.RAM_MEMORY_START, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
                     ((IMemoryBankController) data).loadRam(loadedRam);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Error loading save file: " + e.getMessage() + "\n continue without save", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         }
