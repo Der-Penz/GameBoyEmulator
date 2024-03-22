@@ -22,7 +22,7 @@ public class Mbc3 implements IMemoryBankController {
         this.romBanks = Rom.toRomBanks(romBanks, cartridge);
 
         if (this.ramBanks == null) {
-            this.ramBanks = Ram.toRamBanks(ramSize.numberOfBanks(), 0xA000, 0xBFFF);
+            this.ramBanks = Ram.toRamBanks(ramSize.numberOfBanks(), IMemoryBankController.RAM_MEMORY_START, IMemoryBankController.RAM_MEMORY_END);
         }
 
         this.ramEnabled = false;

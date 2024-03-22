@@ -20,7 +20,7 @@ public class Mbc1 implements IMemoryBankController {
 
         this.romBanks = Rom.toRomBanks(romBanks, cartridge);
 
-        this.ramBanks = Ram.toRamBanks(ramBanks, 0xA000, 0xBFFF);
+        this.ramBanks = Ram.toRamBanks(ramBanks, IMemoryBankController.RAM_MEMORY_START, IMemoryBankController.RAM_MEMORY_END);
         this.ramEnabled = false;
     }
 

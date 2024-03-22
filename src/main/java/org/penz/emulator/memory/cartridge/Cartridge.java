@@ -46,13 +46,15 @@ public class Cartridge implements AddressSpace {
             data = new Mbc2(rawData, getRomSize(rawData).numberOfBanks());
         } else if (type.isMbc3()) {
             data = new Mbc3(rawData, getRomSize(rawData).numberOfBanks(), getRamSize(rawData));
+        } else if (type == CartridgeType.ROM_RAM || type == CartridgeType.ROM_RAM_BATTERY) {
+            data = new RomRam(rawData);
         } else if (type == CartridgeType.ROM) {
             data = new Rom(rawData, 0x0000, 0x7FFF);
         } else {
             throw new UnsupportedOperationException("Unsupported cartridge type: " + type);
         }
 
-        if (type.isBattery()) {
+        if (type.isBattery() || type.isRam()) {
             File saveFile = new File(romFile.getParent(), FilenameUtils.removeExtension(romFile.getName()) + ".sav");
             if (data instanceof IMemoryBankController) {
                 battery = new Battery(saveFile, (IMemoryBankController) data);
@@ -61,7 +63,6 @@ public class Cartridge implements AddressSpace {
                     var loadedRam = battery.loadRam(IMemoryBankController.RAM_MEMORY_START, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
                     ((IMemoryBankController) data).loadRam(loadedRam);
                     } catch (Exception e) {
-                        e.printStackTrace();
                         JOptionPane.showMessageDialog(null, "Error loading save file: " + e.getMessage() + "\n continue without save", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
