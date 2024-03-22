@@ -293,6 +293,18 @@ public class SimpleDisplay extends JFrame implements IDisplay {
             }
         });
 
+        JMenuItem exit = new JMenuItem("Exit and Save");
+        exit.addActionListener(e -> {
+            saveRam();
+            dispose();
+        });
+
+        JMenuItem exitNoSave = new JMenuItem("Exit without Saving");
+        exitNoSave.addActionListener(e -> {
+            gameBoy.pause();
+            System.exit(0);
+        });
+
         settingsMenu.add(loadRom);
         settingsMenu.add(loadRomPause);
         settingsMenu.add(reset);
@@ -300,6 +312,8 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         settingsMenu.add(keyBoardControl);
         settingsMenu.add(displayColor);
         settingsMenu.add(displaySize);
+        settingsMenu.add(exit);
+        settingsMenu.add(exitNoSave);
         return settingsMenu;
     }
 

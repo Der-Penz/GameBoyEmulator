@@ -56,7 +56,7 @@ public class Cartridge implements AddressSpace {
             if (data instanceof IMemoryBankController) {
                 battery = new Battery(saveFile, (IMemoryBankController) data);
                 if (battery.saveAvailable()) {
-                    var loadedRam = battery.loadRam(0x4000, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
+                    var loadedRam = battery.loadRam(IMemoryBankController.RAM_MEMORY_START, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
                     ((IMemoryBankController) data).loadRam(loadedRam);
                 }
             }

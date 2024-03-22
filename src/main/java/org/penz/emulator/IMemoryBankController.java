@@ -5,6 +5,8 @@ import org.penz.emulator.memory.Ram;
 
 public interface IMemoryBankController extends AddressSpace {
 
+    public static final int RAM_MEMORY_START = 0xA000;
+
     public Ram[] flushRam();
 
     public void loadRam(Ram[] ram);
