@@ -235,7 +235,6 @@ public class SimpleDisplay extends JFrame implements IDisplay {
                 panel.setScale(scale);
                 GameBoySettings.getInstance().setSize(scale);
                 pack();
-                setLocationRelativeTo(null);
             });
             sizeGroup.add(item);
             displaySize.add(item);
