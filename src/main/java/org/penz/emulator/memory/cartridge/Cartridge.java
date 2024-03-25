@@ -60,8 +60,19 @@ public class Cartridge implements AddressSpace {
                 battery = new Battery(saveFile, (IMemoryBankController) data);
                 if (battery.saveAvailable()) {
                     try {
-                    var loadedRam = battery.loadRam(IMemoryBankController.RAM_MEMORY_START, type.isMbc2() ? 1 : getRamSize(rawData).numberOfBanks());
-                    ((IMemoryBankController) data).loadRam(loadedRam);
+                        int romBanks = getRamSize(rawData).numberOfBanks();
+
+                        // MBC2 only has 1 ram bank
+                        if (type.isMbc2()) {
+                            romBanks = 1;
+
+                        // Additional ram bank for the clock register
+                        } else if (type.isMbc3()) {
+                            romBanks++;
+                        }
+
+                        var loadedRam = battery.loadRam(IMemoryBankController.RAM_MEMORY_START, romBanks);
+                        ((IMemoryBankController) data).loadRam(loadedRam);
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, "Error loading save file: " + e.getMessage() + "\n continue without save", "Error", JOptionPane.ERROR_MESSAGE);
                     }

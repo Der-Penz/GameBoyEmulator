@@ -1,5 +1,8 @@
 package org.penz.emulator.memory.cartridge.type;
 
+import org.penz.emulator.memory.Ram;
+import org.penz.emulator.memory.cartridge.RAMSize;
+
 import java.io.Serializable;
 
 public class RealTimeClock implements Serializable {
@@ -170,7 +173,15 @@ public class RealTimeClock implements Serializable {
         }
     }
 
-    public void deserialize(long[] clockData) {
+    public void deserialize(Ram ram) {
+        long[] clockData = new long[11];
+        for (int i = 0; i < clockData.length; i++) {
+            clockData[i] = ram.readByte(i * 4) & 0xff;
+            clockData[i] |= (ram.readByte(i * 4 + 1) & 0xff) << 8;
+            clockData[i] |= (ram.readByte(i * 4 + 2) & 0xff) << 16;
+            clockData[i] |= (ram.readByte(i * 4 + 3) & 0xff) << 24;
+        }
+
         long seconds = clockData[0];
         long minutes = clockData[1];
         long hours = clockData[2];
@@ -182,7 +193,7 @@ public class RealTimeClock implements Serializable {
         this.offsetSec = seconds + minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60 + daysHigh * 256 * 24 * 60 * 60;
     }
 
-    public long[] serialize() {
+    public Ram serialize() {
         long[] clockData = new long[11];
         latch();
         clockData[0] = clockData[5] = getSeconds();
@@ -192,6 +203,15 @@ public class RealTimeClock implements Serializable {
         clockData[4] = clockData[9] = getDayCounter() / 256;
         clockData[10] = latchStart / 1000;
         unlatch();
-        return clockData;
+
+        Ram ram = new Ram(0, RAMSize.RAM_BANK_SIZE);
+        for (int i = 0; i < clockData.length; i++) {
+            ram.writeByte(i * 4, (int) (clockData[i] & 0xff));
+            ram.writeByte(i * 4 + 1, (int) ((clockData[i] >> 8) & 0xff));
+            ram.writeByte(i * 4 + 2, (int) ((clockData[i] >> 16) & 0xff));
+            ram.writeByte(i * 4 + 3, (int) ((clockData[i] >> 24) & 0xff));
+        }
+
+        return ram;
     }
 }

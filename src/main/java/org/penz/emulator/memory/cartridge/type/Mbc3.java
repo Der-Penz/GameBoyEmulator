@@ -15,7 +15,7 @@ public class Mbc3 implements IMemoryBankController {
     private boolean realTimeClockSelected = false;
     private int selectedRamBank = 0;
     private int selectedRomBank = 1;
-    private RealTimeClock clock;
+    private final RealTimeClock clock;
     private int latchClockReg = 0xff;
 
     public Mbc3(int[] cartridge, int romBanks, RAMSize ramSize) {
@@ -25,6 +25,7 @@ public class Mbc3 implements IMemoryBankController {
             this.ramBanks = Ram.toRamBanks(ramSize.numberOfBanks(), IMemoryBankController.RAM_MEMORY_START, IMemoryBankController.RAM_MEMORY_END);
         }
 
+        this.clock = new RealTimeClock();
         this.ramEnabled = false;
     }
 
@@ -116,11 +117,15 @@ public class Mbc3 implements IMemoryBankController {
 
     @Override
     public Ram[] flushRam() {
-        return ramBanks;
+        Ram[] ram = new Ram[ramBanks.length + 1];
+        System.arraycopy(ramBanks, 0, ram, 0, ramBanks.length);
+        ram[ram.length - 1] = clock.serialize();
+        return ram;
     }
 
     @Override
     public void loadRam(Ram[] ram) {
-        System.arraycopy(ram, 0, ramBanks, 0, ramBanks.length);
+        System.arraycopy(ram, 0, ramBanks, 0, ramBanks.length - 1);
+        clock.deserialize(ram[ram.length - 1]);
     }
 }
