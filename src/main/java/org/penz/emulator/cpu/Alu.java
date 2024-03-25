@@ -131,7 +131,7 @@ public class Alu {
             flags.setZ(((a - b) & Constants.BYTE_MAX_VALUE) == 0);
             flags.setN(true);
             flags.setC(b > a);
-            flags.setH((a & 0x0f) > (b & 0x0f));
+            flags.setH((b & 0x0f) > (a & 0x0f));
             return a;
         }));
 
@@ -228,6 +228,22 @@ public class Alu {
             return result;
         });
 
+        // Accumulator rotate left and set carry
+        registerFunction("RLCA", DataType.d8, (flags, a) -> {
+            int result = (a << 1) & Constants.BYTE_MAX_VALUE;
+
+            if ((a & (1 << 7)) != 0) {
+                result |= 1;
+                flags.setC(true);
+            } else {
+                flags.setC(false);
+            }
+            flags.setZ(false);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
 //      rotate left and set carry
         registerFunction("RRC", DataType.d8, (flags, a) -> {
             int result = a >> 1;
@@ -238,6 +254,21 @@ public class Alu {
                 flags.setC(false);
             }
             flags.setZ(result == 0);
+            flags.setN(false);
+            flags.setH(false);
+            return result;
+        });
+
+        //      rotate left and set carry
+        registerFunction("RRCA", DataType.d8, (flags, a) -> {
+            int result = a >> 1;
+            if ((a & 1) == 1) {
+                result |= (1 << 7);
+                flags.setC(true);
+            } else {
+                flags.setC(false);
+            }
+            flags.setZ(false);
             flags.setN(false);
             flags.setH(false);
             return result;
