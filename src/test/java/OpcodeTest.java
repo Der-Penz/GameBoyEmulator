@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.penz.emulator.cpu.Alu;
 import org.penz.emulator.cpu.BitUtil;
@@ -22,10 +23,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("Opcode Tests")
-class OpcodeTester {
+class OpcodeTest {
 
     private static String TEST_RESOURCES = "src/test/resources/";
     private final Alu alu = new Alu();
@@ -40,7 +42,7 @@ class OpcodeTester {
         } else {
             System.out.println("PATH: " + path);
         }
-        OpcodeTester.TEST_RESOURCES = path;
+        OpcodeTest.TEST_RESOURCES = path;
     }
 
     private AddressSpace createMemory() {
@@ -83,13 +85,19 @@ class OpcodeTester {
         }
     }
 
-    static Stream<Integer> opCodeNumbers() {
-        return IntStream.rangeClosed(0, 255).boxed();
+    static Stream<Arguments> opCodeNumbers() {
+        Cpu cpu = new Cpu(null, new InterruptManager());
+
+        List<Integer> excludeOpcodes = List.of(0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD);
+        return IntStream.rangeClosed(0, 511).boxed().
+                filter(i -> !excludeOpcodes.contains(i)).
+                map(i -> Arguments.of(i, i / 255 > 1, cpu.getOpcode(i, false).getName() + " " + BitUtil.toHex(i)));
     }
 
-    @ParameterizedTest(name = "Opcode {arguments}")
+    @ParameterizedTest(name = "Opcode {2}")
     @MethodSource("opCodeNumbers")
-    public void opcodeTest(int testNumber) {
+    @DisplayName("Test Opcode")
+    public void opcodeTest(int testNumber, boolean bitInstruction, @SuppressWarnings("unused") String description) {
         String number = Integer.toHexString(testNumber);
         if (number.length() == 1) {
             number = "0" + number;
@@ -101,15 +109,12 @@ class OpcodeTester {
         Cpu cpu = new Cpu(memory, new InterruptManager());
 
 
-        OpCode op = cpu.getOpcode(testNumber, false);
+        OpCode op = cpu.getOpcode(testNumber, bitInstruction);
 
         if (op == null) {
-            System.out.println("No opcode Registered for " + BitUtil.toHex(testNumber));
-            assertTrue(true);
+            fail("Opcode not registered");
             return;
         }
-
-        System.out.println("Testing opcode: " + op.getName());
 
         for (OpcodeTestData data : testData) {
             Registers registers = new Registers();
@@ -143,7 +148,7 @@ class OpcodeTester {
 
             op.execute(registers, memory, alu, args);
 
-            EmulatorState newState = getEmulatorState(registers, memory, Arrays.stream(data.finalState().ram()).mapToInt(ram -> ram[0]).toArray());
+            EmulatorState newState = toEmulatorState(registers, memory, Arrays.stream(data.finalState().ram()).mapToInt(ram -> ram[0]).toArray());
 
             assertEmulatorState(data.finalState(), newState);
 
@@ -153,7 +158,7 @@ class OpcodeTester {
         }
     }
 
-    private EmulatorState getEmulatorState(Registers registers, AddressSpace memory, int[] ramAddresses) {
+    private EmulatorState toEmulatorState(Registers registers, AddressSpace memory, int[] ramAddresses) {
         int[][] ram = new int[ramAddresses.length][2];
         for (int i = 0; i < ramAddresses.length; i++) {
             ram[i] = new int[]{ramAddresses[i], memory.readByte(ramAddresses[i])};
