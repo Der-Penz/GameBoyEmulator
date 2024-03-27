@@ -3,6 +3,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -13,7 +14,7 @@ import org.penz.emulator.cpu.Registers;
 import org.penz.emulator.cpu.interrupt.InterruptManager;
 import org.penz.emulator.cpu.opcode.DataType;
 import org.penz.emulator.cpu.opcode.OpCode;
-import org.penz.emulator.memory.AddressSpace;
+import org.penz.emulator.cpu.opcode.instructions.misc.NopInstruction;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("Opcode Tests")
@@ -53,31 +53,23 @@ class OpcodeTest {
         excludeOpcodes.add(0xFF); // No test for RST 38H available
         return IntStream.rangeClosed(0, 255).boxed().
                 filter(i -> !excludeOpcodes.contains(i)).
-                map(i -> Arguments.of(i, false, cpu.getOpcode(i, false).getName() + " " + BitUtil.toHex(i)));
+                map(i -> Arguments.of(i, i == 0xCB ? "CB prefixed (all)" : cpu.getOpcode(i, false).getName() + " " + BitUtil.toHex(i)));
     }
 
-    private void setByState(EmulatorState state, Registers registers, AddressSpace memory) {
-        registers.setA(state.a());
-        registers.setB(state.b());
-        registers.setC(state.c());
-        registers.setD(state.d());
-        registers.setE(state.e());
-        registers.setH(state.h());
-        registers.setL(state.l());
-        registers.setPC(state.pc());
-        registers.setSP(state.sp());
-        registers.getFlags().setFlags(state.f());
-
-        for (int i = 0; i < state.ram().length; i++) {
-            int[] ram = state.ram()[i];
-            memory.writeByte(ram[0], ram[1]);
-        }
+    @Test()
+    @DisplayName("CB Prefix Opcode Set")
+    public void cbPrefixOpcodeTest() {
+        runTest(0xCB);
     }
 
-    @ParameterizedTest(name = "Opcode {2}")
+    @ParameterizedTest(name = "Opcode {1}")
     @MethodSource("opCodeNumbers")
-    @DisplayName("Test Opcode")
-    public void opcodeTest(int testNumber, boolean bitInstruction, @SuppressWarnings("unused") String description) {
+    @DisplayName("Basic Opcode Set")
+    public void opcodeTest(int testNumber, @SuppressWarnings("unused") String description) {
+        runTest(testNumber);
+    }
+
+    public void runTest(int testNumber) {
         String number = Integer.toHexString(testNumber);
         if (number.length() == 1) {
             number = "0" + number;
@@ -89,19 +81,34 @@ class OpcodeTest {
         Cpu cpu = new Cpu(memory, new InterruptManager());
 
 
-        OpCode op = cpu.getOpcode(testNumber, bitInstruction);
+        OpCode op;
+        boolean bitInstruction = false;
+        if (testNumber == 0xcb) {
+            System.out.println("CB prefix detected");
+            bitInstruction = true;
+            op = new NopInstruction();
+        } else {
+            op = cpu.getOpcode(testNumber, false);
+        }
 
         if (op == null) {
             fail("Opcode not registered");
             return;
         }
 
+        int passed = 0;
         for (OpcodeTestData data : testData) {
             Registers registers = new Registers();
-            EmulatorState state = data.initialState();
-            setByState(state, registers, memory);
+            EmulatorState initialState = data.initialState();
+
+            EmulatorState.setByState(initialState, registers, memory);
 
             registers.getAndIncPC();
+
+            if (bitInstruction) {
+                op = cpu.getOpcode(memory.readByte(registers.getAndIncPC()), bitInstruction);
+            }
+
             int[] args = new int[op.getArgsTypeLength()];
 
             for (int i = 0; i < args.length; i++) {
@@ -126,58 +133,19 @@ class OpcodeTest {
 
             op.execute(registers, memory, alu, args);
 
-            EmulatorState newState = toEmulatorState(registers, memory, Arrays.stream(data.finalState().ram()).mapToInt(ram -> ram[0]).toArray());
+            EmulatorState newState = EmulatorState.toEmulatorState(registers, memory, Arrays.stream(data.finalState().ram()).mapToInt(ram -> ram[0]).toArray());
 
             try {
-                assertEmulatorState(data.finalState(), newState);
+                data.finalState().assertTo(newState);
             } catch (AssertionError e) {
-                System.out.println("Failed on test: " + data.name());
+                System.err.println("Failed on test: " + data.name());
+                System.err.println("With opcode: " + op);
+                System.err.println("Passed subtests: " + passed + "/" + testData.size());
                 throw e;
             }
 
             memory.resetMemoryAccess();
-        }
-    }
-
-    private EmulatorState toEmulatorState(Registers registers, AddressSpace memory, int[] ramAddresses) {
-        int[][] ram = new int[ramAddresses.length][2];
-        for (int i = 0; i < ramAddresses.length; i++) {
-            ram[i] = new int[]{ramAddresses[i], memory.readByte(ramAddresses[i])};
-        }
-
-        return new EmulatorState(
-                registers.getA(),
-                registers.getB(),
-                registers.getC(),
-                registers.getD(),
-                registers.getE(),
-                registers.getFlags().getFlags(),
-                registers.getH(),
-                registers.getL(),
-                registers.getPC(),
-                registers.getSP(),
-                ram
-        );
-    }
-
-    private void assertEmulatorState(EmulatorState expected, EmulatorState actual) {
-        assertEquals(expected.a(), actual.a(), "Failed at register A");
-        assertEquals(expected.b(), actual.b(), "Failed at register B");
-        assertEquals(expected.c(), actual.c(), "Failed at register C");
-        assertEquals(expected.d(), actual.d(), "Failed at register D");
-        assertEquals(expected.e(), actual.e(), "Failed at register E");
-        assertEquals(expected.h(), actual.h(), "Failed at register H");
-        assertEquals(expected.l(), actual.l(), "Failed at register L");
-        assertEquals(expected.pc(), actual.pc(), "Failed at register PC");
-        assertEquals(expected.sp(), actual.sp(), "Failed at register SP");
-        assertEquals(expected.f(), actual.f(), "Failed at register F");
-
-        for (int i = 0; i < expected.ram().length; i++) {
-            int[] expectedRam = expected.ram()[i];
-            int[] actualRam = actual.ram()[i];
-
-            assertEquals(expectedRam[0], actualRam[0], "Failed at RAM address " + i);
-            assertEquals(expectedRam[1], actualRam[1], "Failed at RAM value " + i);
+            passed++;
         }
     }
 
@@ -203,32 +171,4 @@ class OpcodeTest {
         }
     }
 
-    private static class ResettableMemory implements AddressSpace {
-
-        private final int[] memory = new int[0x10000];
-        private final List<Integer> memoryAddressAccess = new ArrayList<>();
-
-        @Override
-        public boolean accepts(int address) {
-            return address < memory.length;
-        }
-
-        @Override
-        public void writeByte(int address, int value) {
-            memoryAddressAccess.add(address);
-            memory[address] = value;
-        }
-
-        @Override
-        public int readByte(int address) {
-            return memory[address];
-        }
-
-        public void resetMemoryAccess() {
-            for (int address : memoryAddressAccess) {
-                memory[address] = 0;
-            }
-            memoryAddressAccess.clear();
-        }
-    }
 }

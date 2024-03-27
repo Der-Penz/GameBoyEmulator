@@ -19,7 +19,7 @@ public class RRCDInstruction extends BitOpCode {
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("RRC", DataType.d8);
-        registers.setC(aluOperation.apply(registers.getFlags(), registers.getC()));
+        registers.setD(aluOperation.apply(registers.getFlags(), registers.getD()));
 
         return cycles;
     }

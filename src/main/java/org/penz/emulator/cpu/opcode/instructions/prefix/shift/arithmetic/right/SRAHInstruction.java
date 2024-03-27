@@ -19,7 +19,7 @@ public class SRAHInstruction extends BitOpCode {
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
         var aluOperation = alu.getOperation("SRA", DataType.d8);
-        registers.setE(aluOperation.apply(registers.getFlags(), registers.getE()));
+        registers.setH(aluOperation.apply(registers.getFlags(), registers.getH()));
 
         return cycles;
     }

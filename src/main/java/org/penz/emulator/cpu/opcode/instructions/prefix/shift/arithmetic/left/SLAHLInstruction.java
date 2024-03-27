@@ -21,7 +21,7 @@ public class SLAHLInstruction extends BitOpCode {
         int data = addressSpace.readByte(registers.getHL());
 
         var aluOperation = alu.getOperation("SLA", DataType.d8);
-        int result = aluOperation.apply(registers.getFlags(), registers.getD());
+        int result = aluOperation.apply(registers.getFlags(), data);
 
         addressSpace.writeByte(registers.getHL(), result);
 
