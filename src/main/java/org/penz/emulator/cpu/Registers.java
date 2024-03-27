@@ -61,7 +61,9 @@ public class Registers {
      * @return current program counter value
      */
     public int getAndIncPC() {
-        return pc++;
+        int temp = pc;
+        pc = (pc + 1) & Constants.WORD_MAX_VALUE;
+        return temp;
     }
 
     /**
@@ -164,8 +166,18 @@ public class Registers {
         return sp;
     }
 
+    /**
+     * Return the stack pointer with an offset, but ensure it is within the bounds of the address space
+     *
+     * @param offset the offset to add to the stack pointer positive or negative
+     * @return the stack pointer with the offset applied
+     */
+    public int getSPSafe(int offset) {
+        return (sp + offset) & Constants.WORD_MAX_VALUE;
+    }
+
     public void setSP(int sp) {
-        this.sp = sp;
+        this.sp = sp & Constants.WORD_MAX_VALUE;
     }
 
     public int getPC() {
@@ -173,7 +185,7 @@ public class Registers {
     }
 
     public void setPC(int pc) {
-        this.pc = pc;
+        this.pc = pc & Constants.WORD_MAX_VALUE;
     }
 
     public Flags getFlags() {
@@ -186,7 +198,7 @@ public class Registers {
 
     public void setAF(int value) {
         a = BitUtil.shiftRight(value, 1) & Constants.BYTE_MAX_VALUE;
-        flags.setFlags(value);
+        flags.setFlags(value & Constants.BYTE_MAX_VALUE);
     }
 
     public int getBC() {

@@ -21,6 +21,7 @@ public class RRCA0Instruction extends OpCode {
         var aluOperation = alu.getOperation("RRC", DataType.d8);
         registers.setA(aluOperation.apply(registers.getFlags(), registers.getA()));
 
+        registers.getFlags().setZ(false);
         return cycles;
     }
 }

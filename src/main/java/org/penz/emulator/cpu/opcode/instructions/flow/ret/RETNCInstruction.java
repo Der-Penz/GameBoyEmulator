@@ -22,8 +22,8 @@ public class RETNCInstruction extends OpCode {
         }
 
         registers.setPC(addressSpace.readByte(registers.getSP()));
-        registers.setPC(BitUtil.toWord(addressSpace.readByte(registers.getSP() + 1), registers.getPC()));
-        registers.setSP(registers.getSP() + 2);
+        registers.setPC(BitUtil.toWord(addressSpace.readByte(registers.getSPSafe(1)), registers.getPC()));
+        registers.setSP(registers.getSPSafe(2));
 
         return cycles;
     }

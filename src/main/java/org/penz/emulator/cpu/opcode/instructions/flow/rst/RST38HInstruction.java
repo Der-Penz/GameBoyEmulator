@@ -17,10 +17,10 @@ public class RST38HInstruction extends OpCode {
 
     @Override
     public int execute(Registers registers, AddressSpace addressSpace, Alu alu, int[] args) {
-        addressSpace.writeByte(registers.getSP() - 1, BitUtil.getMSByte(registers.getPC()));
-        addressSpace.writeByte(registers.getSP() - 2, BitUtil.getLSByte(registers.getPC()));
+        addressSpace.writeByte(registers.getSPSafe(-1), BitUtil.getMSByte(registers.getPC()));
+        addressSpace.writeByte(registers.getSPSafe(-2), BitUtil.getLSByte(registers.getPC()));
 
-        registers.setSP(registers.getSP() - 2);
+        registers.setSP(registers.getSPSafe(-2));
         registers.setPC(0x38);
 
         return cycles;

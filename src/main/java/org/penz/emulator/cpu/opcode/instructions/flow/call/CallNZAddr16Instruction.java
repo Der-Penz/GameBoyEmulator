@@ -21,11 +21,11 @@ public class CallNZAddr16Instruction extends OpCode {
         if (registers.getFlags().isZ()) {
             return 12;
         }
-        addressSpace.writeByte(registers.getSP() - 1, BitUtil.getMSByte(registers.getPC()));
-        addressSpace.writeByte(registers.getSP() - 2, BitUtil.getLSByte(registers.getPC()));
+        addressSpace.writeByte(registers.getSPSafe(-1), BitUtil.getMSByte(registers.getPC()));
+        addressSpace.writeByte(registers.getSPSafe(-2), BitUtil.getLSByte(registers.getPC()));
 
         registers.setPC(args[0]);
-        registers.setSP(registers.getSP() - 2);
+        registers.setSP(registers.getSPSafe(-2));
 
         return cycles;
     }

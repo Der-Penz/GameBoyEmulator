@@ -104,7 +104,7 @@ public class Flags {
      * @param flags the value of the flags register
      */
     public void setFlags(int flags) {
-        this.flags = flags;
+        this.flags = flags & 0xF0;
     }
 
     @Override
