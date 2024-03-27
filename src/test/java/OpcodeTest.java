@@ -88,10 +88,10 @@ class OpcodeTest {
     static Stream<Arguments> opCodeNumbers() {
         Cpu cpu = new Cpu(null, new InterruptManager());
 
-        List<Integer> excludeOpcodes = List.of(0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD);
+        List<Integer> excludeOpcodes = List.of(0xCB, 0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD);
         return IntStream.rangeClosed(0, 511).boxed().
                 filter(i -> !excludeOpcodes.contains(i)).
-                map(i -> Arguments.of(i, i / 255 > 1, cpu.getOpcode(i, false).getName() + " " + BitUtil.toHex(i)));
+                map(i -> Arguments.of(i % 256, i / 256 == 1, cpu.getOpcode(i % 256, i / 256 == 1).getName() + " " + BitUtil.toHex(i % 256)));
     }
 
     @ParameterizedTest(name = "Opcode {2}")
