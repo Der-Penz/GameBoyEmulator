@@ -79,11 +79,6 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         }
     }
 
-    public void setGameBoy(GameBoy gameBoy) {
-        this.gameBoy = gameBoy;
-        gameBoy.run(isInFastMode.get());
-    }
-
     private void initializeUI() {
         setTitle("Gameboy Display");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -300,6 +295,14 @@ public class SimpleDisplay extends JFrame implements IDisplay {
         });
 
         JMenu recentRom = new JMenu("Recent Roms");
+
+        JMenuItem resetList = new JMenuItem("Reset List");
+        resetList.addActionListener(e -> {
+            GameBoySettings.getInstance().resetRecentRoms();
+            recentRom.removeAll();
+        });
+        recentRom.add(resetList);
+
         try {
             String[][] recentRoms = GameBoySettings.getInstance().getRecentRoms();
             for (String[] recent : recentRoms) {

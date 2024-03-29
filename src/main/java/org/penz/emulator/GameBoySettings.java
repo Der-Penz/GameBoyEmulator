@@ -125,6 +125,11 @@ public class GameBoySettings {
 
     }
 
+    public void resetRecentRoms() {
+        properties.setProperty("recent_roms_path", "");
+        properties.setProperty("recent_roms_name", "");
+    }
+
     private void storeIntProperty(String key, int value) {
         properties.setProperty(key, String.valueOf(value));
     }
@@ -132,4 +137,5 @@ public class GameBoySettings {
     private int getIntProperty(String key, int defaultValue) {
         return Integer.parseInt(properties.getProperty(key, String.valueOf(defaultValue)));
     }
+
 }
