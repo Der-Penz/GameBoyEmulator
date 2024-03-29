@@ -4,6 +4,8 @@
 This is a GameBoy emulator written in Java. It is my first attempt at writing an emulator. It was meant to be a development exercise to see what I was capable of. It took me over 6 Months to create this emulator.
 I learned about emulation and Java by building this.
 
+![image](https://github.com/Der-Penz/GameBoyEmulator/blob/master/img/img1.png)
+
 ## Features
 
 | Feature                                | Support |
@@ -42,6 +44,10 @@ However, some games may not work perfectly due to emulation limitations. There i
 - This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Screenshots
+
+![image 1](https://github.com/Der-Penz/GameBoyEmulator/blob/master/img/img1.png)
+![image 2](https://github.com/Der-Penz/GameBoyEmulator/blob/master/img/img2.png)
+![image 3](https://github.com/Der-Penz/GameBoyEmulator/blob/master/img/img3.png)
 
 ## Credits
 - Special thanks to the EmuDev Reddit and their Discord
